@@ -1,12 +1,5 @@
-struct node
-{
-    char data[200];
-    struct node *next;
-    struct node *prev;
-};
 
-node *head = (node*)malloc(sizeof(node));
-int line_count = 0;
+//int line_count = 0;
 
 // Create line and return pointer to it
 node *CreateLine(void)
@@ -19,39 +12,50 @@ node *CreateLine(void)
 };
 
 // Insert line at position. Return NULL on error or node pointer on success
-node *InsertLineAt(int pos)
+node *InsertLineAt(buffer *buf, int pos)
 {
-    if(pos < 0 || pos > line_count)
+    node *head_current;
+    
+    if(buf == &bufferL)
+    {
+        head_current = headL;
+    }
+    else
+    {
+        head_current = headR;
+    }
+    
+    if(pos < 0 || pos > buf->line_count)
     {
         node *p = NULL;
         return p;
     }
     else if(pos == 0) // First node
     {
-        node *right = head->next;
+        node *right = head_current->next;
         node *newline = CreateLine();
         
         if(right == NULL) // No nodes yet
         {
-            head->next = newline;
-            newline->prev = head;
+            head_current->next = newline;
+            newline->prev = head_current;
         }
         else // Nodes exist but we want the new node at pos = 0
         {
-            node *right_of_head = head->next;
-            head->next = newline;
-            newline->prev = head;
+            node *right_of_head = head_current->next;
+            head_current->next = newline;
+            newline->prev = head_current;
             newline->next = right_of_head;
         }
         
-        line_count++;
+        buf->line_count++;
         return newline;
     }
-    else if(pos == line_count && line_count >= 1) // add as last node
+    else if(pos == buf->line_count && buf->line_count >= 1) // add as last node
     {
         int count = 0;
         node *newline = CreateLine();
-        node *ptr = head;
+        node *ptr = head_current;
         
         while(count < pos)
         {
@@ -63,14 +67,14 @@ node *InsertLineAt(int pos)
         newline->prev = ptr;
         ptr->next = newline;
         newline->next = NULL;
-        line_count++;
+        buf->line_count++;
         return newline;
     }
     else // Add in-between(NOTE: if pos = n, pushes existing n and all other nodes rightwards)
     {
         int count = 0;
         node *newline = CreateLine();
-        node *ptr = head;
+        node *ptr = head_current;
         
         while(count <= pos)
         {
@@ -86,30 +90,42 @@ node *InsertLineAt(int pos)
         newline->prev = left;
         newline->next = right;
         
-        line_count++;
+        buf->line_count++;
         
         return newline;
     }
 }
 
-void DeleteLineAt(int pos)
+void DeleteLineAt(buffer *buf, int pos)
 {
-    if(pos < 0 || pos > line_count - 1)
+    node *head_current;
+    
+    if(buf == &bufferL)
+    {
+        head_current = headL;
+    }
+    else
+    {
+        head_current = headR;
+    }
+    
+    if(pos < 0 || pos > buf->line_count - 1)
     {
         return;
     }
     else if(pos == 0) // Delete first node
     {
-        node *line = head->next;
-        head->next = head->next->next;
-        head->next->next->prev = head;
+        node *line = head_current->next;
+        head_current->next = head_current->next->next;
+        head_current->next->next->prev = head_current;
         free(line);
+        buf->line_count--;
         
         return;
     }
-    else if(pos == line_count - 1) // Delete last node
+    else if(pos == buf->line_count - 1) // Delete last node
     {
-        node *line = head;
+        node *line = head_current;
         int count = 0;
         
         while(count <= pos)
@@ -119,12 +135,13 @@ void DeleteLineAt(int pos)
         }
         line->prev->next = NULL;
         free(line);
+        buf->line_count--;
         
         return;
     }
     else // Delete node in-between
     {
-        node *line = head;
+        node *line = head_current;
         int count = 0;
         
         while(count <= pos)
@@ -139,6 +156,7 @@ void DeleteLineAt(int pos)
         left->next = right;
         right->prev = left;
         free(line);
+        buf->line_count--;
         
         return;
     }
