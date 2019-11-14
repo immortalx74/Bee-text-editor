@@ -1,11 +1,9 @@
 int margin = 4;
 
-enum
+enum panel_pos
 {
     LEFT,
-    RIGHT,
-    UP,
-    DOWN
+    RIGHT
 };
 
 struct node
@@ -15,22 +13,35 @@ struct node
     struct node *prev;
 };
 
-struct panel
-{
-    int x;
-    int y;
-    int w;
-    int h;
-    int colR;
-    int colG;
-    int colB;
-    int colA;
-};
 
 struct buffer
 {
+    node *head;
     int line_count;
-    int current_panel;
+    
+    struct _cursor
+    {
+        int column = 0;
+        int line = 0;
+        SDL_Color color = {0, 255, 0, 255};
+    }cursor;
+    
+    struct _marker
+    {
+        int column = 0;
+        int line = 0;
+        SDL_Color color = {255, 0, 0, 255};
+    }marker;
+    
+    struct _panel
+    {
+        panel_pos position;
+        int x;
+        int y;
+        int w;
+        int h;
+        SDL_Color color;
+    }panel;
 };
 
 struct font_data
@@ -40,54 +51,34 @@ struct font_data
     int height;
 };
 
-struct cursor
-{
-    int col = 0;
-    int line = 0;
-    int colR;
-    int colG;
-    int colB;
-    int colA;
-};
+SDL_Color cur_col = {0, 255, 0, 255};
+SDL_Color mar_col = {255, 0, 0, 255};
+SDL_Color pan_col = {100, 100, 100, 255};
 
 font_data font;
 
-panel panelL = {0, 0, 0, 0, 100, 100, 100, 255};
-panel panelR = {0, 0, 0, 0, 100, 100, 100, 255};
+node *headA = (node*)malloc(sizeof(node));
+node *headB = (node*)malloc(sizeof(node));
 
-node *headL = (node*)malloc(sizeof(node));
-node *headR = (node*)malloc(sizeof(node));
-
-buffer bufferL = {0, LEFT};
-buffer bufferR = {0, RIGHT};
-
-cursor cursorL = {0, 0, 0, 255, 0, 255};
-cursor cursorR = {0, 0, 0, 255, 0, 255};
-cursor markerL = {0, 0, 255, 0, 0, 255};
-cursor markerR = {0, 0, 255, 0, 0, 255};
+buffer bufferA;
+buffer bufferB;
 
 
-void CursorDraw(SDL_Renderer *renderer, cursor *cur, panel *pan)
+
+
+void CursorDraw(SDL_Renderer *renderer, buffer &buf)
 {
-    int xx = (cur->col * font.width) + margin + pan->x;
-    int yy = (cur->line * font.height) + margin;
+    int xx = (buf.cursor.column * font.width) + margin + buf.panel.x;
+    int yy = (buf.cursor.line * font.height) + margin;
     
     SDL_Rect box = {xx, yy, font.width, font.height};
-    SDL_SetRenderDrawColor(renderer, cur->colR, cur->colG, cur->colB, cur->colA);
-    
-    if(cur == &cursorL || cur == &cursorR)
-    {
-        SDL_RenderFillRect(renderer, &box);
-    }
-    else
-    {
-        SDL_RenderDrawRect(renderer, &box);
-    }
+    SDL_SetRenderDrawColor(renderer, buf.cursor.color.r, buf.cursor.color.g, buf.cursor.color.b, buf.cursor.color.a);
+    SDL_RenderFillRect(renderer, &box);
 };
 
-void PanelDraw(SDL_Renderer *renderer, panel *pan)
+void PanelDraw(SDL_Renderer *renderer, buffer &buf)
 {
-    SDL_Rect box = {pan->x, pan->y, pan->w, pan->h};
-    SDL_SetRenderDrawColor(renderer, pan->colR, pan->colG, pan->colB, pan->colA);
+    SDL_Rect box = {buf.panel.x, buf.panel.y, buf.panel.w, buf.panel.h};
+    SDL_SetRenderDrawColor(renderer, buf.panel.color.r, buf.panel.color.g, buf.panel.color.b, buf.panel.color.a);
     SDL_RenderDrawRect(renderer, &box);
 }

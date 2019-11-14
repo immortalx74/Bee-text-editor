@@ -17,9 +17,6 @@ int main(int argc, char *argv[])
         return -1;
     }
     
-    // Init dummy head
-    headL->prev = NULL;
-    headL->next = NULL;
     
     bool quit = false;
     SDL_Event e;
@@ -30,6 +27,15 @@ int main(int argc, char *argv[])
     font.name = FC_CreateFont();
     FC_LoadFont(font.name, renderer, "liberation-mono.ttf", 16, FC_MakeColor(0,255,0,255), TTF_STYLE_NORMAL);
     
+    
+    
+    // Init dummy head
+    headA->prev = NULL;
+    headB->next = NULL;
+    
+    bufferA.head = headA;
+    bufferB.head = headB;
+    
     font.height = FC_GetHeight(font.name, "A");
     font.width = FC_GetWidth(font.name, "A");
     
@@ -37,15 +43,15 @@ int main(int argc, char *argv[])
     int wh;
     
     SDL_GetWindowSize(window, &ww, &wh);
-    panelL.x = 1;
-    panelL.y = 1;
-    panelL.w = (ww / 2) - 1;
-    panelL.h = wh - 1;
+    bufferA.panel.x = 1;
+    bufferA.panel.y = 1;
+    bufferA.panel.w = (ww / 2) - 1;
+    bufferA.panel.h = wh - 1;
     
-    panelR.x = (ww / 2) + 1;
-    panelR.y = 1;
-    panelR.w = (ww / 2) - 1;
-    panelR.h = wh - 1;
+    bufferB.panel.x = (ww / 2) + 1;
+    bufferB.panel.y = 1;
+    bufferB.panel.w = (ww / 2) - 1;
+    bufferB.panel.h = wh - 1;
     
     
     //char *test1 = "Hello";
@@ -73,7 +79,9 @@ int main(int argc, char *argv[])
     //test = test->next;
     //}
     
-    node *a = InsertLineAt(&bufferL, 0);
+    
+    
+    node *a = InsertLineAt(&bufferA, 0);
     
     while(!quit)
     {
@@ -87,7 +95,7 @@ int main(int argc, char *argv[])
             if(e.type == SDL_TEXTINPUT)
             {
                 strcat(a->data, e.text.text);
-                cursorL.col++;
+                bufferA.cursor.column++;
             }
             
             if (e.type == SDL_KEYDOWN)
@@ -98,15 +106,15 @@ int main(int argc, char *argv[])
                 }
                 if(e.key.keysym.sym == SDLK_BACKSPACE)
                 {
-                    cursorL.col--;
-                    U8_strdel(a->data, cursorL.col);
+                    bufferA.cursor.column--;
+                    U8_strdel(a->data, bufferA.cursor.column);
                 }
                 if(e.key.keysym.sym == SDLK_RETURN)
                 {
-                    cursorL.col = 0;
-                    cursorL.line++;
+                    bufferA.cursor.column = 0;
+                    bufferA.cursor.line++;
                     //U8_strinsert(a->data, cursorL.col, "\n", 1024);
-                    a = InsertLineAt(&bufferL, bufferL.line_count);
+                    a = InsertLineAt(&bufferA, bufferA.line_count);
                 }
                 if (e.key.keysym.sym == SDLK_a)
                 {
@@ -122,16 +130,16 @@ int main(int argc, char *argv[])
         
         SDL_RenderClear(renderer);
         
-        PanelDraw(renderer, &panelL);
-        PanelDraw(renderer, &panelR);
+        PanelDraw(renderer, bufferA);
+        PanelDraw(renderer, bufferB);
         
-        CursorDraw(renderer, &cursorL, &panelL);
-        CursorDraw(renderer, &markerR, &panelR);
+        CursorDraw(renderer, bufferA);
+        CursorDraw(renderer, bufferB);
         
         SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);// background
         
-        node *cc= headL;
-        for (int i = 0; i <= cursorL.line; ++i)
+        node *cc= headA;
+        for (int i = 0; i <= bufferA.cursor.line; ++i)
         {
             cc = cc->next;
             FC_Draw(font.name, renderer, 4, i * font.height, cc->data);

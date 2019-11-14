@@ -14,16 +14,9 @@ node *CreateLine(void)
 // Insert line at position. Return NULL on error or node pointer on success
 node *InsertLineAt(buffer *buf, int pos)
 {
-    node *head_current;
+    node *head_current = buf->head;
     
-    if(buf == &bufferL)
-    {
-        head_current = headL;
-    }
-    else
-    {
-        head_current = headR;
-    }
+    
     
     if(pos < 0 || pos > buf->line_count)
     {
@@ -98,16 +91,9 @@ node *InsertLineAt(buffer *buf, int pos)
 
 void DeleteLineAt(buffer *buf, int pos)
 {
-    node *head_current;
+    node *head_current = buf->head;
     
-    if(buf == &bufferL)
-    {
-        head_current = headL;
-    }
-    else
-    {
-        head_current = headR;
-    }
+    
     
     if(pos < 0 || pos > buf->line_count - 1)
     {
