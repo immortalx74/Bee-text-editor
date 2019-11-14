@@ -1,6 +1,6 @@
 @echo off
 
-set path=C:\dev\ed;%path%
+set path=E:\dev\ed;%path%
 
 set SOURCES=main.cpp
 
