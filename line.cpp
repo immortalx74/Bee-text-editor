@@ -16,8 +16,6 @@ node *InsertLineAt(buffer *buf, int pos)
 {
     node *head_current = buf->head;
     
-    
-    
     if(pos < 0 || pos > buf->line_count)
     {
         node *p = NULL;
