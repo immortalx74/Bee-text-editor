@@ -19,27 +19,31 @@ int main(int argc, char *argv[])
         return -1;
     }
     
-    
+    TTF_Init();
     bool quit = false;
     SDL_Event e;
     SDL_Window *window =  SDL_CreateWindow("Ed", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
                                            1024, 768, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);;
     
-    font.name = FC_CreateFont();
-    FC_LoadFont(font.name, renderer, "liberation-mono.ttf", 16, FC_MakeColor(143, 175, 127, 255), TTF_STYLE_NORMAL);
-    
+    //font.name = FC_CreateFont();
+    //FC_LoadFont(font.name, renderer, "liberation-mono.ttf", 16, FC_MakeColor(143, 175, 127, 255), TTF_STYLE_NORMAL);
+    font.name = TTF_OpenFont("liberation-mono.ttf", 16);
     
     
     // Init dummy heads
     headA->prev = NULL;
+    headA->next = NULL;
+    headB->prev = NULL;
     headB->next = NULL;
     
     bufferA.head = headA;
     bufferB.head = headB;
     
-    font.height = FC_GetHeight(font.name, "A");
-    font.width = FC_GetWidth(font.name, "A");
+    //font.height = FC_GetHeight(font.name, "A");
+    //font.width = FC_GetWidth(font.name, "A");
+    font.height = TTF_FontHeight(font.name);
+    TTF_SizeText(font.name, "A", &font.width, 0);
     
     int ww;
     int wh;
@@ -54,7 +58,6 @@ int main(int argc, char *argv[])
     bufferB.panel.y = 1;
     bufferB.panel.w = (ww / 2) - 1;
     bufferB.panel.h = wh - 1;
-    
     
     //char *test1 = "Hello";
     //char *test2 = "World";
@@ -81,9 +84,17 @@ int main(int argc, char *argv[])
     //test = test->next;
     //}
     
-    
+    //ioeroereoiru
     
     node *a = InsertLineAt(&bufferA, 0);
+    
+    //TEST
+    SDL_Color textColor = {143, 175, 127, 255};
+    SDL_Color bgc = {21, 12, 42, 255};
+    SDL_Surface *message = TTF_RenderText_Shaded(font.name, "SDL_Surface", textColor, bgc);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, message);
+    SDL_Rect rect = {4,24,font.width,font.height};
+    
     
     while(!quit)
     {
@@ -96,9 +107,21 @@ int main(int argc, char *argv[])
             
             if(e.type == SDL_TEXTINPUT)
             {
-                //strcat(a->data, e.text.text);
-                U8_strinsert(a->data, bufferA.cursor.column, e.text.text, 1024);
-                bufferA.cursor.column++;
+                for(int i=0; i<SDL_TEXTINPUTEVENT_TEXT_SIZE; ++i)
+                {
+                    char c = e.text.text[i];
+                    // cancel if a non-ascii char is encountered
+                    if(c < ' ' || c > '~')
+                    {
+                        break;
+                    }
+                    
+                    //strcat(a->data, e.text.text);
+                    //U8_strinsert(a->data, bufferA.cursor.column, e.text.text, 1024);
+                    memset(a->data+bufferA.cursor.column, e.text.text[0], 1);
+                    //print(a->data+bufferA.cursor.column);
+                    bufferA.cursor.column++;
+                }	
             }
             
             if(e.type == SDL_WINDOWEVENT)
@@ -200,6 +223,7 @@ int main(int argc, char *argv[])
             }
         }
         
+        
         SDL_RenderClear(renderer);
         
         PanelDraw(renderer, bufferA);
@@ -210,20 +234,38 @@ int main(int argc, char *argv[])
         
         SDL_SetRenderDrawColor(renderer, 21, 12, 42, 255);// background
         
+        SDL_Rect t = {4*font.width,0,font.width,font.height};
+        SDL_RenderCopy(renderer, texture, &t, &rect);
+        
+        char ch[1];
         node *cc= headA;
         for (int i = 0; i < bufferA.line_count; ++i)
         {
             cc = cc->next;
-            FC_Draw(font.name, renderer, 4, (i * font.height) + margin, cc->data);
+            
+            
+            for (int j = 0; j < strlen(cc->data); ++j)
+            {
+                //char *ch = &cc->data[j];
+                //std::string ch = &cc->data[j];
+                //ch = ch.at(0);
+                //strncpy(ch, cc->data, 1);
+                
+                //FC_Draw(font.name, renderer, (j * font.width) + margin, (i * font.height) + margin, ch);
+            }
+            
+            //FC_Draw(font.name, renderer, 4, (i * font.height) + margin, cc->data);
         }
         
-        FC_Draw(font.name, renderer, 600, 100, std::to_string(bufferA.cursor.line+1).c_str());
-        FC_Draw(font.name, renderer, 600, 140, std::to_string(bufferA.cursor.column+1).c_str());
+        //FC_Draw(font.name, renderer, 600, 100, std::to_string(bufferA.cursor.line+1).c_str());
+        //FC_Draw(font.name, renderer, 600, 140, std::to_string(bufferA.cursor.column+1).c_str());
         
         SDL_RenderPresent(renderer);
     }
     
-    FC_FreeFont(font.name);
+    //FC_FreeFont(font.name);
+    SDL_FreeSurface(message);
+    SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

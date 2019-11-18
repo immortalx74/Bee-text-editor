@@ -46,7 +46,8 @@ struct buffer
 
 struct font_data
 {
-    FC_Font *name;
+    //FC_Font *name;
+    TTF_Font *name;
     int width;
     int height;
 };

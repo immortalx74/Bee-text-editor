@@ -1,6 +1,3 @@
-
-//int line_count = 0;
-
 // Create line and return pointer to it
 node *CreateLine(void)
 {

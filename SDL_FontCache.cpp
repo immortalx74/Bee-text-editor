@@ -1749,6 +1749,18 @@ FC_Rect FC_Draw(FC_Font* font, FC_Target* dest, float x, float y, const char* fo
     return FC_RenderLeft(font, dest, x, y, FC_MakeScale(1,1), fc_buffer);
 }
 
+FC_Rect FC_DrawChar(FC_Font* font, FC_Target* dest, float x, float y, const char formatted_text, ...)
+{
+    if(formatted_text == NULL || font == NULL)
+        return FC_MakeRect(x, y, 0, 0);
+    
+    //FC_EXTRACT_VARARGS(fc_buffer, formatted_text);
+    
+    set_color_for_all_caches(font, font->default_color);
+    const char* test = &fc_buffer[0];
+    return FC_RenderLeft(font, dest, x, y, FC_MakeScale(1,1), test);
+}
+
 
 
 typedef struct FC_StringList
