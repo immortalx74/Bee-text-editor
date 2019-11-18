@@ -18,6 +18,12 @@ int main(int argc, char *argv[])
         return -1;
     }
     
+    char all_ascii[95];
+    for (int i = 0; i <= 95; ++i)
+    {
+        all_ascii[i] = 32 + i;
+    }
+    
     TTF_Init();
     bool quit = false;
     SDL_Event e;
@@ -35,7 +41,8 @@ int main(int argc, char *argv[])
     headB->next = NULL;
     
     bufferA.head = headA;
-    bufferB.head = headB;
+    //bufferB.head = headB;
+    
     
     font.height = TTF_FontHeight(font.name);
     TTF_SizeText(font.name, "A", &font.width, 0);
@@ -55,16 +62,16 @@ int main(int argc, char *argv[])
     bufferB.panel.h = wh - 1;
     
     node *a = InsertLineAt(&bufferA, 0);
+    memset(a->data, 0, 128);
+    print (a->data);
     
     //TEST
     SDL_Color textColor = {143, 175, 127, 255};
     SDL_Color bgc = {21, 12, 42, 255};
-    SDL_Surface *message = TTF_RenderGlyph_Blended(font.name, 97, textColor);
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, message);
-    SDL_Rect rect = {4,4,font.width,font.height};
-    
-    //SDL_Surface screen = SDL_GetWindowsSurface(window);
-    
+    SDL_Surface *characters_surface = TTF_RenderText_Blended(font.name, all_ascii, textColor);
+    SDL_Texture *characters_texture = SDL_CreateTextureFromSurface(renderer, characters_surface);
+    SDL_Surface *screen_surf = SDL_GetWindowSurface(window);
+    SDL_Texture *screen_texture = SDL_CreateTextureFromSurface(renderer, screen_surf);
     
     while(!quit)
     {
@@ -77,23 +84,24 @@ int main(int argc, char *argv[])
             
             if(e.type == SDL_TEXTINPUT)
             {
-                for(int i=0; i<SDL_TEXTINPUTEVENT_TEXT_SIZE; ++i)
-                {
-                    char c = e.text.text[i];
-                    // cancel if a non-ascii char is encountered
-                    if(c < ' ' || c > '~')
-                    {
-                        break;
-                    }
-                    
-                    //strcat(a->data, e.text.text);
-                    U8_strinsert(a->data, bufferA.cursor.column, e.text.text, 1024);
-                    memset(a->data+bufferA.cursor.column, e.text.text[0], 1);
-                    char v;
-                    strcpy(&v, &a->data[0]+bufferA.cursor.column);
-                    print((int)v);
-                    bufferA.cursor.column++;
-                }	
+                //for(int i=0; i<SDL_TEXTINPUTEVENT_TEXT_SIZE; ++i)
+                //{
+                //char c = e.text.text[i];
+                //cancel if a non-ascii char is encountered
+                //if(c < ' ' || c > '~')
+                //{
+                //break;
+                //}
+                //
+                //
+                //}	
+                //strcat(a->data, e.text.text);
+                U8_strinsert(a->data, bufferA.cursor.column, e.text.text, 1024);
+                memset(a->data+bufferA.cursor.column, e.text.text[0], 1);
+                //char v;
+                //strcpy(&v, &a->data[0]+bufferA.cursor.column);
+                //print((int)v);
+                bufferA.cursor.column++;
             }
             
             if(e.type == SDL_WINDOWEVENT)
@@ -177,6 +185,7 @@ int main(int argc, char *argv[])
                     bufferA.cursor.column = 0;
                     bufferA.cursor.line++;
                     a = InsertLineAt(&bufferA, bufferA.line_count);
+                    memset(a, 0, 128);
                 }
                 
                 if(e.key.keysym.sym == SDLK_TAB)
@@ -197,8 +206,8 @@ int main(int argc, char *argv[])
         
         SDL_SetRenderDrawColor(renderer, 21, 12, 42, 255);// background
         
-        SDL_Rect t = {0,0,font.width,font.height};
-        SDL_RenderCopy(renderer, texture, &t, &rect);
+        //SDL_Rect t = {0,0,font.width,font.height};
+        //SDL_RenderCopy(renderer, texture, &t, &rect);
         
         char ch[1];
         node *cc= headA;
@@ -213,14 +222,22 @@ int main(int argc, char *argv[])
                 //std::string ch = &cc->data[j];
                 //ch = ch.at(0);
                 //strncpy(ch, cc->data, 1);
+                //print(cc->data[j]);
+                int cur_char_code = (int)cc->data[j];
+                //print(cur_char_code);
+                SDL_Rect glyph_rect = {(cur_char_code - 32)*font.width,0,font.width,font.height};
+                SDL_Rect t = {4+(j*font.width),4+(i*font.height),font.width,font.height};
+                SDL_RenderCopy(renderer, characters_texture, &glyph_rect, &t);
             }
         }
         
         SDL_RenderPresent(renderer);
     }
     
-    SDL_FreeSurface(message);
-    SDL_DestroyTexture(texture);
+    SDL_FreeSurface(characters_surface);
+    SDL_FreeSurface(screen_surf);
+    SDL_DestroyTexture(characters_texture);
+    SDL_DestroyTexture(screen_texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
