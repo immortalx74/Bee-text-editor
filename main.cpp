@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     SDL_Event e;
     SDL_Window *window =  SDL_CreateWindow("Ed", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
                                            1024, 768, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);;
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);;
     
     font.name = TTF_OpenFont("liberation-mono.ttf", 16);
     
@@ -66,12 +66,23 @@ int main(int argc, char *argv[])
     print (a->data);
     
     //TEST
+    //SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_MOD);
+    
     SDL_Color textColor = {143, 175, 127, 255};
     SDL_Color bgc = {21, 12, 42, 255};
     SDL_Surface *characters_surface = TTF_RenderText_Blended(font.name, all_ascii, textColor);
     SDL_Texture *characters_texture = SDL_CreateTextureFromSurface(renderer, characters_surface);
-    SDL_Surface *screen_surf = SDL_GetWindowSurface(window);
-    SDL_Texture *screen_texture = SDL_CreateTextureFromSurface(renderer, screen_surf);
+    SDL_Surface *screen_surface = SDL_GetWindowSurface(window);
+    SDL_Texture *screen_texture = SDL_CreateTextureFromSurface(renderer, screen_surface);
+    
+    //NOTE:set position and size to that of panel
+    //NOTE:also update im texture when editing text
+    SDL_Surface *im_surface = SDL_CreateRGBSurfaceWithFormat(0, ww/2, wh, 32, SDL_PIXELFORMAT_RGBA32);
+    SDL_Texture *im_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, ww/2, wh);
+    
+    SDL_SetTextureBlendMode(characters_texture, SDL_BLENDMODE_NONE);
+    SDL_SetTextureBlendMode(im_texture, SDL_BLENDMODE_BLEND);
+    
     
     while(!quit)
     {
@@ -98,6 +109,15 @@ int main(int argc, char *argv[])
                 //strcat(a->data, e.text.text);
                 U8_strinsert(a->data, bufferA.cursor.column, e.text.text, 1024);
                 memset(a->data+bufferA.cursor.column, e.text.text[0], 1);
+                
+                
+                SDL_SetRenderTarget(renderer, im_texture);
+                int cur_char_code = (int)e.text.text[0];
+                SDL_Rect glyph_rect = {(cur_char_code - 32)*font.width,0,font.width,font.height};
+                SDL_Rect pos = {4+(bufferA.cursor.column*font.width),4+(bufferA.cursor.line*font.height),font.width,font.height};
+                SDL_RenderCopy(renderer, characters_texture, &glyph_rect, &pos);
+                SDL_SetRenderTarget(renderer, NULL);
+                
                 //char v;
                 //strcpy(&v, &a->data[0]+bufferA.cursor.column);
                 //print((int)v);
@@ -133,6 +153,31 @@ int main(int argc, char *argv[])
                     {
                         bufferA.cursor.column--;
                         U8_strdel(a->data, bufferA.cursor.column);
+                        
+                        SDL_SetRenderTarget(renderer, im_texture);
+                        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+                        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+                        SDL_RenderFillRect(renderer, NULL);
+                        
+                        node *current = headA->next;
+                        SDL_RenderClear(renderer);
+                        for (int i = 0; i < bufferA.line_count; ++i)
+                        {
+                            for (int j = 0; j < 128; ++j)
+                            {
+                                if(current->data[j] != 0)
+                                {
+                                    int cur_char_code = (int)current->data[j];
+                                    print(cur_char_code);
+                                    SDL_Rect glyph_rect = {(cur_char_code - 32)*font.width,0,font.width,font.height};
+                                    SDL_Rect pos = {4+(j*font.width),4+(i*font.height),font.width,font.height};
+                                    SDL_RenderCopy(renderer, characters_texture, &glyph_rect, &pos);
+                                }
+                            }
+                            current = current->next;
+                        }
+                        
+                        SDL_SetRenderTarget(renderer, NULL);
                     }
                     else
                     {
@@ -209,35 +254,34 @@ int main(int argc, char *argv[])
         //SDL_Rect t = {0,0,font.width,font.height};
         //SDL_RenderCopy(renderer, texture, &t, &rect);
         
-        char ch[1];
+        //char ch[1];
         node *cc= headA;
-        for (int i = 0; i < bufferA.line_count; ++i)
-        {
-            cc = cc->next;
-            
-            
-            for (int j = 0; j < strlen(cc->data); ++j)
-            {
-                //char *ch = &cc->data[j];
-                //std::string ch = &cc->data[j];
-                //ch = ch.at(0);
-                //strncpy(ch, cc->data, 1);
-                //print(cc->data[j]);
-                int cur_char_code = (int)cc->data[j];
-                //print(cur_char_code);
-                SDL_Rect glyph_rect = {(cur_char_code - 32)*font.width,0,font.width,font.height};
-                SDL_Rect t = {4+(j*font.width),4+(i*font.height),font.width,font.height};
-                SDL_RenderCopy(renderer, characters_texture, &glyph_rect, &t);
-            }
-        }
+        //for (int i = 0; i < bufferA.line_count; ++i)
+        //{
+        //cc = cc->next;
+        //
+        //for (int j = 0; j < strlen(cc->data); ++j)
+        //{
+        //int cur_char_code = (int)cc->data[j];
+        //SDL_Rect glyph_rect = {(cur_char_code - 32)*font.width,0,font.width,font.height};
+        //SDL_Rect screen_pos = {4+(j*font.width),4+(i*font.height),font.width,font.height};
+        //SDL_RenderCopy(renderer, characters_texture, &glyph_rect, &screen_pos);
+        //}
+        //}
+        
+        
+        SDL_Rect pan = {bufferA.panel.x,bufferA.panel.y,bufferA.panel.w,bufferA.panel.h};
+        SDL_RenderCopy(renderer, im_texture, NULL, &pan);
         
         SDL_RenderPresent(renderer);
     }
     
     SDL_FreeSurface(characters_surface);
-    SDL_FreeSurface(screen_surf);
+    SDL_FreeSurface(screen_surface);
+    SDL_FreeSurface(im_surface);
     SDL_DestroyTexture(characters_texture);
     SDL_DestroyTexture(screen_texture);
+    SDL_DestroyTexture(im_texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
