@@ -46,7 +46,6 @@ struct buffer
 
 struct font_data
 {
-    //FC_Font *name;
     TTF_Font *name;
     int width;
     int height;
@@ -103,3 +102,6 @@ struct app_info
 };
 
 app_info app;
+SDL_Texture *characters_texture;
+SDL_Texture *screen_texture;
+SDL_Texture *im_texture;

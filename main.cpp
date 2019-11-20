@@ -8,8 +8,9 @@
 #include <string>
 #include "globals.cpp"
 #include "line.cpp"
-#include "character.cpp"
 #include "draw.cpp"
+#include "character.cpp"
+//#include "draw.cpp"
 
 int main(int argc, char *argv[])
 {
@@ -29,13 +30,13 @@ int main(int argc, char *argv[])
     SDL_Color textColor = {143, 175, 127, 255};
     SDL_Color bgc = {21, 12, 42, 255};
     SDL_Surface *characters_surface = TTF_RenderText_Blended(font.name, app.ascii_sequence, textColor);
-    SDL_Texture *characters_texture = SDL_CreateTextureFromSurface(app.renderer, characters_surface);
+    characters_texture = SDL_CreateTextureFromSurface(app.renderer, characters_surface);
     SDL_Surface *screen_surface = SDL_GetWindowSurface(app.window);
-    SDL_Texture *screen_texture = SDL_CreateTextureFromSurface(app.renderer, screen_surface);
+    screen_texture = SDL_CreateTextureFromSurface(app.renderer, screen_surface);
     
     //NOTE:set position and size to that of panel
     //NOTE:also update im texture when editing text
-    SDL_Texture *im_texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
+    im_texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
     
     SDL_SetTextureBlendMode(characters_texture, SDL_BLENDMODE_NONE);
     SDL_SetTextureBlendMode(im_texture, SDL_BLENDMODE_BLEND);
@@ -53,8 +54,7 @@ int main(int argc, char *argv[])
             if(app.e.type == SDL_TEXTINPUT)
             {
                 InsertCharacterAt(&bufferA, a, bufferA.cursor.column);
-                RenderCharacterAt(bufferA.cursor.line, bufferA.cursor.column, strlen(a->data), characters_texture, im_texture);
-                bufferA.cursor.column++;
+                RenderCharacterAt(a, bufferA.cursor.line, bufferA.cursor.column - 1, strlen(a->data), characters_texture, im_texture);
             }
             
             if(app.e.type == SDL_WINDOWEVENT)
@@ -72,48 +72,10 @@ int main(int argc, char *argv[])
                     app.quit = true;
                 }
                 
-                //NOTE:if there are trailing characters AFTER the deleted character,
-                // and if cursor column is about to jump to previous row,
-                // move all trailing characters to the previous line!
                 if(app.e.key.keysym.sym == SDLK_BACKSPACE)
                 {
-                    if(bufferA.cursor.column > 0)
-                    {
-                        bufferA.cursor.column--;
-                        U8_strdel(a->data, bufferA.cursor.column);
-                        
-                        SDL_SetRenderTarget(app.renderer, im_texture);
-                        SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 0);
-                        node *current = headA->next;
-                        
-                        //NOTE:hardcoded this rect's width for now
-                        SDL_Rect char_rect = {4+bufferA.cursor.column*font.width, 4+bufferA.cursor.line*font.height, 150,font.height};
-                        SDL_RenderFillRect(app.renderer, &char_rect);
-                        
-                        for (int j = 0; j < 128; ++j)
-                        {
-                            
-                            
-                            int cur_char_code = (int)a->data[j];
-                            SDL_Rect glyph_rect = {(cur_char_code - 32)*font.width,0,font.width,font.height};
-                            SDL_Rect pos = {4+(j*font.width),4+(bufferA.cursor.line*font.height),font.width,font.height};
-                            
-                            SDL_RenderCopy(app.renderer, characters_texture, &glyph_rect, &pos);
-                            
-                        }
-                        
-                        SDL_SetRenderTarget(app.renderer, NULL);
-                    }
-                    else
-                    {
-                        if(a->prev != headA)
-                        {
-                            DeleteLineAt(&bufferA, bufferA.cursor.line);
-                            a = a->prev;
-                            bufferA.cursor.line--;
-                            bufferA.cursor.column = strlen(a->data);
-                        }
-                    }
+                    a = DeleteCharacterAt(&bufferA, a, bufferA.cursor.column);
+                    RenderClearCharacterAt(a, bufferA.cursor.line, bufferA.cursor.column, strlen(a->data),characters_texture, im_texture);
                 }
                 if(app.e.key.keysym.sym == SDLK_LEFT)
                 {
