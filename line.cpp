@@ -18,7 +18,7 @@ node *InsertLineAt(buffer *buf, int pos)
         node *p = NULL;
         return p;
     }
-    else if(pos == 0) // First node
+    else if(pos == 0) // node at start of list
     {
         node *right = head_current->next;
         node *newline = CreateLine();
@@ -35,6 +35,8 @@ node *InsertLineAt(buffer *buf, int pos)
             newline->prev = head_current;
             newline->next = right_of_head;
         }
+        
+        memset(newline->data, 0, 128);
         
         buf->line_count++;
         return newline;
@@ -56,6 +58,8 @@ node *InsertLineAt(buffer *buf, int pos)
         ptr->next = newline;
         newline->next = NULL;
         buf->line_count++;
+        
+        memset(newline->data, 0, 128);
         return newline;
     }
     else // Add in-between(NOTE: if pos = n, pushes existing n and all other nodes rightwards)
@@ -80,6 +84,7 @@ node *InsertLineAt(buffer *buf, int pos)
         
         buf->line_count++;
         
+        memset(newline->data, 0, 128);
         return newline;
     }
 }
@@ -87,7 +92,6 @@ node *InsertLineAt(buffer *buf, int pos)
 void DeleteLineAt(buffer *buf, int pos)
 {
     node *head_current = buf->head;
-    
     
     
     if(pos < 0 || pos > buf->line_count - 1)

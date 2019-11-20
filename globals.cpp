@@ -60,3 +60,46 @@ node *headB = (node*)malloc(sizeof(node));
 
 buffer bufferA;
 buffer bufferB;
+
+
+struct app_info
+{
+    int ww;
+    int wh;
+    
+    bool quit = false;
+    SDL_Event e;
+    char ascii_sequence[96];
+    SDL_Window *window;
+    SDL_Renderer *renderer;
+    
+    
+    void Init()
+    {
+        SDL_Init(SDL_INIT_VIDEO);
+        TTF_Init();
+        
+        window = SDL_CreateWindow("Ed", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
+                                  1024, 768, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        
+        SDL_GetWindowSize(window, &ww, &wh);
+        
+        for (int i = 0; i <= 95; ++i)
+        {
+            ascii_sequence[i] = 32 + i;
+        }
+        ascii_sequence[95] = '\0';
+        
+        // Init dummy heads
+        headA->prev = NULL;
+        headA->next = NULL;
+        headB->prev = NULL;
+        headB->next = NULL;
+        
+        bufferA.head = headA;
+        //bufferB.head = headB;
+    };
+};
+
+app_info app;
