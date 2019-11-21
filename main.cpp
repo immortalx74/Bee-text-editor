@@ -46,38 +46,23 @@ int main(int argc, char *argv[])
     {
         while (SDL_PollEvent(&app.e))
         {
-            if (app.e.type == SDL_QUIT)
-            {
-                app.quit = true;
-            }
-            
             if(app.e.type == SDL_TEXTINPUT)
             {
                 InsertCharacterAt(&bufferA, a, bufferA.cursor.column);
                 RenderCharacterAt(a, bufferA.cursor.line, bufferA.cursor.column - 1, strlen(a->data), characters_texture, im_texture);
             }
-            
-            if(app.e.type == SDL_WINDOWEVENT)
-            {
-                if(app.e.window.event == SDL_WINDOWEVENT_RESIZED)
-                {
-                    WindowResize(&app, app.window);
-                }
-            }
-            
-            if (app.e.type == SDL_KEYDOWN)
+            else if (app.e.type == SDL_KEYDOWN)
             {
                 if (app.e.key.keysym.sym == SDLK_ESCAPE)
                 {
                     app.quit = true;
                 }
-                
-                if(app.e.key.keysym.sym == SDLK_BACKSPACE)
+                else if(app.e.key.keysym.sym == SDLK_BACKSPACE)
                 {
                     a = DeleteCharacterAt(&bufferA, a, bufferA.cursor.column);
                     RenderClearCharacterAt(a, bufferA.cursor.line, bufferA.cursor.column, strlen(a->data),characters_texture, im_texture);
                 }
-                if(app.e.key.keysym.sym == SDLK_LEFT)
+                else if(app.e.key.keysym.sym == SDLK_LEFT)
                 {
                     if(bufferA.cursor.column > 0)
                     {
@@ -93,7 +78,7 @@ int main(int argc, char *argv[])
                         }
                     }
                 }
-                if(app.e.key.keysym.sym == SDLK_RIGHT)
+                else if(app.e.key.keysym.sym == SDLK_RIGHT)
                 {
                     if(bufferA.cursor.column < strlen(a->data))
                     {
@@ -109,19 +94,76 @@ int main(int argc, char *argv[])
                         }
                     }
                 }
-                if(app.e.key.keysym.sym == SDLK_RETURN)
+                else if(app.e.key.keysym.sym == SDLK_RETURN)
                 {
-                    U8_strinsert(a->data, bufferA.cursor.column+1, "\n", 1024);
-                    bufferA.cursor.column = 0;
-                    bufferA.cursor.line++;
-                    a = InsertLineAt(&bufferA, bufferA.line_count);
-                    memset(a, 0, 128);
+                    if (bufferA.cursor.column == strlen(a->data))//cursor at end of line
+                    {
+                        bufferA.cursor.column = 0;
+                        bufferA.cursor.line++;
+                        a = InsertLineAt(&bufferA, bufferA.cursor.line);
+                        memset(a, 0, 128);
+                        
+                        // re-draw trailing lines if this isn't the last line entered
+                        if (bufferA.cursor.line <  bufferA.line_count - 1)
+                        {
+                            RenderClearLine(&bufferA, a, bufferA.cursor.line, characters_texture, im_texture);
+                        }
+                    }
+                    else// cursor at start or middle of line
+                    {
+                        if(bufferA.cursor.column > 0)
+                        {
+                            bufferA.cursor.line++;
+                            a = InsertLineAt(&bufferA, bufferA.cursor.line);
+                            memset(a, 0, 128);
+                            
+                            int index = 0;
+                            int len = strlen(a->prev->data);
+                            
+                            for (int i = bufferA.cursor.column; i < len; ++i)
+                            {
+                                a->data[index] = a->prev->data[i];
+                                a->prev->data[i] = '\0';
+                                index++;
+                            }
+                            
+                            RenderClearLine(&bufferA, a, bufferA.cursor.line, characters_texture, im_texture);
+                            
+                            bufferA.cursor.column = 0;
+                        }
+                    }
+                    
+                    PrintData(headA);
                 }
                 
-                if(app.e.key.keysym.sym == SDLK_TAB)
+                else if(app.e.key.keysym.sym == SDLK_TAB)
                 {
                     //U8_strinsert(a->data, bufferA.cursor.column, "    ", 1024);
                     bufferA.cursor.column += 4;
+                }
+            }
+            else if (app.e.type == SDL_QUIT)
+            {
+                app.quit = true;
+            }
+            else if(app.e.type == SDL_WINDOWEVENT)
+            {
+                if(app.e.window.event == SDL_WINDOWEVENT_RESIZED)
+                {
+                    WindowResize(&app, app.window);
+                    
+                    SDL_FreeSurface(screen_surface);
+                    SDL_DestroyTexture(im_texture);
+                    SDL_DestroyTexture(screen_texture);
+                    
+                    screen_surface = SDL_GetWindowSurface(app.window);
+                    screen_texture = SDL_CreateTextureFromSurface(app.renderer, screen_surface);
+                    im_texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
+                    
+                    SDL_SetTextureBlendMode(characters_texture, SDL_BLENDMODE_NONE);
+                    SDL_SetTextureBlendMode(im_texture, SDL_BLENDMODE_BLEND);
+                    
+                    //RenderClearLine(&bufferA, a, bufferA.cursor.line, characters_texture, im_texture);
                 }
             }
         }
@@ -135,25 +177,6 @@ int main(int argc, char *argv[])
         CursorDraw(app.renderer, bufferB);
         
         SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 255);// background
-        
-        //SDL_Rect t = {0,0,font.width,font.height};
-        //SDL_RenderCopy(renderer, texture, &t, &rect);
-        
-        //char ch[1];
-        node *cc= headA;
-        //for (int i = 0; i < bufferA.line_count; ++i)
-        //{
-        //cc = cc->next;
-        //
-        //for (int j = 0; j < strlen(cc->data); ++j)
-        //{
-        //int cur_char_code = (int)cc->data[j];
-        //SDL_Rect glyph_rect = {(cur_char_code - 32)*font.width,0,font.width,font.height};
-        //SDL_Rect screen_pos = {4+(j*font.width),4+(i*font.height),font.width,font.height};
-        //SDL_RenderCopy(renderer, characters_texture, &glyph_rect, &screen_pos);
-        //}
-        //}
-        
         
         SDL_Rect pan = {bufferA.panel.x,bufferA.panel.y,bufferA.panel.w,bufferA.panel.h};
         SDL_RenderCopy(app.renderer, im_texture, NULL, &pan);

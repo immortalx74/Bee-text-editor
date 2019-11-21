@@ -66,18 +66,56 @@ void RenderCharacterAt(node *line_node, int row, int col, int row_length, SDL_Te
 void RenderClearCharacterAt(node *line_node, int row, int col, int row_length, SDL_Texture *ch, SDL_Texture *im)
 {
     SDL_SetRenderTarget(app.renderer, im);
+    SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 0);// background
     int cur_char = (int)line_node->data[col];
     int chars_to_clear = row_length + 1 - col;
     SDL_Rect glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
+    
     SDL_Rect clear_rect = {margin + (col * font.width), margin + (row * font.height), chars_to_clear * font.width, font.height};
-    SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 0);// background
     SDL_RenderFillRect(app.renderer, &clear_rect);
     
-    if(col == row_length) // clear last character in line
+    
+    if(col < row_length)
     {
-        print("ytep");
-        //SDL_Rect pos = {margin + (col * font.width), margin + (row * font.height), font.width, font.height};
-        //SDL_RenderCopy(app.renderer, ch, &glyph_rect, &pos);
+        for (int i = col; i < row_length; ++i)
+        {
+            int cur_char = (int)line_node->data[i];
+            glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
+            SDL_Rect pos = {margin + (i * font.width), margin + (bufferA.cursor.line * font.height), font.width, font.height};
+            
+            SDL_RenderCopy(app.renderer, ch, &glyph_rect, &pos);
+        }
+    }
+    SDL_SetRenderTarget(app.renderer, NULL);
+};
+
+void RenderClearLine(buffer *buf, node *line_node, int row, SDL_Texture *ch, SDL_Texture *im)
+{
+    SDL_SetRenderTarget(app.renderer, im);
+    SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 0);// background
+    
+    int cur_char = (int)line_node->data[0];
+    
+    SDL_Rect glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
+    
+    SDL_Rect clear_rect = {margin , margin + ((row) * font.height), buf->panel.w, (buf->line_count + 1) * font.height};
+    SDL_RenderFillRect(app.renderer, &clear_rect);
+    
+    for (int i = row; i < buf->line_count; ++i)
+    {
+        for (int j = 0; j < strlen(line_node->data); ++j)
+        {
+            cur_char = (int)line_node->data[j];
+            SDL_Rect glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
+            SDL_Rect pos = {margin + (j * font.width), margin + (i * font.height), font.width, font.height};
+            SDL_RenderCopy(app.renderer, ch, &glyph_rect, &pos);
+        }
+        
+        if(line_node->next != NULL)
+        {
+            line_node = line_node->next;
+        }
+        
     }
     
     SDL_SetRenderTarget(app.renderer, NULL);
