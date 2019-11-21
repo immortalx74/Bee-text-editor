@@ -148,6 +148,12 @@ void DeleteLineAt(buffer *buf, int pos)
 };
 
 
+void LineHandleReturn()
+{
+    
+};
+
+
 void PrintData(node *head_node)
 {
     print("--------------------------------------------");

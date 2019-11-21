@@ -3,7 +3,6 @@
 #include <array>
 #include "print.cpp"
 #include "SDL.h"
-//#include <SDL_ttf.h>
 #include <stdio.h>
 #include <string>
 #include "globals.cpp"
@@ -111,35 +110,32 @@ int main(int argc, char *argv[])
                     }
                     else// cursor at start or middle of line
                     {
-                        if(bufferA.cursor.column > 0)
+                        a = InsertLineAt(&bufferA, bufferA.cursor.line+1);
+                        memset(a, 0, 128);
+                        
+                        int index = 0;
+                        int len = strlen(a->prev->data);
+                        
+                        for (int i = bufferA.cursor.column; i < len; ++i)
                         {
-                            bufferA.cursor.line++;
-                            a = InsertLineAt(&bufferA, bufferA.cursor.line);
-                            memset(a, 0, 128);
-                            
-                            int index = 0;
-                            int len = strlen(a->prev->data);
-                            
-                            for (int i = bufferA.cursor.column; i < len; ++i)
-                            {
-                                a->data[index] = a->prev->data[i];
-                                a->prev->data[i] = '\0';
-                                index++;
-                            }
-                            
-                            RenderClearLine(&bufferA, a, bufferA.cursor.line, characters_texture, im_texture);
-                            
-                            bufferA.cursor.column = 0;
+                            a->data[index] = a->prev->data[i];
+                            a->prev->data[i] = '\0';
+                            index++;
                         }
+                        
+                        RenderClearLine(&bufferA, a->prev, bufferA.cursor.line, characters_texture, im_texture);
+                        
+                        bufferA.cursor.line++;
+                        bufferA.cursor.column = 0;
                     }
                     
-                    PrintData(headA);
+                    //PrintData(headA);
                 }
                 
                 else if(app.e.key.keysym.sym == SDLK_TAB)
                 {
                     //U8_strinsert(a->data, bufferA.cursor.column, "    ", 1024);
-                    bufferA.cursor.column += 4;
+                    //bufferA.cursor.column += 4;
                 }
             }
             else if (app.e.type == SDL_QUIT)
