@@ -9,6 +9,7 @@
 #include "draw.h"
 #include "character.h"
 #include "print.h"
+#include "input.h"
 
 void PrintData(node *head_node)
 {
@@ -65,150 +66,37 @@ int main(int argc, char *argv[])
                 {
                     app.quit = true;
                 }
+                else if(app.e.key.keysym.sym == SDLK_RETURN)
+                {
+                    a = InputReturn(&bufferA, a);
+                }
                 else if(app.e.key.keysym.sym == SDLK_BACKSPACE)
                 {
-                    a = DeleteCharacterAt(&bufferA, a, bufferA.cursor.column);
-                    RenderClearCharacterAt(a, bufferA.cursor.line, bufferA.cursor.column, strlen(a->data),characters_texture, im_texture);
-                    bufferA.cursor.last_hor_pos = bufferA.cursor.column;
+                    a = InputBackspace(&bufferA, a);
                 }
                 else if(app.e.key.keysym.sym == SDLK_DELETE)
                 {
-                    if(bufferA.cursor.column < strlen(a->data))
-                    {
-                        bufferA.cursor.column++;
-                        a = DeleteCharacterAt(&bufferA, a, bufferA.cursor.column);
-                        RenderClearCharacterAt(a, bufferA.cursor.line, bufferA.cursor.column, strlen(a->data),characters_texture, im_texture);
-                    }
-                    else if(bufferA.cursor.line < bufferA.line_count - 1)
-                    {
-                        bufferA.cursor.line++;
-                        bufferA.cursor.column = 0;
-                        a = a->next;
-                        a = DeleteCharacterAt(&bufferA, a, bufferA.cursor.column);
-                        RenderClearCharacterAt(a, bufferA.cursor.line, bufferA.cursor.column, strlen(a->data),characters_texture, im_texture);
-                    }
-                    bufferA.cursor.last_hor_pos = bufferA.cursor.column;
+                    a = InputDelete(&bufferA, a);
                 }
                 else if(app.e.key.keysym.sym == SDLK_LEFT)
                 {
-                    if(bufferA.cursor.column > 0)
-                    {
-                        bufferA.cursor.column--;
-                    }
-                    else
-                    {
-                        if(a->prev != headA)
-                        {
-                            a = a->prev;
-                            bufferA.cursor.line--;
-                            bufferA.cursor.column = strlen(a->data);
-                        }
-                    }
-                    
-                    bufferA.cursor.last_hor_pos = bufferA.cursor.column;
+                    a = InputLeft(&bufferA, a);
                 }
                 else if(app.e.key.keysym.sym == SDLK_RIGHT)
                 {
-                    if(bufferA.cursor.column < strlen(a->data))
-                    {
-                        bufferA.cursor.column++;
-                    }
-                    else
-                    {
-                        if(a->next != NULL)
-                        {
-                            a = a->next;
-                            bufferA.cursor.line++;
-                            bufferA.cursor.column = 0;
-                        }
-                    }
-                    
-                    bufferA.cursor.last_hor_pos = bufferA.cursor.column;
+                    a = InputRight(&bufferA, a);
                 }
                 else if(app.e.key.keysym.sym == SDLK_UP)
                 {
-                    if(bufferA.cursor.line > 0)
-                    {
-                        if(bufferA.cursor.last_hor_pos <= strlen(a->prev->data))
-                        {
-                            bufferA.cursor.column = bufferA.cursor.last_hor_pos;
-                        }
-                        else
-                        {
-                            bufferA.cursor.column = strlen(a->prev->data);
-                        }
-                        
-                        bufferA.cursor.line--;
-                        a = a->prev;
-                    }
-                    else
-                    {
-                        bufferA.cursor.column = 0;
-                    }
+                    a = InputUp(&bufferA, a);
                 }
                 else if(app.e.key.keysym.sym == SDLK_DOWN)
                 {
-                    if(bufferA.cursor.line < bufferA.line_count - 1)
-                    {
-                        if(bufferA.cursor.last_hor_pos <= strlen(a->next->data))
-                        {
-                            bufferA.cursor.column = bufferA.cursor.last_hor_pos;
-                        }
-                        else
-                        {
-                            bufferA.cursor.column = strlen(a->next->data);
-                        }
-                        
-                        bufferA.cursor.line++;
-                        a = a->next;
-                    }
-                    else
-                    {
-                        bufferA.cursor.column = strlen(a->data);
-                    }
+                    a = InputDown(&bufferA, a);
                 }
-                else if(app.e.key.keysym.sym == SDLK_RETURN)
-                {
-                    if (bufferA.cursor.column == strlen(a->data))//cursor at end of line
-                    {
-                        bufferA.cursor.column = 0;
-                        bufferA.cursor.line++;
-                        a = InsertLineAt(&bufferA, bufferA.cursor.line);
-                        memset(a, 0, 128);
-                        
-                        // re-draw trailing lines if this isn't the last line entered
-                        if (bufferA.cursor.line <  bufferA.line_count - 1)
-                        {
-                            RenderClearLine(&bufferA, a, bufferA.cursor.line, characters_texture, im_texture);
-                        }
-                    }
-                    else// cursor at start or middle of line
-                    {
-                        a = InsertLineAt(&bufferA, bufferA.cursor.line+1);
-                        memset(a, 0, 128);
-                        
-                        int index = 0;
-                        int len = strlen(a->prev->data);
-                        
-                        for (int i = bufferA.cursor.column; i < len; ++i)
-                        {
-                            a->data[index] = a->prev->data[i];
-                            a->prev->data[i] = '\0';
-                            index++;
-                        }
-                        
-                        RenderClearLine(&bufferA, a->prev, bufferA.cursor.line, characters_texture, im_texture);
-                        
-                        bufferA.cursor.line++;
-                        bufferA.cursor.column = 0;
-                    }
-                    bufferA.cursor.last_hor_pos = bufferA.cursor.column;
-                }
-                
                 else if(app.e.key.keysym.sym == SDLK_TAB)
                 {
-                    //U8_strinsert(a->data, bufferA.cursor.column, "    ", 1024);
-                    //bufferA.cursor.column += 4;
+                    InputTab(&bufferA, a);
                 }
             }
             else if (app.e.type == SDL_QUIT)
