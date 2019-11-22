@@ -57,6 +57,7 @@ int main(int argc, char *argv[])
             {
                 InsertCharacterAt(&bufferA, a, bufferA.cursor.column);
                 RenderCharacterAt(a, bufferA.cursor.line, bufferA.cursor.column - 1, strlen(a->data), characters_texture, im_texture);
+                bufferA.cursor.last_hor_pos = bufferA.cursor.column;
             }
             else if (app.e.type == SDL_KEYDOWN)
             {
@@ -68,6 +69,7 @@ int main(int argc, char *argv[])
                 {
                     a = DeleteCharacterAt(&bufferA, a, bufferA.cursor.column);
                     RenderClearCharacterAt(a, bufferA.cursor.line, bufferA.cursor.column, strlen(a->data),characters_texture, im_texture);
+                    bufferA.cursor.last_hor_pos = bufferA.cursor.column;
                 }
                 else if(app.e.key.keysym.sym == SDLK_DELETE)
                 {
@@ -85,6 +87,7 @@ int main(int argc, char *argv[])
                         a = DeleteCharacterAt(&bufferA, a, bufferA.cursor.column);
                         RenderClearCharacterAt(a, bufferA.cursor.line, bufferA.cursor.column, strlen(a->data),characters_texture, im_texture);
                     }
+                    bufferA.cursor.last_hor_pos = bufferA.cursor.column;
                 }
                 else if(app.e.key.keysym.sym == SDLK_LEFT)
                 {
@@ -101,6 +104,8 @@ int main(int argc, char *argv[])
                             bufferA.cursor.column = strlen(a->data);
                         }
                     }
+                    
+                    bufferA.cursor.last_hor_pos = bufferA.cursor.column;
                 }
                 else if(app.e.key.keysym.sym == SDLK_RIGHT)
                 {
@@ -117,39 +122,49 @@ int main(int argc, char *argv[])
                             bufferA.cursor.column = 0;
                         }
                     }
+                    
+                    bufferA.cursor.last_hor_pos = bufferA.cursor.column;
                 }
                 else if(app.e.key.keysym.sym == SDLK_UP)
                 {
                     if(bufferA.cursor.line > 0)
                     {
-                        if(bufferA.cursor.column <= strlen(a->prev->data))
+                        if(bufferA.cursor.last_hor_pos <= strlen(a->prev->data))
                         {
-                            bufferA.cursor.line--;
-                            a = a->prev;
+                            bufferA.cursor.column = bufferA.cursor.last_hor_pos;
                         }
                         else
                         {
-                            bufferA.cursor.line--;
                             bufferA.cursor.column = strlen(a->prev->data);
-                            a = a->prev;
                         }
+                        
+                        bufferA.cursor.line--;
+                        a = a->prev;
+                    }
+                    else
+                    {
+                        bufferA.cursor.column = 0;
                     }
                 }
                 else if(app.e.key.keysym.sym == SDLK_DOWN)
                 {
                     if(bufferA.cursor.line < bufferA.line_count - 1)
                     {
-                        if(bufferA.cursor.column <= strlen(a->next->data))
+                        if(bufferA.cursor.last_hor_pos <= strlen(a->next->data))
                         {
-                            bufferA.cursor.line++;
-                            a = a->next;
+                            bufferA.cursor.column = bufferA.cursor.last_hor_pos;
                         }
                         else
                         {
-                            bufferA.cursor.line++;
                             bufferA.cursor.column = strlen(a->next->data);
-                            a = a->next;
                         }
+                        
+                        bufferA.cursor.line++;
+                        a = a->next;
+                    }
+                    else
+                    {
+                        bufferA.cursor.column = strlen(a->data);
                     }
                 }
                 else if(app.e.key.keysym.sym == SDLK_RETURN)
@@ -187,6 +202,7 @@ int main(int argc, char *argv[])
                         bufferA.cursor.line++;
                         bufferA.cursor.column = 0;
                     }
+                    bufferA.cursor.last_hor_pos = bufferA.cursor.column;
                 }
                 
                 else if(app.e.key.keysym.sym == SDLK_TAB)

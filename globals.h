@@ -27,6 +27,7 @@ struct buffer
     {
         int column = 0;
         int line = 0;
+        int last_hor_pos = 0;
         SDL_Color color = {0, 255, 0, 0};
     }cursor;
     
