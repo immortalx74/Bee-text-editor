@@ -10,6 +10,21 @@
 #include "character.h"
 #include "print.h"
 
+void PrintData(node *head_node)
+{
+    print("--------------------------------------------");
+    
+    node *start = head_node->next;
+    while(start != NULL)
+    {
+        print(start->data);
+        start = start->next;
+    }
+    
+    print("--------------------------------------------");
+    return;
+};
+
 int main(int argc, char *argv[])
 {
     app.Init();
@@ -23,16 +38,11 @@ int main(int argc, char *argv[])
     node *a = InsertLineAt(&bufferA, 0);
     memset(a->data, 0, 128);
     
-    
     SDL_Color textColor = {143, 175, 127, 255};
-    SDL_Color bgc = {21, 12, 42, 255};
     SDL_Surface *characters_surface = TTF_RenderText_Blended(font.name, app.ascii_sequence, textColor);
     characters_texture = SDL_CreateTextureFromSurface(app.renderer, characters_surface);
     SDL_Surface *screen_surface = SDL_GetWindowSurface(app.window);
     screen_texture = SDL_CreateTextureFromSurface(app.renderer, screen_surface);
-    
-    //NOTE:set position and size to that of panel
-    //NOTE:also update im texture when editing text
     im_texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
     
     SDL_SetTextureBlendMode(characters_texture, SDL_BLENDMODE_NONE);
@@ -58,6 +68,23 @@ int main(int argc, char *argv[])
                 {
                     a = DeleteCharacterAt(&bufferA, a, bufferA.cursor.column);
                     RenderClearCharacterAt(a, bufferA.cursor.line, bufferA.cursor.column, strlen(a->data),characters_texture, im_texture);
+                }
+                else if(app.e.key.keysym.sym == SDLK_DELETE)
+                {
+                    if(bufferA.cursor.column < strlen(a->data))
+                    {
+                        bufferA.cursor.column++;
+                        a = DeleteCharacterAt(&bufferA, a, bufferA.cursor.column);
+                        RenderClearCharacterAt(a, bufferA.cursor.line, bufferA.cursor.column, strlen(a->data),characters_texture, im_texture);
+                    }
+                    else if(bufferA.cursor.line < bufferA.line_count - 1)
+                    {
+                        bufferA.cursor.line++;
+                        bufferA.cursor.column = 0;
+                        a = a->next;
+                        a = DeleteCharacterAt(&bufferA, a, bufferA.cursor.column);
+                        RenderClearCharacterAt(a, bufferA.cursor.line, bufferA.cursor.column, strlen(a->data),characters_texture, im_texture);
+                    }
                 }
                 else if(app.e.key.keysym.sym == SDLK_LEFT)
                 {
@@ -88,6 +115,40 @@ int main(int argc, char *argv[])
                             a = a->next;
                             bufferA.cursor.line++;
                             bufferA.cursor.column = 0;
+                        }
+                    }
+                }
+                else if(app.e.key.keysym.sym == SDLK_UP)
+                {
+                    if(bufferA.cursor.line > 0)
+                    {
+                        if(bufferA.cursor.column <= strlen(a->prev->data))
+                        {
+                            bufferA.cursor.line--;
+                            a = a->prev;
+                        }
+                        else
+                        {
+                            bufferA.cursor.line--;
+                            bufferA.cursor.column = strlen(a->prev->data);
+                            a = a->prev;
+                        }
+                    }
+                }
+                else if(app.e.key.keysym.sym == SDLK_DOWN)
+                {
+                    if(bufferA.cursor.line < bufferA.line_count - 1)
+                    {
+                        if(bufferA.cursor.column <= strlen(a->next->data))
+                        {
+                            bufferA.cursor.line++;
+                            a = a->next;
+                        }
+                        else
+                        {
+                            bufferA.cursor.line++;
+                            bufferA.cursor.column = strlen(a->next->data);
+                            a = a->next;
                         }
                     }
                 }
@@ -126,8 +187,6 @@ int main(int argc, char *argv[])
                         bufferA.cursor.line++;
                         bufferA.cursor.column = 0;
                     }
-                    
-                    //PrintData(headA);
                 }
                 
                 else if(app.e.key.keysym.sym == SDLK_TAB)
@@ -145,21 +204,12 @@ int main(int argc, char *argv[])
                 if(app.e.window.event == SDL_WINDOWEVENT_RESIZED)
                 {
                     WindowResize(&app, app.window);
-                    
-                    SDL_FreeSurface(screen_surface);
                     SDL_DestroyTexture(im_texture);
-                    SDL_DestroyTexture(screen_texture);
-                    
-                    screen_surface = SDL_GetWindowSurface(app.window);
-                    screen_texture = SDL_CreateTextureFromSurface(app.renderer, screen_surface);
                     im_texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
-                    
-                    SDL_RenderPresent(app.renderer);
-                    
-                    SDL_SetTextureBlendMode(characters_texture, SDL_BLENDMODE_NONE);
                     SDL_SetTextureBlendMode(im_texture, SDL_BLENDMODE_BLEND);
+                    RenderClearLine(&bufferA, headA->next, 0, characters_texture, im_texture);
+                    PrintData(headA);
                     
-                    RenderClearLine(&bufferA, a, bufferA.cursor.line, characters_texture, im_texture);
                 }
             }
         }
@@ -175,6 +225,7 @@ int main(int argc, char *argv[])
         SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 255);// background
         
         SDL_Rect pan = {bufferA.panel.x,bufferA.panel.y,bufferA.panel.w,bufferA.panel.h};
+        
         SDL_RenderCopy(app.renderer, im_texture, NULL, &pan);
         
         SDL_RenderPresent(app.renderer);
@@ -185,6 +236,7 @@ int main(int argc, char *argv[])
     SDL_DestroyTexture(characters_texture);
     SDL_DestroyTexture(screen_texture);
     SDL_DestroyTexture(im_texture);
+    TTF_CloseFont(font.name);
     SDL_DestroyRenderer(app.renderer);
     SDL_DestroyWindow(app.window);
     SDL_Quit();

@@ -19,20 +19,17 @@ void PanelDraw(SDL_Renderer *renderer, buffer &buf)
 
 void WindowResize(app_info *application, SDL_Window *win)
 {
-    int ww = application->ww;
-    int wh = application->wh;
-    
-    SDL_GetWindowSize(win, &ww, &wh);
+    SDL_GetWindowSize(win, &application->ww, &application->wh);
     
     bufferA.panel.x = 1;
     bufferA.panel.y = 1;
-    bufferA.panel.w = (ww / 2) - 1;
-    bufferA.panel.h = wh - 1;
+    bufferA.panel.w = (application->ww / 2) - 1;
+    bufferA.panel.h = application->wh - 1;
     
-    bufferB.panel.x = (ww / 2) + 1;
+    bufferB.panel.x = (application->ww / 2) + 1;
     bufferB.panel.y = 1;
-    bufferB.panel.w = (ww / 2) - 1;
-    bufferB.panel.h = wh - 1;
+    bufferB.panel.w = (application->ww / 2) - 1;
+    bufferB.panel.h = application->wh - 1;
 };
 
 void RenderCharacterAt(node *line_node, int row, int col, int row_length, SDL_Texture *ch, SDL_Texture *im)
