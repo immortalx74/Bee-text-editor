@@ -1,3 +1,5 @@
+#include "draw.h"
+
 void CursorDraw(SDL_Renderer *renderer, buffer &buf)
 {
     int xx = (buf.cursor.column * font.width) + margin + buf.panel.x;

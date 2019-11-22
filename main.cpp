@@ -1,19 +1,17 @@
-#include "SDL_FontCache.cpp"
-#include <iostream>
-#include <array>
-#include "print.cpp"
-#include "SDL.h"
-#include <stdio.h>
-#include <string>
-#include "globals.cpp"
-#include "line.cpp"
-#include "draw.cpp"
-#include "character.cpp"
-//#include "draw.cpp"
+//#include "SDL_FontCache.cpp"
+//#include <iostream>
+//#include <array>
+//#include "SDL.h"
+//#include <stdio.h>
+//#include <string>
+#include "globals.h"
+#include "line.h"
+#include "draw.h"
+#include "character.h"
+#include "print.h"
 
 int main(int argc, char *argv[])
 {
-    
     app.Init();
     WindowResize(&app, app.window);
     
@@ -156,10 +154,12 @@ int main(int argc, char *argv[])
                     screen_texture = SDL_CreateTextureFromSurface(app.renderer, screen_surface);
                     im_texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
                     
+                    SDL_RenderPresent(app.renderer);
+                    
                     SDL_SetTextureBlendMode(characters_texture, SDL_BLENDMODE_NONE);
                     SDL_SetTextureBlendMode(im_texture, SDL_BLENDMODE_BLEND);
                     
-                    //RenderClearLine(&bufferA, a, bufferA.cursor.line, characters_texture, im_texture);
+                    RenderClearLine(&bufferA, a, bufferA.cursor.line, characters_texture, im_texture);
                 }
             }
         }

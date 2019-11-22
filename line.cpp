@@ -1,3 +1,5 @@
+#include "line.h"
+
 // Create line and return pointer to it
 node *CreateLine(void)
 {
@@ -87,7 +89,7 @@ node *InsertLineAt(buffer *buf, int pos)
         memset(newline->data, 0, 128);
         return newline;
     }
-}
+};
 
 void DeleteLineAt(buffer *buf, int pos)
 {
@@ -147,24 +149,17 @@ void DeleteLineAt(buffer *buf, int pos)
     }
 };
 
-
-void LineHandleReturn()
-{
-    
-};
-
-
-void PrintData(node *head_node)
-{
-    print("--------------------------------------------");
-    
-    node *start = head_node->next;
-    while(start->next != NULL)
-    {
-        print(start->data);
-        start = start->next;
-    }
-    
-    print("--------------------------------------------");
-    return;
-}
+//void PrintData(node *head_node)
+//{
+//print("--------------------------------------------");
+//
+//node *start = head_node->next;
+//while(start->next != NULL)
+//{
+//print(start->data);
+//start = start->next;
+//}
+//
+//print("--------------------------------------------");
+//return;
+//};
