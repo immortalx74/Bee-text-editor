@@ -79,7 +79,9 @@ struct app_info
     char ascii_sequence[96];
     SDL_Window *window;
     SDL_Renderer *renderer;
-    
+    buffer *active_buffer;
+    SDL_Texture *panel_textureA;
+    SDL_Texture *panel_textureB;
     
     void Init()
     {
@@ -105,7 +107,7 @@ struct app_info
         headB->next = NULL;
         
         bufferA.head = headA;
-        //bufferB.head = headB;
+        bufferB.head = headB;
     };
 };
 

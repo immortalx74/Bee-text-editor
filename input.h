@@ -1,6 +1,7 @@
 #pragma once
 #include "globals.h"
 
+node *InputText(buffer *buf, node *cur_node);
 node *InputReturn(buffer *buf, node *cur_node);
 node *InputBackspace(buffer *buf, node *cur_node);
 node *InputDelete(buffer *buf, node *cur_node);

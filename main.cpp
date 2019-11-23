@@ -35,8 +35,13 @@ int main(int argc, char *argv[])
     font.height = TTF_FontHeight(font.name);
     TTF_SizeText(font.name, "A", &font.width, 0);
     
+    //TEST
+    app.active_buffer = &bufferA;
+    
     // first line
-    node *a = InsertLineAt(&bufferA, 0);
+    node *a = InsertLineAt(&bufferB, 0);
+    memset(a->data, 0, 128);
+    a = InsertLineAt(&bufferA, 0);
     memset(a->data, 0, 128);
     
     SDL_Color textColor = {143, 175, 127, 255};
@@ -46,9 +51,14 @@ int main(int argc, char *argv[])
     screen_texture = SDL_CreateTextureFromSurface(app.renderer, screen_surface);
     im_texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
     
+    //TEST panel textures
+    app.panel_textureA = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
+    app.panel_textureB = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
+    
     SDL_SetTextureBlendMode(characters_texture, SDL_BLENDMODE_NONE);
     SDL_SetTextureBlendMode(im_texture, SDL_BLENDMODE_BLEND);
     bufferA.head = headA;
+    bufferB.head = headB;
     
     while(!app.quit)
     {
@@ -56,9 +66,7 @@ int main(int argc, char *argv[])
         {
             if(app.e.type == SDL_TEXTINPUT)
             {
-                InsertCharacterAt(&bufferA, a, bufferA.cursor.column);
-                RenderCharacterAt(a, bufferA.cursor.line, bufferA.cursor.column - 1, strlen(a->data), characters_texture, im_texture);
-                bufferA.cursor.last_hor_pos = bufferA.cursor.column;
+                a = InputText(app.active_buffer, a);
             }
             else if (app.e.type == SDL_KEYDOWN)
             {
@@ -68,35 +76,55 @@ int main(int argc, char *argv[])
                 }
                 else if(app.e.key.keysym.sym == SDLK_RETURN)
                 {
-                    a = InputReturn(&bufferA, a);
+                    a = InputReturn(app.active_buffer, a);
                 }
                 else if(app.e.key.keysym.sym == SDLK_BACKSPACE)
                 {
-                    a = InputBackspace(&bufferA, a);
+                    a = InputBackspace(app.active_buffer, a);
                 }
                 else if(app.e.key.keysym.sym == SDLK_DELETE)
                 {
-                    a = InputDelete(&bufferA, a);
+                    a = InputDelete(app.active_buffer, a);
                 }
                 else if(app.e.key.keysym.sym == SDLK_LEFT)
                 {
-                    a = InputLeft(&bufferA, a);
+                    a = InputLeft(app.active_buffer, a);
                 }
                 else if(app.e.key.keysym.sym == SDLK_RIGHT)
                 {
-                    a = InputRight(&bufferA, a);
+                    a = InputRight(app.active_buffer, a);
                 }
                 else if(app.e.key.keysym.sym == SDLK_UP)
                 {
-                    a = InputUp(&bufferA, a);
+                    a = InputUp(app.active_buffer, a);
                 }
                 else if(app.e.key.keysym.sym == SDLK_DOWN)
                 {
-                    a = InputDown(&bufferA, a);
+                    a = InputDown(app.active_buffer, a);
                 }
                 else if(app.e.key.keysym.sym == SDLK_TAB)
                 {
-                    InputTab(&bufferA, a);
+                    InputTab(app.active_buffer, a);
+                }
+                else if( app.e.key.keysym.sym == SDLK_KP_0 && SDL_GetModState() & KMOD_CTRL )
+                {
+                    if(app.active_buffer == &bufferA)
+                    {
+                        app.active_buffer = &bufferB;
+                        a = app.active_buffer->head->next;
+                        print("turned to B");
+                        WindowResize(&app, app.window);
+                        
+                    }
+                    else
+                    {
+                        app.active_buffer = &bufferA;
+                        a = app.active_buffer->head->next;
+                        print("turned to A");
+                        WindowResize(&app, app.window);
+                    }
+                    
+                    print(bufferA.head->next->data, bufferB.head->next->data);
                 }
             }
             else if (app.e.type == SDL_QUIT)
@@ -111,8 +139,7 @@ int main(int argc, char *argv[])
                     SDL_DestroyTexture(im_texture);
                     im_texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
                     SDL_SetTextureBlendMode(im_texture, SDL_BLENDMODE_BLEND);
-                    RenderClearLine(&bufferA, headA->next, 0, characters_texture, im_texture);
-                    PrintData(headA);
+                    RenderClearLine(app.active_buffer, app.active_buffer->head->next, 0, characters_texture, im_texture);
                     
                 }
             }
@@ -120,15 +147,15 @@ int main(int argc, char *argv[])
         
         SDL_RenderClear(app.renderer);
         
-        PanelDraw(app.renderer, bufferA);
-        PanelDraw(app.renderer, bufferB);
+        PanelDraw(app.renderer, &bufferA);
+        PanelDraw(app.renderer, &bufferB);
         
-        CursorDraw(app.renderer, bufferA);
-        CursorDraw(app.renderer, bufferB);
+        CursorDraw(app.renderer, &bufferA);
+        CursorDraw(app.renderer, &bufferB);
         
         SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 255);// background
         
-        SDL_Rect pan = {bufferA.panel.x,bufferA.panel.y,bufferA.panel.w,bufferA.panel.h};
+        SDL_Rect pan = {app.active_buffer->panel.x,app.active_buffer->panel.y,app.active_buffer->panel.w,app.active_buffer->panel.h};
         
         SDL_RenderCopy(app.renderer, im_texture, NULL, &pan);
         
