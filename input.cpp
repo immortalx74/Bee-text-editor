@@ -2,11 +2,12 @@
 #include "line.h"
 #include "character.h"
 #include "draw.h"
+#include <iostream>
 
 node *InputText(buffer *buf, node *cur_node)
 {
     InsertCharacterAt(buf, cur_node, buf->cursor.column);
-    RenderCharacterAt(buf, cur_node, buf->cursor.line, buf->cursor.column - 1, strlen(cur_node->data), characters_texture, im_texture);
+    RenderCharacterAt(buf, cur_node, buf->cursor.line, buf->cursor.column - 1, strlen(cur_node->data), characters_texture, app.active_texture);
     buf->cursor.last_hor_pos = buf->cursor.column;
     
     return cur_node;
@@ -25,7 +26,7 @@ node *InputReturn(buffer *buf, node *cur_node)
         // re-draw trailing lines if this isn't the last line entered
         if (buf->cursor.line <  buf->line_count - 1)
         {
-            RenderClearLine(buf, cur_node, buf->cursor.line, characters_texture, im_texture);
+            RenderClearLine(buf, cur_node, buf->cursor.line, characters_texture, app.active_texture);
         }
     }
     else// cursor at start or middle of line
@@ -43,7 +44,7 @@ node *InputReturn(buffer *buf, node *cur_node)
             index++;
         }
         
-        RenderClearLine(buf, cur_node->prev, buf->cursor.line, characters_texture, im_texture);
+        RenderClearLine(buf, cur_node->prev, buf->cursor.line, characters_texture, app.active_texture);
         
         buf->cursor.line++;
         buf->cursor.column = 0;
@@ -58,7 +59,7 @@ node *InputReturn(buffer *buf, node *cur_node)
 node *InputBackspace(buffer *buf, node *cur_node)
 {
     cur_node= DeleteCharacterAt(buf, cur_node, buf->cursor.column);
-    RenderClearCharacterAt(buf, cur_node, buf->cursor.line, buf->cursor.column, strlen(cur_node->data),characters_texture, im_texture);
+    RenderClearCharacterAt(buf, cur_node, buf->cursor.line, buf->cursor.column, strlen(cur_node->data),characters_texture, app.active_texture);
     buf->cursor.last_hor_pos = buf->cursor.column;
     
     return cur_node;
@@ -71,7 +72,7 @@ node *InputDelete(buffer *buf, node *cur_node)
     {
         buf->cursor.column++;
         cur_node = DeleteCharacterAt(buf, cur_node, buf->cursor.column);
-        RenderClearCharacterAt(buf, cur_node, buf->cursor.line, buf->cursor.column, strlen(cur_node->data),characters_texture, im_texture);
+        RenderClearCharacterAt(buf, cur_node, buf->cursor.line, buf->cursor.column, strlen(cur_node->data),characters_texture, app.active_texture);
     }
     else if(buf->cursor.line < buf->line_count - 1)
     {
@@ -79,7 +80,7 @@ node *InputDelete(buffer *buf, node *cur_node)
         buf->cursor.column = 0;
         cur_node = cur_node->next;
         cur_node = DeleteCharacterAt(buf, cur_node, buf->cursor.column);
-        RenderClearCharacterAt(buf, cur_node, buf->cursor.line, buf->cursor.column, strlen(cur_node->data),characters_texture, im_texture);
+        RenderClearCharacterAt(buf, cur_node, buf->cursor.line, buf->cursor.column, strlen(cur_node->data),characters_texture, app.active_texture);
     }
     buf->cursor.last_hor_pos = buf->cursor.column;
     
@@ -187,7 +188,7 @@ void InputTab(buffer *buf, node *cur_node)
     {
         U8_strinsert(cur_node->data, buf->cursor.column, " ", 128);
         buf->cursor.column++;
-        RenderCharacterAt(buf, cur_node, buf->cursor.line, buf->cursor.column - 1, strlen(cur_node->data), characters_texture, im_texture);
+        RenderCharacterAt(buf, cur_node, buf->cursor.line, buf->cursor.column - 1, strlen(cur_node->data), characters_texture, app.active_texture);
         buf->cursor.last_hor_pos = buf->cursor.column;
     }
 };

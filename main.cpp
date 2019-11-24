@@ -10,6 +10,7 @@
 #include "character.h"
 #include "print.h"
 #include "input.h"
+#include <assert.h>
 
 void PrintData(node *head_node)
 {
@@ -31,7 +32,7 @@ int main(int argc, char *argv[])
     app.Init();
     WindowResize(&app, app.window);
     
-    font.name = TTF_OpenFont("liberation-mono.ttf", 16);
+    font.name = TTF_OpenFont("liberation-mono.ttf", 13);
     font.height = TTF_FontHeight(font.name);
     TTF_SizeText(font.name, "A", &font.width, 0);
     
@@ -51,10 +52,17 @@ int main(int argc, char *argv[])
     screen_texture = SDL_CreateTextureFromSurface(app.renderer, screen_surface);
     im_texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
     
-    //TEST panel textures
-    app.panel_textureA = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
-    app.panel_textureB = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
+    //TEST panel textures=============================================================
+    panel_textureA = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
+    panel_textureB = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
     
+    app.active_texture = panel_textureA;
+    app.inactive_texture = panel_textureB;
+    
+    SDL_SetTextureBlendMode(app.active_texture, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureBlendMode(app.inactive_texture, SDL_BLENDMODE_BLEND);
+    
+    //===============================================================================
     SDL_SetTextureBlendMode(characters_texture, SDL_BLENDMODE_NONE);
     SDL_SetTextureBlendMode(im_texture, SDL_BLENDMODE_BLEND);
     bufferA.head = headA;
@@ -111,20 +119,33 @@ int main(int argc, char *argv[])
                     if(app.active_buffer == &bufferA)
                     {
                         app.active_buffer = &bufferB;
-                        a = app.active_buffer->head->next;
-                        print("turned to B");
-                        WindowResize(&app, app.window);
+                        app.active_texture = panel_textureB;
+                        app.inactive_texture = panel_textureA;
                         
+                        a = headB->next;
+                        for (int i = 0; i < app.active_buffer->cursor.line; ++i)
+                        {
+                            a = a->next;
+                        }
+                        
+                        RenderClearLine(app.active_buffer, app.active_buffer->head->next, 0, characters_texture, app.active_texture);
+                        RenderClearLine(&bufferA, bufferA.head->next, 0, characters_texture, panel_textureA);
                     }
                     else
                     {
                         app.active_buffer = &bufferA;
-                        a = app.active_buffer->head->next;
-                        print("turned to A");
-                        WindowResize(&app, app.window);
+                        app.active_texture = panel_textureA;
+                        app.inactive_texture = panel_textureB;
+                        
+                        a = headA->next;
+                        for (int i = 0; i < app.active_buffer->cursor.line; ++i)
+                        {
+                            a = a->next;
+                        }
+                        
+                        RenderClearLine(app.active_buffer, app.active_buffer->head->next, 0, characters_texture, app.active_texture);
+                        RenderClearLine(&bufferB, bufferB.head->next, 0, characters_texture, panel_textureB);
                     }
-                    
-                    print(bufferA.head->next->data, bufferB.head->next->data);
                 }
             }
             else if (app.e.type == SDL_QUIT)
@@ -137,10 +158,27 @@ int main(int argc, char *argv[])
                 {
                     WindowResize(&app, app.window);
                     SDL_DestroyTexture(im_texture);
-                    im_texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
-                    SDL_SetTextureBlendMode(im_texture, SDL_BLENDMODE_BLEND);
-                    RenderClearLine(app.active_buffer, app.active_buffer->head->next, 0, characters_texture, im_texture);
+                    SDL_DestroyTexture(app.active_texture);
+                    SDL_DestroyTexture(app.inactive_texture);
                     
+                    panel_textureA = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
+                    panel_textureB = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
+                    
+                    if(app.active_buffer == &bufferA)
+                    {
+                        app.active_texture = panel_textureA;
+                        app.inactive_texture = panel_textureB;
+                    }
+                    else
+                    {
+                        app.active_texture = panel_textureB;
+                        app.inactive_texture = panel_textureA;
+                    }
+                    SDL_SetTextureBlendMode(app.active_texture, SDL_BLENDMODE_BLEND);
+                    SDL_SetTextureBlendMode(app.inactive_texture, SDL_BLENDMODE_BLEND);
+                    
+                    RenderClearLine(&bufferA, bufferA.head->next, 0, characters_texture, panel_textureA);
+                    RenderClearLine(&bufferB, bufferB.head->next, 0, characters_texture, panel_textureB);
                 }
             }
         }
@@ -155,9 +193,12 @@ int main(int argc, char *argv[])
         
         SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 255);// background
         
-        SDL_Rect pan = {app.active_buffer->panel.x,app.active_buffer->panel.y,app.active_buffer->panel.w,app.active_buffer->panel.h};
+        //SDL_Rect pan = {app.active_buffer->panel.x,app.active_buffer->panel.y,app.active_buffer->panel.w,app.active_buffer->panel.h};
+        SDL_Rect panA = {bufferA.panel.x,bufferA.panel.y,bufferA.panel.w,bufferA.panel.h};
+        SDL_Rect panB = {bufferB.panel.x,bufferB.panel.y,bufferB.panel.w,bufferB.panel.h};
         
-        SDL_RenderCopy(app.renderer, im_texture, NULL, &pan);
+        SDL_RenderCopy(app.renderer, panel_textureA, NULL, &panA);
+        SDL_RenderCopy(app.renderer, panel_textureB, NULL, &panB);
         
         SDL_RenderPresent(app.renderer);
     }
@@ -167,6 +208,8 @@ int main(int argc, char *argv[])
     SDL_DestroyTexture(characters_texture);
     SDL_DestroyTexture(screen_texture);
     SDL_DestroyTexture(im_texture);
+    SDL_DestroyTexture(panel_textureA);
+    SDL_DestroyTexture(panel_textureB);
     TTF_CloseFont(font.name);
     SDL_DestroyRenderer(app.renderer);
     SDL_DestroyWindow(app.window);
