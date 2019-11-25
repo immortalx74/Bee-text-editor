@@ -149,17 +149,15 @@ void DeleteLineAt(buffer *buf, int pos)
     }
 };
 
-//void PrintData(node *head_node)
-//{
-//print("--------------------------------------------");
-//
-//node *start = head_node->next;
-//while(start->next != NULL)
-//{
-//print(start->data);
-//start = start->next;
-//}
-//
-//print("--------------------------------------------");
-//return;
-//};
+
+node *GetLineNode(buffer *buf, int pos)
+{
+    node *cur_head = buf->head;
+    
+    for (int i = 0; i < pos; ++i)
+    {
+        cur_head = cur_head->next;
+    }
+    
+    return cur_head->next;
+};

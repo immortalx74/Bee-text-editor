@@ -32,9 +32,9 @@ void WindowResize(app_info *application, SDL_Window *win)
     bufferB.panel.h = application->wh - 1;
 };
 
-void RenderCharacterAt(buffer *buf, node *line_node, int row, int col, int row_length, SDL_Texture *ch, SDL_Texture *im)
+void RenderCharacterAt(buffer *buf, node *line_node, int row, int col, int row_length, SDL_Texture *ch, SDL_Texture *pt)
 {
-    SDL_SetRenderTarget(app.renderer, im);
+    SDL_SetRenderTarget(app.renderer, pt);
     int cur_char = (int)app.e.text.text[0];
     SDL_Rect glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
     
@@ -62,9 +62,9 @@ void RenderCharacterAt(buffer *buf, node *line_node, int row, int col, int row_l
     SDL_SetRenderTarget(app.renderer, NULL);
 };
 
-void RenderClearCharacterAt(buffer *buf, node *line_node, int row, int col, int row_length, SDL_Texture *ch, SDL_Texture *im)
+void RenderClearCharacterAt(buffer *buf, node *line_node, int row, int col, int row_length, SDL_Texture *ch, SDL_Texture *pt)
 {
-    SDL_SetRenderTarget(app.renderer, im);
+    SDL_SetRenderTarget(app.renderer, pt);
     SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 0);// background
     int cur_char = (int)line_node->data[col];
     int chars_to_clear = row_length + 1 - col;
@@ -88,9 +88,9 @@ void RenderClearCharacterAt(buffer *buf, node *line_node, int row, int col, int 
     SDL_SetRenderTarget(app.renderer, NULL);
 };
 
-void RenderClearLine(buffer *buf, node *line_node, int row, SDL_Texture *ch, SDL_Texture *im)
+void RenderClearLine(buffer *buf, node *line_node, int row, SDL_Texture *ch, SDL_Texture *pt)
 {
-    SDL_SetRenderTarget(app.renderer, im);
+    SDL_SetRenderTarget(app.renderer, pt);
     SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 0);// background
     
     int cur_char = (int)line_node->data[0];

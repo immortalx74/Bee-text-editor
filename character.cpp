@@ -36,7 +36,7 @@ node *DeleteCharacterAt(buffer *buf, node *row, int col)
             buf->cursor.line--;
             
             
-            RenderClearLine(buf, row, buf->cursor.line, characters_texture, app.active_texture);
+            RenderClearLine(buf, row, buf->cursor.line, characters_texture, buf->panel.texture);
             return row;
         }
         else

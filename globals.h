@@ -40,11 +40,11 @@ struct buffer
     
     struct _panel
     {
-        panel_pos position;
         int x;
         int y;
         int w;
         int h;
+        SDL_Texture *texture;
         SDL_Color color = {100, 100, 100, 255};
     }panel;
 };
@@ -77,8 +77,6 @@ struct app_info
     SDL_Window *window;
     SDL_Renderer *renderer;
     buffer *active_buffer;
-    SDL_Texture *active_texture;
-    SDL_Texture *inactive_texture;
     
     void Init()
     {
@@ -116,5 +114,3 @@ struct app_info
 extern app_info app;
 extern SDL_Texture *characters_texture;
 extern SDL_Texture *screen_texture;
-extern SDL_Texture *panel_textureA;
-extern SDL_Texture *panel_textureB;
