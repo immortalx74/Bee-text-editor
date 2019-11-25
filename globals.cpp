@@ -12,6 +12,5 @@ buffer bufferB;
 app_info app;
 SDL_Texture *characters_texture;
 SDL_Texture *screen_texture;
-SDL_Texture *im_texture;
 SDL_Texture *panel_textureA;
 SDL_Texture *panel_textureB;

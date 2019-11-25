@@ -32,11 +32,7 @@ int main(int argc, char *argv[])
     app.Init();
     WindowResize(&app, app.window);
     
-    font.name = TTF_OpenFont("liberation-mono.ttf", 13);
-    font.height = TTF_FontHeight(font.name);
-    TTF_SizeText(font.name, "A", &font.width, 0);
-    
-    //TEST
+    //START WITH LEFT BUFFER/PANEL
     app.active_buffer = &bufferA;
     
     // first line
@@ -50,7 +46,6 @@ int main(int argc, char *argv[])
     characters_texture = SDL_CreateTextureFromSurface(app.renderer, characters_surface);
     SDL_Surface *screen_surface = SDL_GetWindowSurface(app.window);
     screen_texture = SDL_CreateTextureFromSurface(app.renderer, screen_surface);
-    im_texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
     
     //TEST panel textures=============================================================
     panel_textureA = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
@@ -64,7 +59,6 @@ int main(int argc, char *argv[])
     
     //===============================================================================
     SDL_SetTextureBlendMode(characters_texture, SDL_BLENDMODE_NONE);
-    SDL_SetTextureBlendMode(im_texture, SDL_BLENDMODE_BLEND);
     bufferA.head = headA;
     bufferB.head = headB;
     
@@ -85,6 +79,18 @@ int main(int argc, char *argv[])
                 else if(app.e.key.keysym.sym == SDLK_RETURN)
                 {
                     a = InputReturn(app.active_buffer, a);
+                    
+                    //if(app.active_buffer->line_count > app.active_buffer->panel.max_lines)
+                    //{
+                    //int count = app.active_buffer->line_count - app.active_buffer->panel.max_lines;
+                    //node *temp = headA;
+                    //for (int i = 0; i < count; ++i)
+                    //{
+                    //temp = temp->next;
+                    //}
+                    //
+                    //RenderClearLine(app.active_buffer, temp, 0, characters_texture, app.active_texture);
+                    //}
                 }
                 else if(app.e.key.keysym.sym == SDLK_BACKSPACE)
                 {
@@ -157,7 +163,6 @@ int main(int argc, char *argv[])
                 if(app.e.window.event == SDL_WINDOWEVENT_RESIZED)
                 {
                     WindowResize(&app, app.window);
-                    SDL_DestroyTexture(im_texture);
                     SDL_DestroyTexture(app.active_texture);
                     SDL_DestroyTexture(app.inactive_texture);
                     
@@ -179,6 +184,7 @@ int main(int argc, char *argv[])
                     
                     RenderClearLine(&bufferA, bufferA.head->next, 0, characters_texture, panel_textureA);
                     RenderClearLine(&bufferB, bufferB.head->next, 0, characters_texture, panel_textureB);
+                    
                 }
             }
         }
@@ -193,7 +199,6 @@ int main(int argc, char *argv[])
         
         SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 255);// background
         
-        //SDL_Rect pan = {app.active_buffer->panel.x,app.active_buffer->panel.y,app.active_buffer->panel.w,app.active_buffer->panel.h};
         SDL_Rect panA = {bufferA.panel.x,bufferA.panel.y,bufferA.panel.w,bufferA.panel.h};
         SDL_Rect panB = {bufferB.panel.x,bufferB.panel.y,bufferB.panel.w,bufferB.panel.h};
         
@@ -207,7 +212,6 @@ int main(int argc, char *argv[])
     SDL_FreeSurface(screen_surface);
     SDL_DestroyTexture(characters_texture);
     SDL_DestroyTexture(screen_texture);
-    SDL_DestroyTexture(im_texture);
     SDL_DestroyTexture(panel_textureA);
     SDL_DestroyTexture(panel_textureB);
     TTF_CloseFont(font.name);

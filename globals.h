@@ -71,9 +71,6 @@ struct app_info
     int ww;
     int wh;
     
-    int texw;
-    int texh;
-    
     bool quit = false;
     SDL_Event e;
     char ascii_sequence[96];
@@ -87,6 +84,10 @@ struct app_info
     {
         SDL_Init(SDL_INIT_VIDEO);
         TTF_Init();
+        
+        font.name = TTF_OpenFont("liberation-mono.ttf", 13);
+        font.height = TTF_FontHeight(font.name);
+        TTF_SizeText(font.name, "A", &font.width, 0);
         
         window = SDL_CreateWindow("Ed", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
                                   800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
@@ -108,12 +109,12 @@ struct app_info
         
         bufferA.head = headA;
         bufferB.head = headB;
+        
     };
 };
 
 extern app_info app;
 extern SDL_Texture *characters_texture;
 extern SDL_Texture *screen_texture;
-extern SDL_Texture *im_texture;
 extern SDL_Texture *panel_textureA;
 extern SDL_Texture *panel_textureB;

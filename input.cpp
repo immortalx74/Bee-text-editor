@@ -2,7 +2,7 @@
 #include "line.h"
 #include "character.h"
 #include "draw.h"
-#include <iostream>
+//#include <iostream>
 
 node *InputText(buffer *buf, node *cur_node)
 {
