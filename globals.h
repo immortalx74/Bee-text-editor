@@ -22,21 +22,23 @@ struct buffer
 {
     node *head;
     int line_count;
+    int column;
+    int line;
     
     struct _cursor
     {
-        int column = 0;
-        int line = 0;
+        int col;
+        int row;
         int last_hor_pos = 0;
         SDL_Color color = {0, 255, 0, 0};
     }cursor;
     
-    struct _marker
-    {
-        int column = 0;
-        int line = 0;
-        SDL_Color color = {255, 0, 0, 0};
-    }marker;
+    //struct _marker
+    //{
+    //int column = 0;
+    //int line = 0;
+    //SDL_Color color = {255, 0, 0, 0};
+    //}marker;
     
     struct _panel
     {
@@ -44,6 +46,8 @@ struct buffer
         int y;
         int w;
         int h;
+        int scroll_offset_hor;
+        int scroll_offset_ver;
         SDL_Texture *texture;
         SDL_Color color = {100, 100, 100, 255};
     }panel;

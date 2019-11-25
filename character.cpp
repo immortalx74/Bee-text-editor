@@ -2,23 +2,24 @@
 
 void InsertCharacterAt(buffer *buf, node *row, int col)
 {
-    U8_strinsert(row->data, buf->cursor.column, app.e.text.text, 128);
-    buf->cursor.column++;
+    U8_strinsert(row->data, buf->column, app.e.text.text, 128);
+    buf->column++;
 };
 
 node *DeleteCharacterAt(buffer *buf, node *row, int col)
 {
-    if(buf->cursor.column > 0)
+    if(buf->column > 0)
     {
-        buf->cursor.column--;
-        U8_strdel(row->data, buf->cursor.column);
+        buf->column--;
+        SyncCursorWithBuffer(buf);
+        U8_strdel(row->data, buf->column);
         return row;
     }
     else // reached the start of line. merge line with previous and force a re-draw
     {
         if(row->prev != buf->head)
         {
-            buf->cursor.column = strlen(row->prev->data);
+            buf->column = strlen(row->prev->data);
             // check if there are characters left in line
             if(strlen(row->data) > 0)
             {
@@ -31,12 +32,12 @@ node *DeleteCharacterAt(buffer *buf, node *row, int col)
                 }
             }
             
-            DeleteLineAt(buf, buf->cursor.line);
+            DeleteLineAt(buf, buf->line);
             row = row->prev;
-            buf->cursor.line--;
+            buf->line--;
             
-            
-            RenderClearLine(buf, row, buf->cursor.line, characters_texture, buf->panel.texture);
+            SyncCursorWithBuffer(buf);
+            RenderClearLine(buf, row, buf->line, characters_texture, buf->panel.texture);
             return row;
         }
         else

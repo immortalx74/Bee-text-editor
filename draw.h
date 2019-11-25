@@ -9,3 +9,5 @@ void WindowResize(app_info *application, SDL_Window *win);
 void RenderCharacterAt(buffer *buf, node *line_node, int row, int col, int row_length, SDL_Texture *ch, SDL_Texture *pt);
 void RenderClearCharacterAt(buffer *buf, node *line_node, int row, int col, int row_length, SDL_Texture *ch, SDL_Texture *pt);
 void RenderClearLine(buffer *buf, node *line_node, int row, SDL_Texture *ch, SDL_Texture *pt);
+void RenderLineRange(buffer *buf, int start, int end, SDL_Texture *ch, SDL_Texture *pt);
+void SyncCursorWithBuffer(buffer *buf);

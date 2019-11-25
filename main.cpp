@@ -106,12 +106,12 @@ int main(int argc, char *argv[])
                 {
                     InputTab(app.active_buffer, a);
                 }
-                else if( app.e.key.keysym.sym == SDLK_KP_0 && SDL_GetModState() & KMOD_CTRL )
+                else if( app.e.key.keysym.sym == SDLK_KP_0 && SDL_GetModState() & KMOD_CTRL)
                 {
                     if(app.active_buffer == &bufferA)
                     {
                         app.active_buffer = &bufferB;
-                        a = GetLineNode(&bufferB, app.active_buffer->cursor.line);
+                        a = GetLineNode(&bufferB, app.active_buffer->line);
                         
                         RenderClearLine(&bufferB, bufferB.head->next, 0, characters_texture, bufferB.panel.texture);
                         RenderClearLine(&bufferA, bufferA.head->next, 0, characters_texture, bufferA.panel.texture);
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
                     else
                     {
                         app.active_buffer = &bufferA;
-                        a = GetLineNode(&bufferA, app.active_buffer->cursor.line);
+                        a = GetLineNode(&bufferA, app.active_buffer->line);
                         
                         RenderClearLine(&bufferA, bufferA.head->next, 0, characters_texture, bufferA.panel.texture);
                         RenderClearLine(&bufferB, bufferB.head->next, 0, characters_texture, bufferB.panel.texture);
@@ -144,7 +144,6 @@ int main(int argc, char *argv[])
                     
                     RenderClearLine(&bufferA, bufferA.head->next, 0, characters_texture, bufferA.panel.texture);
                     RenderClearLine(&bufferB, bufferB.head->next, 0, characters_texture, bufferB.panel.texture);
-                    
                 }
             }
         }
