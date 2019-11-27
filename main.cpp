@@ -1,8 +1,7 @@
-//#include "SDL_FontCache.cpp"
 #include <iostream>
 #include <fstream>
 //#include <array>
-//#include "SDL.h"
+#include "SDL.h"
 //#include <stdio.h>
 //#include <string>
 #include "globals.h"
@@ -11,7 +10,6 @@
 #include "character.h"
 #include "print.h"
 #include "input.h"
-#include <assert.h>
 
 void PrintData(node *head_node)
 {
@@ -45,6 +43,11 @@ int main(int argc, char *argv[])
     SDL_Color textColor = {143, 175, 127, 255};
     SDL_Surface *characters_surface = TTF_RenderText_Blended(font.name, app.ascii_sequence, textColor);
     characters_texture = SDL_CreateTextureFromSurface(app.renderer, characters_surface);
+    
+    SDL_Surface *bar_characters_surface = TTF_RenderText_Blended(font.name, app.ascii_sequence, bufferA.status_bar.text_color);
+    bar_characters_texture = SDL_CreateTextureFromSurface(app.renderer, bar_characters_surface);
+    
+    
     SDL_Surface *screen_surface = SDL_GetWindowSurface(app.window);
     screen_texture = SDL_CreateTextureFromSurface(app.renderer, screen_surface);
     SDL_SetTextureBlendMode(characters_texture, SDL_BLENDMODE_NONE);
@@ -57,6 +60,11 @@ int main(int argc, char *argv[])
     SDL_SetTextureBlendMode(bufferB.panel.texture, SDL_BLENDMODE_BLEND);
     
     //===============================================================================
+    
+    bufferA.status_bar.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferA.status_bar.w, bufferA.status_bar.h);
+    bufferB.status_bar.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferB.status_bar.w, bufferB.status_bar.h);
+    SDL_SetTextureBlendMode(bufferA.status_bar.texture, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureBlendMode(bufferB.status_bar.texture, SDL_BLENDMODE_BLEND);
     
     bufferA.head = headA;
     bufferB.head = headB;
@@ -161,6 +169,8 @@ int main(int argc, char *argv[])
                 {
                     WindowResize(&app, app.window);
                     
+                    SDL_DestroyTexture(bufferA.panel.texture);
+                    SDL_DestroyTexture(bufferB.panel.texture);
                     bufferA.panel.texture= SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferA.panel.w, bufferA.panel.h);
                     bufferB.panel.texture= SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferB.panel.w, bufferB.panel.h);
                     
@@ -169,6 +179,14 @@ int main(int argc, char *argv[])
                     
                     RenderClearLine(&bufferA, bufferA.head->next, 0, characters_texture, bufferA.panel.texture);
                     RenderClearLine(&bufferB, bufferB.head->next, 0, characters_texture, bufferB.panel.texture);
+                    //============================
+                    SDL_DestroyTexture(bufferA.status_bar.texture);
+                    SDL_DestroyTexture(bufferB.status_bar.texture);
+                    
+                    bufferA.status_bar.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferA.status_bar.w, bufferA.status_bar.h);
+                    bufferB.status_bar.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferB.status_bar.w, bufferB.status_bar.h);
+                    SDL_SetTextureBlendMode(bufferA.status_bar.texture, SDL_BLENDMODE_BLEND);
+                    SDL_SetTextureBlendMode(bufferB.status_bar.texture, SDL_BLENDMODE_BLEND);
                 }
             }
         }
@@ -181,6 +199,8 @@ int main(int argc, char *argv[])
         BarDraw(app.renderer, &bufferA);
         BarDraw(app.renderer, &bufferB);
         
+        HighlightLineDraw(app.renderer, app.active_buffer);
+        
         CursorDraw(app.renderer, &bufferA);
         CursorDraw(app.renderer, &bufferB);
         
@@ -191,6 +211,12 @@ int main(int argc, char *argv[])
         
         SDL_RenderCopy(app.renderer, bufferA.panel.texture, NULL, &panA);
         SDL_RenderCopy(app.renderer, bufferB.panel.texture, NULL, &panB);
+        // status bars
+        SDL_Rect barA = {bufferA.status_bar.x,bufferA.status_bar.y,bufferA.status_bar.w,bufferA.status_bar.h};
+        SDL_Rect barB = {bufferB.status_bar.x,bufferB.status_bar.y,bufferB.status_bar.w,bufferB.status_bar.h};
+        
+        SDL_RenderCopy(app.renderer, bufferA.status_bar.texture, NULL, &barA);
+        SDL_RenderCopy(app.renderer, bufferB.status_bar.texture, NULL, &barB);
         
         SDL_RenderPresent(app.renderer);
     }
@@ -205,8 +231,12 @@ int main(int argc, char *argv[])
     
     myfile.close();
     SDL_FreeSurface(characters_surface);
+    SDL_FreeSurface(bar_characters_surface);
     SDL_FreeSurface(screen_surface);
+    SDL_DestroyTexture(bufferA.status_bar.texture);
+    SDL_DestroyTexture(bufferB.status_bar.texture);
     SDL_DestroyTexture(characters_texture);
+    SDL_DestroyTexture(bar_characters_texture);
     SDL_DestroyTexture(screen_texture);
     SDL_DestroyTexture(bufferA.panel.texture);
     SDL_DestroyTexture(bufferB.panel.texture);

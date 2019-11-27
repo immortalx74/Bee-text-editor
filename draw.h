@@ -4,6 +4,7 @@
 #include <string>
 
 void CursorDraw(SDL_Renderer *renderer, buffer *buf);
+void HighlightLineDraw(SDL_Renderer *renderer, buffer *buf);
 void PanelDraw(SDL_Renderer *renderer, buffer *buf);
 void BarDraw(SDL_Renderer *renderer, buffer *buf);
 void WindowResize(app_info *application, SDL_Window *win);

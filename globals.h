@@ -24,6 +24,7 @@ struct buffer
     int line_count;
     int column;
     int line;
+    char filename[128] = "*no file*";
     
     struct _cursor
     {
@@ -31,6 +32,7 @@ struct buffer
         int row;
         int last_hor_pos = 0;
         SDL_Color color = {0, 255, 0, 0};
+        SDL_Color line_highlight = {40, 0, 180, 255};
     }cursor;
     
     //struct _marker
@@ -52,17 +54,19 @@ struct buffer
         int scroll_offset_ver;
         SDL_Texture *texture;
         SDL_Color color = {100, 100, 100, 255};
-        struct _status_bar
-        {
-            int x;
-            int y;
-            int w;
-            int h;
-            char info[128] = {0};
-            SDL_Color color = {20, 20, 20, 255};
-            SDL_Color text_color = {255, 255, 255, 255};
-        }bar;
     }panel;
+    
+    struct _status_bar
+    {
+        int x;
+        int y;
+        int w;
+        int h;
+        char info[128] = {0};
+        SDL_Texture *texture;
+        SDL_Color color = {140, 140, 140, 255};
+        SDL_Color text_color = {10, 10, 10, 255};
+    }status_bar;
 };
 
 struct font_data
@@ -129,4 +133,5 @@ struct app_info
 
 extern app_info app;
 extern SDL_Texture *characters_texture;
+extern SDL_Texture *bar_characters_texture;
 extern SDL_Texture *screen_texture;
