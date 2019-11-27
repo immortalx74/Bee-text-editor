@@ -46,10 +46,22 @@ struct buffer
         int y;
         int w;
         int h;
+        int row_capacity;
+        int col_capacity;
         int scroll_offset_hor;
         int scroll_offset_ver;
         SDL_Texture *texture;
         SDL_Color color = {100, 100, 100, 255};
+        struct _status_bar
+        {
+            int x;
+            int y;
+            int w;
+            int h;
+            char info[128] = {0};
+            SDL_Color color = {20, 20, 20, 255};
+            SDL_Color text_color = {255, 255, 255, 255};
+        }bar;
     }panel;
 };
 
@@ -92,7 +104,7 @@ struct app_info
         TTF_SizeText(font.name, "A", &font.width, 0);
         
         window = SDL_CreateWindow("Ed", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
-                                  800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+                                  800, 400, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
         
         SDL_GetWindowSize(window, &ww, &wh);

@@ -1,9 +1,11 @@
 #include "character.h"
+#include <iostream>
 
 void InsertCharacterAt(buffer *buf, node *row, int col)
 {
     U8_strinsert(row->data, buf->column, app.e.text.text, 128);
     buf->column++;
+    SyncCursorWithBuffer(buf);
 };
 
 node *DeleteCharacterAt(buffer *buf, node *row, int col)
@@ -20,6 +22,7 @@ node *DeleteCharacterAt(buffer *buf, node *row, int col)
         if(row->prev != buf->head)
         {
             buf->column = strlen(row->prev->data);
+            
             // check if there are characters left in line
             if(strlen(row->data) > 0)
             {
@@ -35,9 +38,10 @@ node *DeleteCharacterAt(buffer *buf, node *row, int col)
             DeleteLineAt(buf, buf->line);
             row = row->prev;
             buf->line--;
-            
             SyncCursorWithBuffer(buf);
+            
             RenderClearLine(buf, row, buf->line, characters_texture, buf->panel.texture);
+            
             return row;
         }
         else

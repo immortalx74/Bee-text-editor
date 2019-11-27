@@ -1,5 +1,6 @@
 //#include "SDL_FontCache.cpp"
-//#include <iostream>
+#include <iostream>
+#include <fstream>
 //#include <array>
 //#include "SDL.h"
 //#include <stdio.h>
@@ -49,8 +50,8 @@ int main(int argc, char *argv[])
     SDL_SetTextureBlendMode(characters_texture, SDL_BLENDMODE_NONE);
     
     //TEST panel textures=============================================================
-    bufferA.panel.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
-    bufferB.panel.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
+    bufferA.panel.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferA.panel.w, bufferA.panel.h);
+    bufferB.panel.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferB.panel.w, bufferB.panel.h);
     
     SDL_SetTextureBlendMode(bufferA.panel.texture, SDL_BLENDMODE_BLEND);
     SDL_SetTextureBlendMode(bufferB.panel.texture, SDL_BLENDMODE_BLEND);
@@ -59,6 +60,30 @@ int main(int argc, char *argv[])
     
     bufferA.head = headA;
     bufferB.head = headB;
+    
+    
+    //TEST FILE================================================
+    std::fstream myfile;
+    myfile.open ("example.txt");
+    //myfile << "Writing this to a file.\n";
+    //myfile.close();
+    
+    std::string str; 
+    while (std::getline(myfile, str))
+    {
+        strcpy(a->data, str.c_str());
+        bufferA.column = strlen(a->data);
+        a = InputReturn(&bufferA, a);
+    };
+    
+    a = bufferA.head->next;
+    bufferA.line = 0;
+    bufferA.column = 0;
+    bufferA.cursor.row = 0;
+    bufferA.cursor.col = 0;
+    bufferA.panel.scroll_offset_ver = 0;
+    RenderLineRange(&bufferA, 0, bufferA.line_count, characters_texture, bufferA.panel.texture);
+    //========================================================
     
     while(!app.quit)
     {
@@ -113,16 +138,16 @@ int main(int argc, char *argv[])
                         app.active_buffer = &bufferB;
                         a = GetLineNode(&bufferB, app.active_buffer->line);
                         
-                        RenderClearLine(&bufferB, bufferB.head->next, 0, characters_texture, bufferB.panel.texture);
-                        RenderClearLine(&bufferA, bufferA.head->next, 0, characters_texture, bufferA.panel.texture);
+                        //RenderClearLine(&bufferB, bufferB.head->next, 0, characters_texture, bufferB.panel.texture);
+                        //RenderClearLine(&bufferA, bufferA.head->next, 0, characters_texture, bufferA.panel.texture);
                     }
                     else
                     {
                         app.active_buffer = &bufferA;
                         a = GetLineNode(&bufferA, app.active_buffer->line);
                         
-                        RenderClearLine(&bufferA, bufferA.head->next, 0, characters_texture, bufferA.panel.texture);
-                        RenderClearLine(&bufferB, bufferB.head->next, 0, characters_texture, bufferB.panel.texture);
+                        //RenderClearLine(&bufferA, bufferA.head->next, 0, characters_texture, bufferA.panel.texture);
+                        //RenderClearLine(&bufferB, bufferB.head->next, 0, characters_texture, bufferB.panel.texture);
                     }
                 }
             }
@@ -136,8 +161,8 @@ int main(int argc, char *argv[])
                 {
                     WindowResize(&app, app.window);
                     
-                    bufferA.panel.texture= SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
-                    bufferB.panel.texture= SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, app.ww/2, app.wh);
+                    bufferA.panel.texture= SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferA.panel.w, bufferA.panel.h);
+                    bufferB.panel.texture= SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferB.panel.w, bufferB.panel.h);
                     
                     SDL_SetTextureBlendMode(bufferA.panel.texture, SDL_BLENDMODE_BLEND);
                     SDL_SetTextureBlendMode(bufferB.panel.texture, SDL_BLENDMODE_BLEND);
@@ -153,6 +178,9 @@ int main(int argc, char *argv[])
         PanelDraw(app.renderer, &bufferA);
         PanelDraw(app.renderer, &bufferB);
         
+        BarDraw(app.renderer, &bufferA);
+        BarDraw(app.renderer, &bufferB);
+        
         CursorDraw(app.renderer, &bufferA);
         CursorDraw(app.renderer, &bufferB);
         
@@ -167,6 +195,15 @@ int main(int argc, char *argv[])
         SDL_RenderPresent(app.renderer);
     }
     
+    //node *test = bufferA.head->next;
+    //while(test != NULL)
+    //{
+    //myfile << test->data;
+    //myfile << "\n";
+    //test = test->next;
+    //};
+    
+    myfile.close();
     SDL_FreeSurface(characters_surface);
     SDL_FreeSurface(screen_surface);
     SDL_DestroyTexture(characters_texture);

@@ -2,7 +2,7 @@
 #include "line.h"
 #include "character.h"
 #include "draw.h"
-//#include <iostream>
+#include <iostream>
 
 node *InputText(buffer *buf, node *cur_node)
 {
@@ -54,15 +54,36 @@ node *InputReturn(buffer *buf, node *cur_node)
     
     buf->cursor.last_hor_pos = buf->cursor.col;
     
+    //test scroll
+    if(buf->line_count > buf->panel.row_capacity && buf->cursor.row >= buf->panel.row_capacity)
+    {
+        buf->panel.scroll_offset_ver++;
+        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+        SyncCursorWithBuffer(buf);
+    }
+    
     return cur_node;
 };
 
 
 node *InputBackspace(buffer *buf, node *cur_node)
 {
-    cur_node= DeleteCharacterAt(buf, cur_node, buf->column);
+    cur_node = DeleteCharacterAt(buf, cur_node, buf->column);
     RenderClearCharacterAt(buf, cur_node, buf->cursor.row, buf->cursor.col, strlen(cur_node->data),characters_texture, buf->panel.texture);
     buf->cursor.last_hor_pos = buf->cursor.col;
+    
+    //test scroll
+    if(buf->panel.scroll_offset_ver > 0 && buf->panel.scroll_offset_ver <= (buf->line_count - buf->panel.row_capacity))
+    {
+        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+        SyncCursorWithBuffer(buf);
+    }
+    else if(buf->panel.scroll_offset_ver > 0 && buf->panel.scroll_offset_ver > (buf->line_count - buf->panel.row_capacity))
+    {
+        buf->panel.scroll_offset_ver--;
+        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+        SyncCursorWithBuffer(buf);
+    }
     
     return cur_node;
 };
@@ -87,6 +108,19 @@ node *InputDelete(buffer *buf, node *cur_node)
         RenderClearCharacterAt(buf, cur_node, buf->cursor.row, buf->cursor.col, strlen(cur_node->data),characters_texture, buf->panel.texture);
     }
     buf->cursor.last_hor_pos = buf->cursor.col;
+    
+    //test scroll
+    if(buf->panel.scroll_offset_ver > 0 && buf->panel.scroll_offset_ver <= (buf->line_count - buf->panel.row_capacity))
+    {
+        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+        SyncCursorWithBuffer(buf);
+    }
+    else if(buf->panel.scroll_offset_ver > 0 && buf->panel.scroll_offset_ver > (buf->line_count - buf->panel.row_capacity))
+    {
+        buf->panel.scroll_offset_ver--;
+        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+        SyncCursorWithBuffer(buf);
+    }
     
     return cur_node;
 };
@@ -165,6 +199,14 @@ node *InputUp(buffer *buf, node *cur_node)
         SyncCursorWithBuffer(buf);
     }
     
+    //test scroll
+    if(buf->line_count > buf->panel.row_capacity && buf->cursor.row < 0)
+    {
+        buf->panel.scroll_offset_ver--;
+        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+        SyncCursorWithBuffer(buf);
+    }
+    
     return cur_node;
 };
 
@@ -191,6 +233,14 @@ node *InputDown(buffer *buf, node *cur_node)
     else
     {
         buf->column = strlen(cur_node->data);
+        SyncCursorWithBuffer(buf);
+    }
+    
+    //test scroll
+    if(buf->line_count > buf->panel.row_capacity && buf->cursor.row >= buf->panel.row_capacity)
+    {
+        buf->panel.scroll_offset_ver++;
+        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
         SyncCursorWithBuffer(buf);
     }
     
