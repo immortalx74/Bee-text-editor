@@ -4,12 +4,6 @@
 
 extern int margin;
 
-enum panel_pos
-{
-    LEFT,
-    RIGHT
-};
-
 struct node
 {
     char data[128] = {0};
@@ -34,13 +28,6 @@ struct buffer
         SDL_Color color = {0, 255, 0, 0};
         SDL_Color line_highlight = {40, 0, 180, 255};
     }cursor;
-    
-    //struct _marker
-    //{
-    //int column = 0;
-    //int line = 0;
-    //SDL_Color color = {255, 0, 0, 0};
-    //}marker;
     
     struct _panel
     {

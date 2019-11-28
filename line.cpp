@@ -1,4 +1,5 @@
 #include "line.h"
+#include <iostream>
 
 // Create line and return pointer to it
 node *CreateLine(void)
@@ -160,4 +161,28 @@ node *GetLineNode(buffer *buf, int pos)
     }
     
     return cur_head->next;
+};
+
+node *KillBuffer(buffer *buf)
+{
+    node *n = buf->head->next;
+    node *temp = NULL;
+    
+    while(n != NULL)
+    {
+        temp = n->next;
+        free(n);
+        n = temp;
+    };
+    
+    //buf->head->next = NULL;
+    n = InsertLineAt(buf, 0);
+    //return buf->head;
+    buf->line = 0;
+    buf->line_count = 1;
+    buf->column = 0;
+    buf->cursor.row = 0;
+    buf->cursor.col = 0;
+    buf->panel.scroll_offset_ver = 0;
+    return n;
 };

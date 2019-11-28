@@ -10,6 +10,7 @@
 #include "character.h"
 #include "print.h"
 #include "input.h"
+#include "file.h"
 
 void PrintData(node *head_node)
 {
@@ -52,29 +53,28 @@ int main(int argc, char *argv[])
     screen_texture = SDL_CreateTextureFromSurface(app.renderer, screen_surface);
     SDL_SetTextureBlendMode(characters_texture, SDL_BLENDMODE_NONE);
     
-    //TEST panel textures=============================================================
     bufferA.panel.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferA.panel.w, bufferA.panel.h);
     bufferB.panel.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferB.panel.w, bufferB.panel.h);
     
     SDL_SetTextureBlendMode(bufferA.panel.texture, SDL_BLENDMODE_BLEND);
     SDL_SetTextureBlendMode(bufferB.panel.texture, SDL_BLENDMODE_BLEND);
     
-    //===============================================================================
     
     bufferA.status_bar.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferA.status_bar.w, bufferA.status_bar.h);
     bufferB.status_bar.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferB.status_bar.w, bufferB.status_bar.h);
     SDL_SetTextureBlendMode(bufferA.status_bar.texture, SDL_BLENDMODE_BLEND);
     SDL_SetTextureBlendMode(bufferB.status_bar.texture, SDL_BLENDMODE_BLEND);
     
-    bufferA.head = headA;
-    bufferB.head = headB;
-    
     
     //TEST FILE================================================
     std::fstream myfile;
     myfile.open ("example.txt");
-    //myfile << "Writing this to a file.\n";
-    //myfile.close();
+    //if (!myfile)
+    //{
+    //std::cout << "Somthing failed while opening the file\n";
+    //SDL_Delay(1000);
+    //}
+    
     
     std::string str; 
     while (std::getline(myfile, str))
@@ -83,6 +83,7 @@ int main(int argc, char *argv[])
         bufferA.column = strlen(a->data);
         a = InputReturn(&bufferA, a);
     };
+    myfile.close();
     
     a = bufferA.head->next;
     bufferA.line = 0;
@@ -139,23 +140,24 @@ int main(int argc, char *argv[])
                 {
                     InputTab(app.active_buffer, a);
                 }
+                else if( app.e.key.keysym.sym == SDLK_KP_1 && SDL_GetModState() & KMOD_CTRL)
+                {
+                    //a = FileReadToBuffer(&bufferA, "test.txt");
+                    a = KillBuffer(&bufferA);
+                    //print(a->next->next->next->next->data);
+                    RenderLineRange(&bufferA, 0, bufferA.line_count, characters_texture, bufferA.panel.texture);
+                }
                 else if( app.e.key.keysym.sym == SDLK_KP_0 && SDL_GetModState() & KMOD_CTRL)
                 {
                     if(app.active_buffer == &bufferA)
                     {
                         app.active_buffer = &bufferB;
                         a = GetLineNode(&bufferB, app.active_buffer->line);
-                        
-                        //RenderClearLine(&bufferB, bufferB.head->next, 0, characters_texture, bufferB.panel.texture);
-                        //RenderClearLine(&bufferA, bufferA.head->next, 0, characters_texture, bufferA.panel.texture);
                     }
                     else
                     {
                         app.active_buffer = &bufferA;
                         a = GetLineNode(&bufferA, app.active_buffer->line);
-                        
-                        //RenderClearLine(&bufferA, bufferA.head->next, 0, characters_texture, bufferA.panel.texture);
-                        //RenderClearLine(&bufferB, bufferB.head->next, 0, characters_texture, bufferB.panel.texture);
                     }
                 }
             }
@@ -179,7 +181,7 @@ int main(int argc, char *argv[])
                     
                     RenderClearLine(&bufferA, bufferA.head->next, 0, characters_texture, bufferA.panel.texture);
                     RenderClearLine(&bufferB, bufferB.head->next, 0, characters_texture, bufferB.panel.texture);
-                    //============================
+                    
                     SDL_DestroyTexture(bufferA.status_bar.texture);
                     SDL_DestroyTexture(bufferB.status_bar.texture);
                     
@@ -221,15 +223,23 @@ int main(int argc, char *argv[])
         SDL_RenderPresent(app.renderer);
     }
     
+    //myfile.open ("example.txt");
     //node *test = bufferA.head->next;
     //while(test != NULL)
     //{
+    //if (!myfile)
+    //{
+    //std::cout << "Somthing failed while opening the file\n";
+    //SDL_Delay(1000);
+    //}
     //myfile << test->data;
-    //myfile << "\n";
+    //myfile << "\n" << std::flush;
     //test = test->next;
     //};
+    //
+    //myfile.close();
     
-    myfile.close();
+    
     SDL_FreeSurface(characters_surface);
     SDL_FreeSurface(bar_characters_surface);
     SDL_FreeSurface(screen_surface);
