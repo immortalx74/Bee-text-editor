@@ -6,7 +6,7 @@ extern int margin;
 
 struct node
 {
-    char data[128] = {0};
+    char data[256] = {0};
     struct node *next;
     struct node *prev;
 };
@@ -95,7 +95,7 @@ struct app_info
         TTF_SizeText(font.name, "A", &font.width, 0);
         
         window = SDL_CreateWindow("Ed", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
-                                  800, 400, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+                                  1024, 768, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
         
         SDL_GetWindowSize(window, &ww, &wh);

@@ -37,9 +37,9 @@ int main(int argc, char *argv[])
     
     // Add a line to both buffers
     node *a = InsertLineAt(&bufferB, 0);
-    memset(a->data, 0, 128);
+    memset(a->data, 0, 256);
     a = InsertLineAt(&bufferA, 0);
-    memset(a->data, 0, 128);
+    memset(a->data, 0, 256);
     
     // Set textures/surfaces
     SDL_Color textColor = {143, 175, 127, 255};
@@ -68,8 +68,7 @@ int main(int argc, char *argv[])
     
     
     //Open a test file
-    //FileReadToBuffer(app.active_buffer, "example.txt");
-    FileReadToBuffer(app.active_buffer, "kenedy.txt");
+    a = FileReadToBuffer(app.active_buffer, "big.txt");
     while(!app.quit)
     {
         while (SDL_PollEvent(&app.e))
@@ -139,6 +138,7 @@ int main(int argc, char *argv[])
                     {
                         app.active_buffer = &bufferA;
                         a = GetLineNode(&bufferA, app.active_buffer->line);
+                        print(a->data);
                     }
                 }
             }

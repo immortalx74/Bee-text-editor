@@ -3,7 +3,7 @@
 
 void InsertCharacterAt(buffer *buf, node *row, int col)
 {
-    U8_strinsert(row->data, buf->column, app.e.text.text, 128);
+    U8_strinsert(row->data, buf->column, app.e.text.text, 256);
     buf->column++;
     SyncCursorWithBuffer(buf);
 };

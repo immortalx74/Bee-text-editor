@@ -14,7 +14,16 @@ node *FileReadToBuffer(buffer *buf, char *filename)
     {
         strcpy(cur_node->data, str.c_str());
         buf->column = strlen(cur_node->data);
-        cur_node= InputReturn(buf, cur_node);
+        //cur_node = InputReturn(buf, cur_node);
+        
+        //TEST
+        node *newline = (node*)malloc(sizeof(node));
+        memset(newline->data, 0, 256);
+        newline->prev = cur_node;
+        newline->next = NULL;
+        cur_node->next = newline;
+        cur_node = newline;
+        buf->line_count++;
     };
     
     file.close();

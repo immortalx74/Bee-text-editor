@@ -22,7 +22,7 @@ node *InputReturn(buffer *buf, node *cur_node)
         buf->line++;
         SyncCursorWithBuffer(buf);
         cur_node = InsertLineAt(buf, buf->line);
-        memset(cur_node, 0, 128);
+        memset(cur_node, 0, 256);
         
         // re-draw trailing lines if this isn't the last line entered
         if (buf->line <  buf->line_count - 1)
@@ -33,7 +33,7 @@ node *InputReturn(buffer *buf, node *cur_node)
     else// cursor at start or middle of line
     {
         cur_node = InsertLineAt(buf, buf->line + 1);
-        memset(cur_node, 0, 128);
+        memset(cur_node, 0, 256);
         
         int index = 0;
         int len = strlen(cur_node->prev->data);
@@ -252,7 +252,7 @@ void InputTab(buffer *buf, node *cur_node)
 {
     for (int i = 0; i < 4; ++i)
     {
-        U8_strinsert(cur_node->data, buf->column, " ", 128);
+        U8_strinsert(cur_node->data, buf->column, " ", 256);
         buf->column++;
         SyncCursorWithBuffer(buf);
         RenderCharacterAt(buf, cur_node, buf->cursor.row, buf->cursor.col - 1, strlen(cur_node->data), characters_texture, buf->panel.texture);

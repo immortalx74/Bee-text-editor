@@ -1,6 +1,7 @@
 #pragma once
 #include "SDL.h"
 #include "globals.h"
+#include "helpers.h"
 #include <string>
 
 void CursorDraw(SDL_Renderer *renderer, buffer *buf);

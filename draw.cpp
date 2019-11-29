@@ -1,4 +1,5 @@
 #include "draw.h"
+#include "character.h"
 #include <iostream>
 
 void CursorDraw(SDL_Renderer *renderer, buffer *buf)
@@ -36,12 +37,26 @@ void BarDraw(SDL_Renderer *renderer, buffer *buf)
     SDL_Rect glyph_rect;
     SDL_Rect pos;
     
-    int len = strlen(buf->filename);
-    for (int i = 0; i < len; ++i)
+    int len_fn = strlen(buf->filename);
+    for (int i = 0; i < len_fn; ++i)
     {
         cur_char = (int)buf->filename[i];
         glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
         pos = {margin + (i * font.width), margin, font.width, font.height};
+        SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
+    }
+    
+    // print line/col
+    int len_lc = GetDigitCount(buf->line) + GetDigitCount(buf->column) + 3;
+    char final[20] = {0};
+    sprintf (final, "L%d,C%d", buf->line+1, buf->column+1);
+    
+    for (int i = 0; i < len_lc; ++i)
+    {
+        cur_char = final[i];
+        
+        glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
+        pos = {((len_fn + 2) * font.width) + margin + (i * font.width), margin, font.width, font.height};
         SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
     }
     

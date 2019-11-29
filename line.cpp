@@ -40,7 +40,7 @@ node *InsertLineAt(buffer *buf, int pos)
             newline->next = right_of_head;
         }
         
-        memset(newline->data, 0, 128);
+        memset(newline->data, 0, 256);
         
         buf->line_count++;
         return newline;
@@ -63,7 +63,7 @@ node *InsertLineAt(buffer *buf, int pos)
         newline->next = NULL;
         buf->line_count++;
         
-        memset(newline->data, 0, 128);
+        memset(newline->data, 0, 256);
         return newline;
     }
     else // Add in-between(NOTE: if pos = n, pushes existing n and all other nodes rightwards)
@@ -88,7 +88,7 @@ node *InsertLineAt(buffer *buf, int pos)
         
         buf->line_count++;
         
-        memset(newline->data, 0, 128);
+        memset(newline->data, 0, 256);
         return newline;
     }
 };
