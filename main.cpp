@@ -35,12 +35,13 @@ int main(int argc, char *argv[])
     //START WITH LEFT BUFFER/PANEL
     app.active_buffer = &bufferA;
     
-    // first line
+    // Add a line to both buffers
     node *a = InsertLineAt(&bufferB, 0);
     memset(a->data, 0, 128);
     a = InsertLineAt(&bufferA, 0);
     memset(a->data, 0, 128);
     
+    // Set textures/surfaces
     SDL_Color textColor = {143, 175, 127, 255};
     SDL_Surface *characters_surface = TTF_RenderText_Blended(font.name, app.ascii_sequence, textColor);
     characters_texture = SDL_CreateTextureFromSurface(app.renderer, characters_surface);
@@ -66,34 +67,9 @@ int main(int argc, char *argv[])
     SDL_SetTextureBlendMode(bufferB.status_bar.texture, SDL_BLENDMODE_BLEND);
     
     
-    //TEST FILE================================================
-    std::fstream myfile;
-    myfile.open ("example.txt");
-    //if (!myfile)
-    //{
-    //std::cout << "Somthing failed while opening the file\n";
-    //SDL_Delay(1000);
-    //}
-    
-    
-    std::string str; 
-    while (std::getline(myfile, str))
-    {
-        strcpy(a->data, str.c_str());
-        bufferA.column = strlen(a->data);
-        a = InputReturn(&bufferA, a);
-    };
-    myfile.close();
-    
-    a = bufferA.head->next;
-    bufferA.line = 0;
-    bufferA.column = 0;
-    bufferA.cursor.row = 0;
-    bufferA.cursor.col = 0;
-    bufferA.panel.scroll_offset_ver = 0;
-    RenderLineRange(&bufferA, 0, bufferA.line_count, characters_texture, bufferA.panel.texture);
-    //========================================================
-    
+    //Open a test file
+    //FileReadToBuffer(app.active_buffer, "example.txt");
+    FileReadToBuffer(app.active_buffer, "kenedy.txt");
     while(!app.quit)
     {
         while (SDL_PollEvent(&app.e))
@@ -140,12 +116,17 @@ int main(int argc, char *argv[])
                 {
                     InputTab(app.active_buffer, a);
                 }
-                else if( app.e.key.keysym.sym == SDLK_KP_1 && SDL_GetModState() & KMOD_CTRL)
+                else if( app.e.key.keysym.sym == SDLK_s && SDL_GetModState() & KMOD_CTRL)
                 {
-                    //a = FileReadToBuffer(&bufferA, "test.txt");
-                    a = KillBuffer(&bufferA);
-                    //print(a->next->next->next->next->data);
-                    RenderLineRange(&bufferA, 0, bufferA.line_count, characters_texture, bufferA.panel.texture);
+                    FileWriteToDisk(app.active_buffer, "example.txt");
+                }
+                else if( app.e.key.keysym.sym == SDLK_k && SDL_GetModState() & KMOD_CTRL)
+                {
+                    a = KillBuffer(app.active_buffer);
+                }
+                else if( app.e.key.keysym.sym == SDLK_o && SDL_GetModState() & KMOD_CTRL)
+                {
+                    a = FileReadToBuffer(app.active_buffer, "test.txt");
                 }
                 else if( app.e.key.keysym.sym == SDLK_KP_0 && SDL_GetModState() & KMOD_CTRL)
                 {
@@ -213,7 +194,7 @@ int main(int argc, char *argv[])
         
         SDL_RenderCopy(app.renderer, bufferA.panel.texture, NULL, &panA);
         SDL_RenderCopy(app.renderer, bufferB.panel.texture, NULL, &panB);
-        // status bars
+        
         SDL_Rect barA = {bufferA.status_bar.x,bufferA.status_bar.y,bufferA.status_bar.w,bufferA.status_bar.h};
         SDL_Rect barB = {bufferB.status_bar.x,bufferB.status_bar.y,bufferB.status_bar.w,bufferB.status_bar.h};
         
@@ -222,23 +203,6 @@ int main(int argc, char *argv[])
         
         SDL_RenderPresent(app.renderer);
     }
-    
-    //myfile.open ("example.txt");
-    //node *test = bufferA.head->next;
-    //while(test != NULL)
-    //{
-    //if (!myfile)
-    //{
-    //std::cout << "Somthing failed while opening the file\n";
-    //SDL_Delay(1000);
-    //}
-    //myfile << test->data;
-    //myfile << "\n" << std::flush;
-    //test = test->next;
-    //};
-    //
-    //myfile.close();
-    
     
     SDL_FreeSurface(characters_surface);
     SDL_FreeSurface(bar_characters_surface);

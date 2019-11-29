@@ -6,3 +6,4 @@
 #include "input.h"
 
 node *FileReadToBuffer(buffer *buf, char *filename);
+void FileWriteToDisk(buffer *buf, char *filename);

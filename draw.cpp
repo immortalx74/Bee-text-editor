@@ -24,10 +24,6 @@ void BarDraw(SDL_Renderer *renderer, buffer *buf)
     SDL_SetRenderDrawColor(renderer, buf->panel.color.r, buf->panel.color.g, buf->panel.color.b, buf->panel.color.a);
     SDL_RenderDrawRect(renderer, &box);
     
-    //box = {buf->status_bar.x + 2, buf->status_bar.y + 2, buf->status_bar.w - 4, buf->status_bar.h - 4};
-    //SDL_SetRenderDrawColor(renderer, buf->status_bar.color.r, buf->status_bar.color.g, buf->status_bar.color.b, buf->status_bar.color.a);
-    //SDL_RenderFillRect(renderer, &box);
-    
     //draw info
     SDL_SetRenderTarget(app.renderer, buf->status_bar.texture);
     SDL_SetRenderDrawColor(renderer, buf->status_bar.text_color.r, buf->status_bar.text_color.g, buf->status_bar.text_color.b, buf->status_bar.text_color.a);

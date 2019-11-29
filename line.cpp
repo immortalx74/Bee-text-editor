@@ -1,5 +1,6 @@
 #include "line.h"
 #include <iostream>
+#include "draw.h"
 
 // Create line and return pointer to it
 node *CreateLine(void)
@@ -166,23 +167,42 @@ node *GetLineNode(buffer *buf, int pos)
 node *KillBuffer(buffer *buf)
 {
     node *n = buf->head->next;
-    node *temp = NULL;
+    node *ahead = NULL;
     
     while(n != NULL)
     {
-        temp = n->next;
+        ahead= n->next;
         free(n);
-        n = temp;
+        n = ahead;
     };
     
-    //buf->head->next = NULL;
+    buf->head->prev = NULL;
+    buf->head->next = NULL;
     n = InsertLineAt(buf, 0);
-    //return buf->head;
+    
     buf->line = 0;
     buf->line_count = 1;
     buf->column = 0;
     buf->cursor.row = 0;
     buf->cursor.col = 0;
+    buf->cursor.last_hor_pos = 0;
     buf->panel.scroll_offset_ver = 0;
+    
+    //TEMP set filename
+    int len = strlen(buf->filename);
+    for (int i = 0; i < len; ++i)
+    {
+        buf->filename[i] = 0;
+    }
+    
+    char empty_filename[] = "*no file*";
+    len = strlen(empty_filename);
+    for (int i = 0; i < len; ++i)
+    {
+        buf->filename[i] = empty_filename[i];
+    }
+    
+    RenderLineRange(buf, 0, 1, characters_texture, buf->panel.texture);
+    
     return n;
 };
