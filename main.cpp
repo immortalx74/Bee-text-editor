@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     
     
     //Open a test file
-    a = FileReadToBuffer(app.active_buffer, "big.txt");
+    a = FileReadToBuffer(app.active_buffer, "big.cpp");
     while(!app.quit)
     {
         while (SDL_PollEvent(&app.e))

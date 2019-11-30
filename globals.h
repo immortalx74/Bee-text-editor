@@ -37,6 +37,7 @@ struct buffer
         int h;
         int row_capacity;
         int col_capacity;
+        int page = 0;
         int scroll_offset_hor;
         int scroll_offset_ver;
         SDL_Texture *texture;
