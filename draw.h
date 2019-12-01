@@ -14,3 +14,4 @@ void RenderClearCharacterAt(buffer *buf, node *line_node, int row, int col, int 
 void RenderClearLine(buffer *buf, node *line_node, int row, SDL_Texture *ch, SDL_Texture *pt);
 void RenderLineRange(buffer *buf, int start, int end, SDL_Texture *ch, SDL_Texture *pt);
 void SyncCursorWithBuffer(buffer *buf);
+void SwitchHorizontalPage(buffer *buf);

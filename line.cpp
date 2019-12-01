@@ -187,6 +187,7 @@ node *KillBuffer(buffer *buf)
     buf->cursor.col = 0;
     buf->cursor.last_hor_pos = 0;
     buf->panel.scroll_offset_ver = 0;
+    buf->panel.page = 0;
     
     //TEMP set filename
     int len = strlen(buf->filename);

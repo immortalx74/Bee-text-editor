@@ -4,7 +4,8 @@
 
 void CursorDraw(SDL_Renderer *renderer, buffer *buf)
 {
-    int xx = (buf->cursor.col * font.width) + margin + buf->panel.x;
+    // NOTE xx now takes page into account
+    int xx = ((buf->cursor.col - buf->panel.page * buf->panel.col_capacity) * font.width) + margin + buf->panel.x;
     int yy = (buf->cursor.row * font.height) + margin;
     
     SDL_Rect box = {xx, yy, font.width, font.height};
@@ -107,20 +108,20 @@ void RenderCharacterAt(buffer *buf, node *line_node, int row, int col, int row_l
     
     if(col == row_length - 1) // draw last character in line
     {
-        SDL_Rect pos = {margin + (col * font.width), margin + (row * font.height), font.width, font.height};
+        SDL_Rect pos = {margin + (col * font.width) - (buf->panel.page * buf->panel.col_capacity * font.width), margin + (row * font.height), font.width, font.height};
         SDL_RenderCopy(app.renderer, ch, &glyph_rect, &pos);
     }
     else //draw current character & trailing characters
     {
         int chars_to_clear = row_length - col;
-        SDL_Rect clear_rect = {margin + (col * font.width), margin + (row * font.height), chars_to_clear * font.width, font.height};
+        SDL_Rect clear_rect = {margin + (col * font.width) - (buf->panel.page * buf->panel.col_capacity * font.width), margin + (row * font.height), chars_to_clear * font.width, font.height};
         SDL_RenderFillRect(app.renderer, &clear_rect);
         
         for (int i = col; i < row_length; ++i)
         {
             int cur_char = (int)line_node->data[i];
             SDL_Rect glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-            SDL_Rect pos = {margin + (i * font.width), margin + (buf->cursor.row * font.height), font.width, font.height};
+            SDL_Rect pos = {margin + (i * font.width) - (buf->panel.page * buf->panel.col_capacity * font.width), margin + (buf->cursor.row * font.height), font.width, font.height};
             
             SDL_RenderCopy(app.renderer, ch, &glyph_rect, &pos);
         }
@@ -137,7 +138,7 @@ void RenderClearCharacterAt(buffer *buf, node *line_node, int row, int col, int 
     int chars_to_clear = row_length + 1 - col;
     SDL_Rect glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
     
-    SDL_Rect clear_rect = {margin + (col * font.width), margin + (row * font.height), chars_to_clear * font.width, font.height};
+    SDL_Rect clear_rect = {margin + (col * font.width) - (buf->panel.page * buf->panel.col_capacity * font.width), margin + (row * font.height), chars_to_clear * font.width, font.height};
     SDL_RenderFillRect(app.renderer, &clear_rect);
     
     
@@ -147,7 +148,7 @@ void RenderClearCharacterAt(buffer *buf, node *line_node, int row, int col, int 
         {
             int cur_char = (int)line_node->data[i];
             glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-            SDL_Rect pos = {margin + (i * font.width), margin + (buf->cursor.row * font.height), font.width, font.height};
+            SDL_Rect pos = {margin + (i * font.width) - (buf->panel.page * buf->panel.col_capacity * font.width), margin + (buf->cursor.row * font.height), font.width, font.height};
             
             SDL_RenderCopy(app.renderer, ch, &glyph_rect, &pos);
         }
@@ -169,11 +170,12 @@ void RenderClearLine(buffer *buf, node *line_node, int row, SDL_Texture *ch, SDL
     
     for (int i = row; i < buf->line_count; ++i)
     {
-        for (int j = 0; j < strlen(line_node->data); ++j)
+        int start = (buf->panel.page * buf->panel.col_capacity);
+        for (int j = start; j < strlen(line_node->data); ++j)
         {
             cur_char = (int)line_node->data[j];
             SDL_Rect glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-            SDL_Rect pos = {margin + (j * font.width), margin + (i * font.height), font.width, font.height};
+            SDL_Rect pos = {margin + ((j - start) * font.width), margin + (i * font.height), font.width, font.height};
             SDL_RenderCopy(app.renderer, ch, &glyph_rect, &pos);
         }
         
@@ -206,14 +208,15 @@ void RenderLineRange(buffer *buf, int start, int count, SDL_Texture *ch, SDL_Tex
     
     for (int i = 0; i < count; ++i)
     {
+        int start = (buf->panel.page * buf->panel.col_capacity);
         int len = strlen(cur_node->data);
         
-        for (int j = 0; j < len; ++j)
+        for (int j = start; j < len; ++j)
         {
             int cur_char = (int)cur_node->data[j];
             
             glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-            pos_rect = {margin + (j * font.width), margin + (i * font.height), font.width, font.height};
+            pos_rect = {margin + ((j - start) * font.width), margin + (i * font.height), font.width, font.height};
             
             SDL_RenderCopy(app.renderer, ch, &glyph_rect, &pos_rect);
         }
@@ -228,5 +231,20 @@ void RenderLineRange(buffer *buf, int start, int count, SDL_Texture *ch, SDL_Tex
 void SyncCursorWithBuffer(buffer *buf)
 {
     buf->cursor.row = buf->line - buf->panel.scroll_offset_ver;
-    buf->cursor.col = buf->column - buf->panel.scroll_offset_hor;
+    buf->cursor.col = buf->column;
+};
+
+void SwitchHorizontalPage(buffer *buf)
+{
+    //page advance test
+    if(buf->column + 1 > (buf->panel.page + 1) * buf->panel.col_capacity)
+    {
+        buf->panel.page++;
+        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+    }
+    if(buf->column  < buf->panel.page * buf->panel.col_capacity)
+    {
+        buf->panel.page--;
+        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+    }
 };

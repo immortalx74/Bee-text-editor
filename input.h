@@ -10,4 +10,8 @@ node *InputRight(buffer *buf, node *cur_node);
 node *InputUp(buffer *buf, node *cur_node);
 node *InputDown(buffer *buf, node *cur_node);
 node *InputDown(buffer *buf, node *cur_node);
+node *InputPageUp(buffer *buf, node *cur_node);
+node *InputPageDown(buffer *buf, node *cur_node);
+void InputHome(buffer *buf, node *cur_node);
+void InputEnd(buffer *buf, node *cur_node);
 void InputTab(buffer *buf, node *cur_node);

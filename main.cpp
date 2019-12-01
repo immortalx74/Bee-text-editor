@@ -76,6 +76,7 @@ int main(int argc, char *argv[])
             if(app.e.type == SDL_TEXTINPUT)
             {
                 a = InputText(app.active_buffer, a);
+                //print(a->data);
             }
             else if (app.e.type == SDL_KEYDOWN)
             {
@@ -110,6 +111,18 @@ int main(int argc, char *argv[])
                 else if(app.e.key.keysym.sym == SDLK_DOWN)
                 {
                     a = InputDown(app.active_buffer, a);
+                }
+                else if(app.e.key.keysym.sym == SDLK_HOME)
+                {
+                    InputHome(app.active_buffer, a);
+                }
+                else if(app.e.key.keysym.sym == SDLK_END)
+                {
+                    InputEnd(app.active_buffer, a);
+                }
+                else if(app.e.key.keysym.sym == SDLK_PAGEUP)
+                {
+                    a = InputPageUp(app.active_buffer, a);
                 }
                 else if(app.e.key.keysym.sym == SDLK_TAB)
                 {
