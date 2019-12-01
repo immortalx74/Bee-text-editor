@@ -285,8 +285,8 @@ node *InputPageUp(buffer *buf, node *cur_node)
 {
     if(buf->line_count > buf->panel.row_capacity && buf->line > buf->panel.row_capacity)
     {
-        int bl = buf->line;
-        for (int i = bl; i > bl - buf->panel.row_capacity; --i)
+        //int bl = buf->line;
+        for (int i = buf->line; i > buf->line - buf->panel.row_capacity; --i)
         {
             cur_node = cur_node->prev;
         }
@@ -298,7 +298,6 @@ node *InputPageUp(buffer *buf, node *cur_node)
         //scroll
         if(buf->line_count > buf->panel.row_capacity && buf->cursor.row < 0)
         {
-            
             buf->panel.scroll_offset_ver -= buf->panel.row_capacity;
             RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
             SyncCursorWithBuffer(buf);
