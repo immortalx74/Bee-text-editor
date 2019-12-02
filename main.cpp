@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     
     
     //Open a test file
-    a = FileReadToBuffer(app.active_buffer, "big.cpp");
+    a = FileReadToBuffer(app.active_buffer, "medium.txt");
     while(!app.quit)
     {
         while (SDL_PollEvent(&app.e))
@@ -76,7 +76,6 @@ int main(int argc, char *argv[])
             if(app.e.type == SDL_TEXTINPUT)
             {
                 a = InputText(app.active_buffer, a);
-                //print(a->data);
             }
             else if (app.e.type == SDL_KEYDOWN)
             {
@@ -123,6 +122,10 @@ int main(int argc, char *argv[])
                 else if(app.e.key.keysym.sym == SDLK_PAGEUP)
                 {
                     a = InputPageUp(app.active_buffer, a);
+                }
+                else if(app.e.key.keysym.sym == SDLK_PAGEDOWN)
+                {
+                    a = InputPageDown(app.active_buffer, a);
                 }
                 else if(app.e.key.keysym.sym == SDLK_TAB)
                 {
