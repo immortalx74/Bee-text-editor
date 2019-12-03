@@ -307,11 +307,14 @@ node *InputPageUp(buffer *buf, node *cur_node)
             RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
             SyncCursorWithBuffer(buf);
         }
+        
     }
     else
     {
         buf->line = 0;
+        buf->panel.scroll_offset_ver = 0;
         SwitchHorizontalPage(buf);
+        RenderLineRange(buf, 0, buf->panel.row_capacity, characters_texture, buf->panel.texture);
         SyncCursorWithBuffer(buf);
     }
     
@@ -332,7 +335,8 @@ node *InputPageDown(buffer *buf, node *cur_node)
         SyncCursorWithBuffer(buf);
         
         //test scroll
-        if(buf->line <=  buf->line_count - (2 * buf->panel.row_capacity))
+        int aaa = (buf->line_count / buf->panel.row_capacity) * buf->panel.row_capacity;
+        if(buf->line <=  buf->line_count - (aaa+1))
         {
             buf->panel.scroll_offset_ver += buf->panel.row_capacity;
             
@@ -341,11 +345,11 @@ node *InputPageDown(buffer *buf, node *cur_node)
         }
         else
         {
-            buf->panel.scroll_offset_ver += buf->line_count - buf->line - buf->panel.row_capacity;
-            SyncCursorWithBuffer(buf);
-            RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
-            SyncCursorWithBuffer(buf);
-            std::cout << "here" << std::endl;
+            //std::cout << "h" << std::endl;
+            //buf->panel.scroll_offset_ver += buf->line_count - buf->line - buf->panel.row_capacity;
+            //SyncCursorWithBuffer(buf);
+            //RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+            //SyncCursorWithBuffer(buf);
         }
         
     }
@@ -353,6 +357,7 @@ node *InputPageDown(buffer *buf, node *cur_node)
     {
         buf->line = buf->line_count-1;
         SwitchHorizontalPage(buf);
+        RenderLineRange(buf, buf->line_count - buf->panel.row_capacity, buf->panel.row_capacity, characters_texture, buf->panel.texture);
         SyncCursorWithBuffer(buf);
     }
     
