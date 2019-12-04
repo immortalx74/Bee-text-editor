@@ -336,7 +336,7 @@ node *InputPageDown(buffer *buf, node *cur_node)
         
         //test scroll
         int aaa = (buf->line_count / buf->panel.row_capacity) * buf->panel.row_capacity;
-        if(buf->line <=  buf->line_count - (aaa+1))
+        if(buf->line < aaa)
         {
             buf->panel.scroll_offset_ver += buf->panel.row_capacity;
             
@@ -345,13 +345,12 @@ node *InputPageDown(buffer *buf, node *cur_node)
         }
         else
         {
-            //std::cout << "h" << std::endl;
-            //buf->panel.scroll_offset_ver += buf->line_count - buf->line - buf->panel.row_capacity;
-            //SyncCursorWithBuffer(buf);
-            //RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
-            //SyncCursorWithBuffer(buf);
+            buf->panel.scroll_offset_ver = buf->line_count - buf->panel.row_capacity;
+            SwitchHorizontalPage(buf);
+            SyncCursorWithBuffer(buf);
+            RenderLineRange(buf, buf->line_count - buf->panel.row_capacity, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+            SyncCursorWithBuffer(buf);
         }
-        
     }
     else
     {

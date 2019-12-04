@@ -14,9 +14,7 @@ node *FileReadToBuffer(buffer *buf, char *filename)
     {
         strcpy(cur_node->data, str.c_str());
         buf->column = strlen(cur_node->data);
-        //cur_node = InputReturn(buf, cur_node);
         
-        //TEST
         node *newline = (node*)malloc(sizeof(node));
         memset(newline->data, 0, 256);
         newline->prev = cur_node;
@@ -25,6 +23,9 @@ node *FileReadToBuffer(buffer *buf, char *filename)
         cur_node = newline;
         buf->line_count++;
     };
+    
+    //TEMP hack. Delete that extra last line
+    DeleteLineAt(buf, buf->line_count - 1);
     
     file.close();
     
