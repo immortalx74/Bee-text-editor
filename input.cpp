@@ -311,6 +311,7 @@ node *InputPageUp(buffer *buf, node *cur_node)
     }
     else
     {
+        cur_node = buf->head->next;
         buf->line = 0;
         buf->panel.scroll_offset_ver = 0;
         SwitchHorizontalPage(buf);
@@ -335,8 +336,8 @@ node *InputPageDown(buffer *buf, node *cur_node)
         SyncCursorWithBuffer(buf);
         
         //test scroll
-        int aaa = (buf->line_count / buf->panel.row_capacity) * buf->panel.row_capacity;
-        if(buf->line < aaa)
+        int complete_pages = (buf->line_count / buf->panel.row_capacity) * buf->panel.row_capacity;
+        if(buf->line < complete_pages)
         {
             buf->panel.scroll_offset_ver += buf->panel.row_capacity;
             
@@ -354,8 +355,13 @@ node *InputPageDown(buffer *buf, node *cur_node)
     }
     else
     {
+        while(cur_node->next != NULL)
+        {
+            cur_node = cur_node->next;
+        }
         buf->line = buf->line_count-1;
         SwitchHorizontalPage(buf);
+        SyncCursorWithBuffer(buf);
         RenderLineRange(buf, buf->line_count - buf->panel.row_capacity, buf->panel.row_capacity, characters_texture, buf->panel.texture);
         SyncCursorWithBuffer(buf);
     }
