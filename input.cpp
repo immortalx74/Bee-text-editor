@@ -149,6 +149,14 @@ node *InputLeft(buffer *buf, node *cur_node)
     SyncCursorWithBuffer(buf);
     buf->cursor.last_hor_pos = buf->cursor.col;
     
+    //test scroll
+    if(buf->line_count > buf->panel.row_capacity && buf->cursor.row < 0)
+    {
+        buf->panel.scroll_offset_ver--;
+        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+        SyncCursorWithBuffer(buf);
+    }
+    
     return cur_node;
 };
 
@@ -173,6 +181,14 @@ node *InputRight(buffer *buf, node *cur_node)
     SyncCursorWithBuffer(buf);
     buf->cursor.last_hor_pos = buf->cursor.col;
     
+    //test scroll
+    if(buf->line_count > buf->panel.row_capacity && buf->cursor.row >= buf->panel.row_capacity)
+    {
+        buf->panel.scroll_offset_ver++;
+        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+        SyncCursorWithBuffer(buf);
+    }
+    
     return cur_node;
 };
 
@@ -181,19 +197,11 @@ node *InputUp(buffer *buf, node *cur_node)
 {
     if(buf->line > 0)
     {
-        if(buf->cursor.last_hor_pos <= strlen(cur_node->prev->data))
-        {
-            buf->column = buf->cursor.last_hor_pos;
-        }
-        else
-        {
-            buf->column = strlen(cur_node->prev->data);
-        }
-        
-        SwitchHorizontalPage(buf);
         buf->line--;
         SyncCursorWithBuffer(buf);
         cur_node = cur_node->prev;
+        AttemptSetToLastColumn(buf, cur_node);
+        SwitchHorizontalPage(buf);
     }
     else
     {
@@ -209,6 +217,7 @@ node *InputUp(buffer *buf, node *cur_node)
         SyncCursorWithBuffer(buf);
     }
     
+    SyncCursorWithBuffer(buf);
     return cur_node;
 };
 
@@ -217,19 +226,11 @@ node *InputDown(buffer *buf, node *cur_node)
 {
     if(buf->line < buf->line_count - 1)
     {
-        if(buf->cursor.last_hor_pos <= strlen(cur_node->next->data))
-        {
-            buf->column = buf->cursor.last_hor_pos;
-        }
-        else
-        {
-            buf->column = strlen(cur_node->next->data);
-        }
-        
-        SwitchHorizontalPage(buf);
         buf->line++;
         SyncCursorWithBuffer(buf);
         cur_node = cur_node->next;
+        AttemptSetToLastColumn(buf, cur_node);
+        SwitchHorizontalPage(buf);
     }
     else
     {
@@ -245,6 +246,7 @@ node *InputDown(buffer *buf, node *cur_node)
         SyncCursorWithBuffer(buf);
     }
     
+    SyncCursorWithBuffer(buf);
     return cur_node;
 };
 
@@ -291,7 +293,6 @@ node *InputPageUp(buffer *buf, node *cur_node)
         }
         
         buf->line -= buf->panel.row_capacity;
-        SwitchHorizontalPage(buf);
         SyncCursorWithBuffer(buf);
         
         //scroll
@@ -305,19 +306,20 @@ node *InputPageUp(buffer *buf, node *cur_node)
             }
             
             RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
-            SyncCursorWithBuffer(buf);
         }
-        
     }
     else
     {
         cur_node = buf->head->next;
         buf->line = 0;
         buf->panel.scroll_offset_ver = 0;
-        SwitchHorizontalPage(buf);
+        //SwitchHorizontalPage(buf);
         RenderLineRange(buf, 0, buf->panel.row_capacity, characters_texture, buf->panel.texture);
-        SyncCursorWithBuffer(buf);
     }
+    
+    AttemptSetToLastColumn(buf, cur_node);
+    SwitchHorizontalPage(buf);
+    SyncCursorWithBuffer(buf);
     
     return cur_node;
 };
@@ -332,25 +334,18 @@ node *InputPageDown(buffer *buf, node *cur_node)
         }
         
         buf->line += buf->panel.row_capacity;
-        SwitchHorizontalPage(buf);
-        SyncCursorWithBuffer(buf);
         
         //test scroll
         int complete_pages = (buf->line_count / buf->panel.row_capacity) * buf->panel.row_capacity;
         if(buf->line < complete_pages)
         {
             buf->panel.scroll_offset_ver += buf->panel.row_capacity;
-            
             RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
-            SyncCursorWithBuffer(buf);
         }
         else
         {
             buf->panel.scroll_offset_ver = buf->line_count - buf->panel.row_capacity;
-            SwitchHorizontalPage(buf);
-            SyncCursorWithBuffer(buf);
             RenderLineRange(buf, buf->line_count - buf->panel.row_capacity, buf->panel.row_capacity, characters_texture, buf->panel.texture);
-            SyncCursorWithBuffer(buf);
         }
     }
     else
@@ -359,12 +354,15 @@ node *InputPageDown(buffer *buf, node *cur_node)
         {
             cur_node = cur_node->next;
         }
+        
         buf->line = buf->line_count-1;
-        SwitchHorizontalPage(buf);
-        SyncCursorWithBuffer(buf);
+        buf->panel.scroll_offset_ver = buf->line_count - buf->panel.row_capacity;
         RenderLineRange(buf, buf->line_count - buf->panel.row_capacity, buf->panel.row_capacity, characters_texture, buf->panel.texture);
-        SyncCursorWithBuffer(buf);
     }
+    
+    AttemptSetToLastColumn(buf, cur_node);
+    SwitchHorizontalPage(buf);
+    SyncCursorWithBuffer(buf);
     
     return cur_node;
 };

@@ -207,3 +207,15 @@ node *KillBuffer(buffer *buf)
     
     return n;
 };
+
+void AttemptSetToLastColumn(buffer *buf, node *cur_node)
+{
+    if(buf->cursor.last_hor_pos <= strlen(cur_node->data))
+    {
+        buf->column = buf->cursor.last_hor_pos;
+    }
+    else
+    {
+        buf->column = strlen(cur_node->data);
+    }
+};

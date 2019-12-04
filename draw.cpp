@@ -236,7 +236,6 @@ void SyncCursorWithBuffer(buffer *buf)
 
 void SwitchHorizontalPage(buffer *buf)
 {
-    //page advance test
     if(buf->column + 1 > (buf->panel.page + 1) * buf->panel.col_capacity)
     {
         buf->panel.page++;
