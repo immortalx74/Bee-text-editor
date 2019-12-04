@@ -55,6 +55,12 @@ struct buffer
         SDL_Color color = {140, 140, 140, 255};
         SDL_Color text_color = {10, 10, 10, 255};
     }status_bar;
+    
+    struct _list
+    {
+        char header[128] = {0};
+        char *items;
+    }list;
 };
 
 struct font_data
@@ -74,6 +80,12 @@ extern buffer bufferA;
 extern buffer bufferB;
 
 
+enum _mode
+{
+    EDIT,
+    LIST
+};
+
 struct app_info
 {
     int ww;
@@ -85,6 +97,7 @@ struct app_info
     SDL_Window *window;
     SDL_Renderer *renderer;
     buffer *active_buffer;
+    _mode mode = EDIT;
     
     void Init()
     {
@@ -115,7 +128,6 @@ struct app_info
         
         bufferA.head = headA;
         bufferB.head = headB;
-        
     };
 };
 

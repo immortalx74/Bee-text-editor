@@ -206,6 +206,7 @@ node *InputUp(buffer *buf, node *cur_node)
     else
     {
         buf->column = 0;
+        SwitchHorizontalPage(buf);
         SyncCursorWithBuffer(buf);
     }
     
@@ -235,6 +236,7 @@ node *InputDown(buffer *buf, node *cur_node)
     else
     {
         buf->column = strlen(cur_node->data);
+        SwitchHorizontalPage(buf);
         SyncCursorWithBuffer(buf);
     }
     
@@ -313,7 +315,6 @@ node *InputPageUp(buffer *buf, node *cur_node)
         cur_node = buf->head->next;
         buf->line = 0;
         buf->panel.scroll_offset_ver = 0;
-        //SwitchHorizontalPage(buf);
         RenderLineRange(buf, 0, buf->panel.row_capacity, characters_texture, buf->panel.texture);
     }
     

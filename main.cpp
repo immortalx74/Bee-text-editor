@@ -11,6 +11,7 @@
 #include "print.h"
 #include "input.h"
 #include "file.h"
+#include "tinydir.h"
 
 void PrintData(node *head_node)
 {
@@ -31,6 +32,35 @@ int main(int argc, char *argv[])
 {
     app.Init();
     WindowResize(&app, app.window);
+    
+    //====
+    tinydir_dir dir;
+    tinydir_open(&dir, "e:/dev/ed/build");
+    
+    while (dir.has_next)
+    {
+        tinydir_file file;
+        tinydir_readfile(&dir, &file);
+        
+        char *dot = ".";
+        char *dotdot = "..";
+        
+        if(strcmp(file.name, dot) != 0 && strcmp(file.name, dotdot) != 0)
+        {
+            printf("%s", file.name);
+            
+            if (file.is_dir)
+            {
+                printf("/");
+            }
+            printf("\n");
+        }
+        
+        tinydir_next(&dir);
+    }
+    tinydir_close(&dir);
+    //====
+    
     
     //START WITH LEFT BUFFER/PANEL
     app.active_buffer = &bufferA;
