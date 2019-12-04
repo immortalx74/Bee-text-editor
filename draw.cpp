@@ -48,13 +48,13 @@ void BarDraw(SDL_Renderer *renderer, buffer *buf)
     }
     
     // print line/col
-    int len_lc = GetDigitCount(buf->line) + GetDigitCount(buf->column) + 3;
-    char final[20] = {0};
-    sprintf (final, "L%d,C%d", buf->line+1, buf->column+1);
+    int len_lc = GetDigitCount(buf->line) + GetDigitCount(buf->column) + 4;
+    char linecol_str[20] = {0};
+    sprintf (linecol_str, "L%d,C%d", buf->line + 1, buf->column + 1);
     
     for (int i = 0; i < len_lc; ++i)
     {
-        cur_char = final[i];
+        cur_char = linecol_str[i];
         
         glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
         pos = {((len_fn + 2) * font.width) + margin + (i * font.width), margin, font.width, font.height};
