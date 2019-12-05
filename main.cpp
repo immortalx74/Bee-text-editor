@@ -11,6 +11,7 @@
 #include "print.h"
 #include "input.h"
 #include "file.h"
+#include "list.h"
 #include "tinydir.h"
 
 void PrintData(node *head_node)
@@ -35,7 +36,7 @@ int main(int argc, char *argv[])
     
     //====
     tinydir_dir dir;
-    tinydir_open(&dir, "e:/dev/ed/build");
+    tinydir_open(&dir, "d:/dev/ed/build");
     
     while (dir.has_next)
     {
@@ -61,6 +62,11 @@ int main(int argc, char *argv[])
     tinydir_close(&dir);
     //====
     
+    
+    //TEST LIST==================================
+    
+    
+    //===========================================
     
     //START WITH LEFT BUFFER/PANEL
     app.active_buffer = &bufferA;
@@ -222,16 +228,16 @@ int main(int argc, char *argv[])
         
         SDL_RenderClear(app.renderer);
         
-        PanelDraw(app.renderer, &bufferA);
-        PanelDraw(app.renderer, &bufferB);
+        PanelDraw(&bufferA);
+        PanelDraw(&bufferB);
         
-        BarDraw(app.renderer, &bufferA);
-        BarDraw(app.renderer, &bufferB);
+        BarDraw(&bufferA);
+        BarDraw(&bufferB);
         
-        HighlightLineDraw(app.renderer, app.active_buffer);
+        HighlightLineDraw(app.active_buffer);
         
-        CursorDraw(app.renderer, &bufferA);
-        CursorDraw(app.renderer, &bufferB);
+        CursorDraw(&bufferA);
+        CursorDraw(&bufferB);
         
         SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 255);// background
         

@@ -2,35 +2,35 @@
 #include "character.h"
 #include <iostream>
 
-void CursorDraw(SDL_Renderer *renderer, buffer *buf)
+void CursorDraw(buffer *buf)
 {
     // NOTE xx now takes page into account
     int xx = ((buf->cursor.col - buf->panel.page * buf->panel.col_capacity) * font.width) + margin + buf->panel.x;
     int yy = (buf->cursor.row * font.height) + margin;
     
     SDL_Rect box = {xx, yy, font.width, font.height};
-    SDL_SetRenderDrawColor(renderer, buf->cursor.color.r, buf->cursor.color.g, buf->cursor.color.b, buf->cursor.color.a);
-    SDL_RenderFillRect(renderer, &box);
+    SDL_SetRenderDrawColor(app.renderer, buf->cursor.color.r, buf->cursor.color.g, buf->cursor.color.b, buf->cursor.color.a);
+    SDL_RenderFillRect(app.renderer, &box);
 };
 
-void PanelDraw(SDL_Renderer *renderer, buffer *buf)
+void PanelDraw(buffer *buf)
 {
     SDL_Rect box = {buf->panel.x, buf->panel.y, buf->panel.w, buf->panel.h};
-    SDL_SetRenderDrawColor(renderer, buf->panel.color.r, buf->panel.color.g, buf->panel.color.b, buf->panel.color.a);
-    SDL_RenderDrawRect(renderer, &box);
+    SDL_SetRenderDrawColor(app.renderer, buf->panel.color.r, buf->panel.color.g, buf->panel.color.b, buf->panel.color.a);
+    SDL_RenderDrawRect(app.renderer, &box);
 };
 
-void BarDraw(SDL_Renderer *renderer, buffer *buf)
+void BarDraw(buffer *buf)
 {
     SDL_Rect box = {buf->status_bar.x, buf->status_bar.y, buf->status_bar.w, buf->status_bar.h};
-    SDL_SetRenderDrawColor(renderer, buf->panel.color.r, buf->panel.color.g, buf->panel.color.b, buf->panel.color.a);
-    SDL_RenderDrawRect(renderer, &box);
+    SDL_SetRenderDrawColor(app.renderer, buf->panel.color.r, buf->panel.color.g, buf->panel.color.b, buf->panel.color.a);
+    SDL_RenderDrawRect(app.renderer, &box);
     
     //draw info
     SDL_SetRenderTarget(app.renderer, buf->status_bar.texture);
-    SDL_SetRenderDrawColor(renderer, buf->status_bar.text_color.r, buf->status_bar.text_color.g, buf->status_bar.text_color.b, buf->status_bar.text_color.a);
+    SDL_SetRenderDrawColor(app.renderer, buf->status_bar.text_color.r, buf->status_bar.text_color.g, buf->status_bar.text_color.b, buf->status_bar.text_color.a);
     
-    SDL_SetRenderDrawColor(renderer, buf->status_bar.color.r, buf->status_bar.color.g, buf->status_bar.color.b, buf->status_bar.color.a);
+    SDL_SetRenderDrawColor(app.renderer, buf->status_bar.color.r, buf->status_bar.color.g, buf->status_bar.color.b, buf->status_bar.color.a);
     SDL_Rect clear_rect = {1, 1, buf->status_bar.w - 2, buf->status_bar.h - 2};
     SDL_RenderFillRect(app.renderer, &clear_rect);
     
@@ -64,13 +64,13 @@ void BarDraw(SDL_Renderer *renderer, buffer *buf)
     SDL_SetRenderTarget(app.renderer, NULL);
 };
 
-void HighlightLineDraw(SDL_Renderer *renderer, buffer *buf){
+void HighlightLineDraw(buffer *buf){
     int xx = buf->panel.x + margin;
     int yy = (buf->cursor.row * font.height) + margin;
     
     SDL_Rect box ={xx, yy, buf->panel.w - (2 *margin), font.height};
-    SDL_SetRenderDrawColor(renderer, buf->cursor.line_highlight.r, buf->cursor.line_highlight.g, buf->cursor.line_highlight.b, buf->cursor.line_highlight.a);
-    SDL_RenderFillRect(renderer, &box);
+    SDL_SetRenderDrawColor(app.renderer, buf->cursor.line_highlight.r, buf->cursor.line_highlight.g, buf->cursor.line_highlight.b, buf->cursor.line_highlight.a);
+    SDL_RenderFillRect(app.renderer, &box);
 };
 
 void WindowResize(app_info *application, SDL_Window *win)
@@ -246,4 +246,9 @@ void SwitchHorizontalPage(buffer *buf)
         buf->panel.page--;
         RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
     }
+};
+
+void ListDraw(buffer *buf, list *l, SDL_Texture *ch)
+{
+    
 };

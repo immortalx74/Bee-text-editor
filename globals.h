@@ -56,11 +56,6 @@ struct buffer
         SDL_Color text_color = {10, 10, 10, 255};
     }status_bar;
     
-    struct _list
-    {
-        char header[128] = {0};
-        char *items;
-    }list;
 };
 
 struct font_data
@@ -70,6 +65,14 @@ struct font_data
     int height;
 };
 
+
+struct list
+{
+    char header[256] = {0};
+    int item_count = 0;
+    int max_item_size = 0;
+    char *data;
+};
 
 extern font_data font;
 
@@ -109,7 +112,7 @@ struct app_info
         TTF_SizeText(font.name, "A", &font.width, 0);
         
         window = SDL_CreateWindow("Ed", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
-                                  1024, 768, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+                                  1024, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
         
         SDL_GetWindowSize(window, &ww, &wh);
