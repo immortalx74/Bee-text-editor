@@ -34,7 +34,8 @@ int main(int argc, char *argv[])
     app.Init();
     WindowResize(&app, app.window);
     
-    //====
+    //TINYDIR TEST
+    //============================================================================
     tinydir_dir dir;
     tinydir_open(&dir, "d:/dev/ed/build");
     
@@ -60,13 +61,7 @@ int main(int argc, char *argv[])
         tinydir_next(&dir);
     }
     tinydir_close(&dir);
-    //====
-    
-    
-    //TEST LIST==================================
-    
-    
-    //===========================================
+    //===========================================================================
     
     //START WITH LEFT BUFFER/PANEL
     app.active_buffer = &bufferA;
@@ -178,7 +173,7 @@ int main(int argc, char *argv[])
                 }
                 else if( app.e.key.keysym.sym == SDLK_o && SDL_GetModState() & KMOD_CTRL)
                 {
-                    a = FileReadToBuffer(app.active_buffer, "test.txt");
+                    a = FileReadToBuffer(app.active_buffer, "test2.txt");
                 }
                 else if( app.e.key.keysym.sym == SDLK_KP_0 && SDL_GetModState() & KMOD_CTRL)
                 {

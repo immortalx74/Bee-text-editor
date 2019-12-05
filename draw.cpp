@@ -201,6 +201,11 @@ void RenderLineRange(buffer *buf, int start, int count, SDL_Texture *ch, SDL_Tex
     
     node *cur_node = buf->head;
     
+    if(count > buf->line_count)
+    {
+        count = buf->line_count;
+    }
+    
     for (int i = 0; i <= start; ++i)
     {
         cur_node = cur_node->next;
@@ -208,15 +213,15 @@ void RenderLineRange(buffer *buf, int start, int count, SDL_Texture *ch, SDL_Tex
     
     for (int i = 0; i < count; ++i)
     {
-        int start = (buf->panel.page * buf->panel.col_capacity);
+        int page_offset = (buf->panel.page * buf->panel.col_capacity);
         int len = strlen(cur_node->data);
         
-        for (int j = start; j < len; ++j)
+        for (int j = page_offset; j < len; ++j)
         {
             int cur_char = (int)cur_node->data[j];
             
             glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-            pos_rect = {margin + ((j - start) * font.width), margin + (i * font.height), font.width, font.height};
+            pos_rect = {margin + ((j - page_offset) * font.width), margin + (i * font.height), font.width, font.height};
             
             SDL_RenderCopy(app.renderer, ch, &glyph_rect, &pos_rect);
         }

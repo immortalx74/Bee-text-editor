@@ -171,7 +171,7 @@ node *KillBuffer(buffer *buf)
     
     while(n != NULL)
     {
-        ahead= n->next;
+        ahead = n->next;
         free(n);
         n = ahead;
     };
