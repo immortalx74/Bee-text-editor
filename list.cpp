@@ -33,3 +33,8 @@ char *ListGetElement(list *l, int index)
     char *elem = l->data + (index * l->max_item_size);
     return elem;
 };
+
+//list *GenerateFileList(buffer *buf)
+//{
+//list *flist = CreateList("Open:", )
+//};
