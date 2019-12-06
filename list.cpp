@@ -1,40 +1,73 @@
 #include "list.h"
 
-list *CreateList(char title[], int elem_count, int max_elem_size)
+list *ListCreate(char title_text[], int cap, int el_size)
 {
     list *l = (list*)malloc(sizeof(list));
     
-    memset(l->header, 0, 256);
-    strcpy(l->header, title);
+    memset(l->title, 0, 256);
+    strcpy(l->title, title_text);
     
-    l->item_count = elem_count;
-    l->max_item_size = max_elem_size;
-    l->data = (char*)malloc(elem_count * max_elem_size);
-    memset(l->data, 0, elem_count * max_elem_size);
+    l->capacity = cap;
+    l->element_size = el_size;
+    l->data = (char*)malloc(cap * el_size);
+    memset(l->data, 0, cap * el_size);
     return l;
 };
 
-void DeleteList(list *l)
+void ListDelete(list *l)
 {
     free(l->data);
     free(l);
 };
 
+void ListResize(list *l, int new_cap)
+{
+    (char*)realloc(l->data, new_cap * l->element_size);
+    l->capacity = new_cap;
+};
+
 void ListSetElement(list *l, int index, char text[])
 {
-    char *elem = l->data + (index * l->max_item_size);
-    memset(elem, 0, l->max_item_size);
-    memcpy(elem, text, l->max_item_size);
-    elem[l->max_item_size - 1] = 0;
+    char *elem = l->data + (index * l->element_size);
+    memset(elem, 0, l->element_size);
+    memcpy(elem, text, l->element_size);
+    elem[l->element_size - 1] = 0;
 };
 
 char *ListGetElement(list *l, int index)
 {
-    char *elem = l->data + (index * l->max_item_size);
+    char *elem = l->data + (index * l->element_size);
     return elem;
 };
 
-//list *GenerateFileList(buffer *buf)
-//{
-//list *flist = CreateList("Open:", )
-//};
+list *GenerateFileList(buffer *buf)
+{
+    list *flist = ListCreate("Open:", 100, buf->panel.col_capacity - 5);
+    
+    tinydir_dir dir;
+    tinydir_open(&dir, "d:/dev/ed");
+    int count = 0;
+    
+    while (dir.has_next)
+    {
+        tinydir_file file;
+        tinydir_readfile(&dir, &file);
+        
+        ListSetElement(flist, count, file.name);
+        
+        //printf("%s", file.name);
+        //
+        //if (file.is_dir)
+        //{
+        //printf("/");
+        //}
+        //printf("\n");
+        
+        tinydir_next(&dir);
+        count++;
+    }
+    
+    tinydir_close(&dir);
+    
+    return flist;
+};

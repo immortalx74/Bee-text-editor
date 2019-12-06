@@ -36,31 +36,31 @@ int main(int argc, char *argv[])
     
     //TINYDIR TEST
     //============================================================================
-    tinydir_dir dir;
-    tinydir_open(&dir, "d:/dev/ed/build");
-    
-    while (dir.has_next)
-    {
-        tinydir_file file;
-        tinydir_readfile(&dir, &file);
-        
-        char *dot = ".";
-        char *dotdot = "..";
-        
-        if(strcmp(file.name, dot) != 0 && strcmp(file.name, dotdot) != 0)
-        {
-            printf("%s", file.name);
-            
-            if (file.is_dir)
-            {
-                printf("/");
-            }
-            printf("\n");
-        }
-        
-        tinydir_next(&dir);
-    }
-    tinydir_close(&dir);
+    //tinydir_dir dir;
+    //tinydir_open(&dir, "d:/dev/ed/build");
+    //
+    //while (dir.has_next)
+    //{
+    //tinydir_file file;
+    //tinydir_readfile(&dir, &file);
+    //
+    //char *dot = ".";
+    //char *dotdot = "..";
+    //
+    //if(strcmp(file.name, dot) != 0 && strcmp(file.name, dotdot) != 0)
+    //{
+    //printf("%s", file.name);
+    //
+    //if (file.is_dir)
+    //{
+    //printf("/");
+    //}
+    //printf("\n");
+    //}
+    //
+    //tinydir_next(&dir);
+    //}
+    //tinydir_close(&dir);
     //===========================================================================
     
     //START WITH LEFT BUFFER/PANEL

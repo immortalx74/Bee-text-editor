@@ -68,9 +68,9 @@ struct font_data
 
 struct list
 {
-    char header[256] = {0};
-    int item_count = 0;
-    int max_item_size = 0;
+    char title[256] = {0};
+    int capacity;
+    int element_size = 0;
     char *data;
 };
 
