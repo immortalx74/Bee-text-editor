@@ -253,7 +253,28 @@ void SwitchHorizontalPage(buffer *buf)
     }
 };
 
-void ListDraw(buffer *buf, list *l, SDL_Texture *ch)
+void ListDraw(buffer *buf, list *l, SDL_Texture *ch, SDL_Texture *pt)
 {
+    SDL_SetRenderTarget(app.renderer, pt);
+    SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 0);// background
     
+    int cur_char;
+    SDL_Rect glyph_rect;
+    
+    SDL_RenderFillRect(app.renderer, NULL);
+    
+    for (int i = 0; i < l->capacity; ++i)
+    {
+        char *entry = ListGetElement(l, i);
+        
+        for (int j = 0; j < strlen(entry); ++j)
+        {
+            cur_char = (int)entry[j];
+            SDL_Rect glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
+            SDL_Rect pos = {margin + (j * font.width), margin + (i * font.height), font.width, font.height};
+            SDL_RenderCopy(app.renderer, ch, &glyph_rect, &pos);
+        }
+    }
+    
+    SDL_SetRenderTarget(app.renderer, NULL);
 };

@@ -45,7 +45,7 @@ list *GenerateFileList(buffer *buf)
     list *flist = ListCreate("Open:", 100, buf->panel.col_capacity - 5);
     
     tinydir_dir dir;
-    tinydir_open(&dir, "d:/dev/ed");
+    tinydir_open(&dir, "e:/dev/ed");
     int count = 0;
     
     while (dir.has_next)

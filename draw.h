@@ -2,6 +2,7 @@
 #include "SDL.h"
 #include "globals.h"
 #include "helpers.h"
+#include "list.h"
 #include <string>
 
 void CursorDraw(buffer *buf);
@@ -16,4 +17,4 @@ void RenderLineRange(buffer *buf, int start, int end, SDL_Texture *ch, SDL_Textu
 void SyncCursorWithBuffer(buffer *buf);
 void SwitchHorizontalPage(buffer *buf);
 
-void ListDraw(buffer *buf, list *l, SDL_Texture *ch);
+void ListDraw(buffer *buf, list *l, SDL_Texture *ch, SDL_Texture *pt);

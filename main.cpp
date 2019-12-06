@@ -34,35 +34,6 @@ int main(int argc, char *argv[])
     app.Init();
     WindowResize(&app, app.window);
     
-    //TINYDIR TEST
-    //============================================================================
-    //tinydir_dir dir;
-    //tinydir_open(&dir, "d:/dev/ed/build");
-    //
-    //while (dir.has_next)
-    //{
-    //tinydir_file file;
-    //tinydir_readfile(&dir, &file);
-    //
-    //char *dot = ".";
-    //char *dotdot = "..";
-    //
-    //if(strcmp(file.name, dot) != 0 && strcmp(file.name, dotdot) != 0)
-    //{
-    //printf("%s", file.name);
-    //
-    //if (file.is_dir)
-    //{
-    //printf("/");
-    //}
-    //printf("\n");
-    //}
-    //
-    //tinydir_next(&dir);
-    //}
-    //tinydir_close(&dir);
-    //===========================================================================
-    
     //START WITH LEFT BUFFER/PANEL
     app.active_buffer = &bufferA;
     
@@ -100,6 +71,12 @@ int main(int argc, char *argv[])
     
     //Open a test file
     a = FileReadToBuffer(app.active_buffer, "medium.txt");
+    
+    //LIST TEST=========================================
+    list *f = GenerateFileList(&bufferA);
+    char *chtest = ListGetElement(f, 4);
+    print(chtest);
+    //==================================================
     
     while(!app.quit)
     {
@@ -173,7 +150,11 @@ int main(int argc, char *argv[])
                 }
                 else if( app.e.key.keysym.sym == SDLK_o && SDL_GetModState() & KMOD_CTRL)
                 {
-                    a = FileReadToBuffer(app.active_buffer, "test2.txt");
+                    a = FileReadToBuffer(app.active_buffer, "test.txt");
+                }
+                else if( app.e.key.keysym.sym == SDLK_q && SDL_GetModState() & KMOD_CTRL)
+                {
+                    ListDraw(app.active_buffer, f, characters_texture, app.active_buffer->panel.texture);
                 }
                 else if( app.e.key.keysym.sym == SDLK_KP_0 && SDL_GetModState() & KMOD_CTRL)
                 {
@@ -186,7 +167,6 @@ int main(int argc, char *argv[])
                     {
                         app.active_buffer = &bufferA;
                         a = GetLineNode(&bufferA, app.active_buffer->line);
-                        print(a->data);
                     }
                 }
             }
