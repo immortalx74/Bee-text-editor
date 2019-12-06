@@ -73,9 +73,7 @@ int main(int argc, char *argv[])
     a = FileReadToBuffer(app.active_buffer, "medium.txt");
     
     //LIST TEST=========================================
-    list *f = GenerateFileList(&bufferA);
-    char *chtest = ListGetElement(f, 4);
-    print(chtest);
+    list *f = NULL;
     //==================================================
     
     while(!app.quit)
@@ -154,7 +152,17 @@ int main(int argc, char *argv[])
                 }
                 else if( app.e.key.keysym.sym == SDLK_q && SDL_GetModState() & KMOD_CTRL)
                 {
-                    ListDraw(app.active_buffer, f, characters_texture, app.active_buffer->panel.texture);
+                    if(f == NULL)
+                    {
+                        f = GenerateFileList(app.active_buffer);
+                        app.mode = LIST;
+                    }
+                    else
+                    {
+                        ListDelete(f);
+                        f = NULL;
+                        app.mode = EDIT;
+                    }
                 }
                 else if( app.e.key.keysym.sym == SDLK_KP_0 && SDL_GetModState() & KMOD_CTRL)
                 {
@@ -222,6 +230,11 @@ int main(int argc, char *argv[])
         
         SDL_RenderCopy(app.renderer, bufferA.panel.texture, NULL, &panA);
         SDL_RenderCopy(app.renderer, bufferB.panel.texture, NULL, &panB);
+        
+        if(app.mode == LIST)
+        {
+            ListDraw(app.active_buffer, f, characters_texture, app.active_buffer->panel.texture);
+        }
         
         SDL_Rect barA = {bufferA.status_bar.x,bufferA.status_bar.y,bufferA.status_bar.w,bufferA.status_bar.h};
         SDL_Rect barB = {bufferB.status_bar.x,bufferB.status_bar.y,bufferB.status_bar.w,bufferB.status_bar.h};
