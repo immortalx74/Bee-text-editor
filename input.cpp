@@ -4,6 +4,16 @@
 #include "draw.h"
 #include <iostream>
 
+void GetTextEditingInput()
+{
+    
+};
+
+void GetListNavigationInput()
+{
+    
+}
+
 node *InputText(buffer *buf, node *cur_node)
 {
     InsertCharacterAt(buf, cur_node, buf->column);

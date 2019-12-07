@@ -154,7 +154,8 @@ int main(int argc, char *argv[])
                 {
                     if(f == NULL)
                     {
-                        f = GenerateFileList(app.active_buffer);
+                        f = ListCreate("Open:", 100, app.active_buffer->panel.col_capacity - 5);
+                        PopulateFileList(f, "e:/dev/ed");
                         app.mode = LIST;
                     }
                     else

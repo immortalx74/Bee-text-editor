@@ -10,3 +10,4 @@ void ListSetElement(list *l, int index, char text[]);
 char *ListGetElement(list *l, int index);
 
 list *GenerateFileList(buffer *buf);
+void PopulateFileList(list *l, char *path);

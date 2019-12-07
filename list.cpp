@@ -45,7 +45,7 @@ list *GenerateFileList(buffer *buf)
     list *flist = ListCreate("Open:", 100, buf->panel.col_capacity - 5);
     
     tinydir_dir dir;
-    tinydir_open(&dir, "c:/dev/ed");
+    tinydir_open(&dir, "e:/dev/ed");
     int count = 0;
     
     while (dir.has_next)
@@ -70,4 +70,24 @@ list *GenerateFileList(buffer *buf)
     tinydir_close(&dir);
     
     return flist;
+};
+
+void PopulateFileList(list *l, char *path)
+{
+    tinydir_dir dir;
+    tinydir_open(&dir, path);
+    int count = 0;
+    
+    while (dir.has_next)
+    {
+        tinydir_file file;
+        tinydir_readfile(&dir, &file);
+        
+        ListSetElement(l, count, file.name);
+        
+        tinydir_next(&dir);
+        count++;
+    }
+    
+    tinydir_close(&dir);
 };
