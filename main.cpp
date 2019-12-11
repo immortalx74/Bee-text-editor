@@ -67,17 +67,11 @@ int main(int argc, char *argv[])
     SDL_SetTextureBlendMode(bufferB.status_bar.texture, SDL_BLENDMODE_BLEND);
     
     
-    //Open a test file
-    FileReadToBuffer(app.active_buffer, "medium.txt");
-    
-    //LIST TEST=========================================
-    list *f = NULL;
-    //==================================================
-    
     while(!app.quit)
     {
         while (SDL_PollEvent(&app.e))
         {
+            // INPUT EVENTS
             if(app.mode == TEXT_EDIT)
             {
                 GetTextEditingInput();
@@ -85,33 +79,13 @@ int main(int argc, char *argv[])
             }
             else if (app.mode == LIST_NAV)
             {
-                if (app.e.type == SDL_KEYDOWN)
-                {
-                    if(app.e.key.keysym.sym == SDLK_DOWN)//NOTE: test list input
-                    {
-                        f->selected++;
-                    }
-                    else if( app.e.key.keysym.sym == SDLK_q && SDL_GetModState() & KMOD_CTRL)
-                    {
-                        if(f != NULL)
-                        {
-                            ListDelete(f);
-                            f = NULL;
-                            app.mode = TEXT_EDIT;
-                        }
-                    }
-                }
+                GetListNavigationInput();
             }
             
-            // GLOBAL INPUT HERE-----------------------------
-            if (app.e.type == SDL_KEYDOWN)
-            {
-                if (app.e.key.keysym.sym == SDLK_ESCAPE)
-                {
-                    app.quit = true;
-                }
-            }
-            else if (app.e.type == SDL_QUIT)
+            GetGlobalInput();
+            
+            // OTHER EVENTS
+            if (app.e.type == SDL_QUIT)
             {
                 app.quit = true;
             }
@@ -160,8 +134,8 @@ int main(int argc, char *argv[])
         }
         if(app.mode == LIST_NAV)
         {
-            HighlightListSelectionDraw(app.active_buffer, f);
-            ListDraw(app.active_buffer, f, characters_texture, app.active_buffer->panel.texture);
+            HighlightListSelectionDraw(app.active_buffer, app.active_buffer->lst);
+            ListDraw(app.active_buffer, app.active_buffer->lst, characters_texture, app.active_buffer->panel.texture);
         }
         
         SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 255);// background

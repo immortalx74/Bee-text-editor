@@ -11,15 +11,24 @@ struct node
     struct node *prev;
 };
 
+struct list
+{
+    char title[256] = {0};
+    int selected = 0;
+    int capacity;
+    int element_size = 0;
+    char *data;
+};
 
 struct buffer
 {
     node *head;
+    node *line_node;
     int line_count;
     int column;
     int line;
-    node *line_node;
     char filename[128] = "*no file*";
+    list *lst = NULL;
     
     struct _cursor
     {
@@ -64,16 +73,6 @@ struct font_data
     TTF_Font *name;
     int width;
     int height;
-};
-
-
-struct list
-{
-    char title[256] = {0};
-    int selected = 0;
-    int capacity;
-    int element_size = 0;
-    char *data;
 };
 
 extern font_data font;

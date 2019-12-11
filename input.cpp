@@ -4,6 +4,56 @@
 #include "draw.h"
 #include <iostream>
 
+void GetGlobalInput()
+{
+    if (app.e.type == SDL_KEYDOWN)
+    {
+        if (app.e.key.keysym.sym == SDLK_ESCAPE)
+        {
+            app.quit = true;
+        }
+    }
+};
+
+void GetListNavigationInput()
+{
+    if (app.e.type == SDL_KEYDOWN)
+    {
+        if(app.e.key.keysym.sym == SDLK_DOWN)//NOTE: test list input
+        {
+            app.active_buffer->lst->selected++;
+        }
+        else if(app.e.key.keysym.sym == SDLK_UP)//NOTE: test list input
+        {
+            app.active_buffer->lst->selected--;
+        }
+        else if(app.e.key.keysym.sym == SDLK_RETURN)
+        {
+            //TEST READ FILE FROM LIST
+            char *selected_file = ListGetElement(app.active_buffer->lst, app.active_buffer->lst->selected);
+            
+            FileReadToBuffer(app.active_buffer, selected_file);
+            
+            if(app.active_buffer->lst != NULL)
+            {
+                ListDelete(app.active_buffer->lst);
+                app.active_buffer->lst = NULL;
+                app.mode = TEXT_EDIT;
+                RenderLineRange(app.active_buffer, app.active_buffer->panel.scroll_offset_ver, app.active_buffer->panel.row_capacity, characters_texture, app.active_buffer->panel.texture);
+            }
+        }
+        else if( app.e.key.keysym.sym == SDLK_o && SDL_GetModState() & KMOD_CTRL)
+        {
+            if(app.active_buffer->lst != NULL)
+            {
+                ListDelete(app.active_buffer->lst);
+                app.active_buffer->lst = NULL;
+                app.mode = TEXT_EDIT;
+                RenderLineRange(app.active_buffer, app.active_buffer->panel.scroll_offset_ver, app.active_buffer->panel.row_capacity, characters_texture, app.active_buffer->panel.texture);
+            }
+        }
+    }
+};
 
 void GetBindedCommandsInput()
 {
@@ -19,17 +69,12 @@ void GetBindedCommandsInput()
         }
         else if( app.e.key.keysym.sym == SDLK_o && SDL_GetModState() & KMOD_CTRL)
         {
-            FileReadToBuffer(app.active_buffer, "test.txt");
-        }
-        else if( app.e.key.keysym.sym == SDLK_q && SDL_GetModState() & KMOD_CTRL)
-        {
-            //if(f == NULL)
-            //{
-            //f = ListCreate("Open:", 100, app.active_buffer->panel.col_capacity - 5);
-            //f->selected = 0;
-            //PopulateFileList(f, "d:/dev/ed");
-            //app.mode = LIST_NAV;
-            //}
+            if(app.active_buffer->lst == NULL)
+            {
+                app.active_buffer->lst = ListCreate("Open:", 100, app.active_buffer->panel.col_capacity - 5);
+                PopulateFileList(app.active_buffer->lst, "d:/dev/ed");
+                app.mode = LIST_NAV;
+            }
         }
         else if( app.e.key.keysym.sym == SDLK_KP_0 && SDL_GetModState() & KMOD_CTRL)
         {

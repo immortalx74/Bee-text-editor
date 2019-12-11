@@ -10,6 +10,7 @@ list *ListCreate(char title_text[], int cap, int el_size)
     l->capacity = cap;
     l->element_size = el_size;
     l->data = (char*)malloc(cap * el_size);
+    l->selected = 0;
     memset(l->data, 0, cap * el_size);
     return l;
 };
