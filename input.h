@@ -1,17 +1,23 @@
 #pragma once
 #include "globals.h"
+#include "file.h"
 
-node *InputText(buffer *buf, node *cur_node);
-node *InputReturn(buffer *buf, node *cur_node);
-node *InputBackspace(buffer *buf, node *cur_node);
-node *InputDelete(buffer *buf, node *cur_node);
-node *InputLeft(buffer *buf, node *cur_node);
-node *InputRight(buffer *buf, node *cur_node);
-node *InputUp(buffer *buf, node *cur_node);
-node *InputDown(buffer *buf, node *cur_node);
-node *InputDown(buffer *buf, node *cur_node);
-node *InputPageUp(buffer *buf, node *cur_node);
-node *InputPageDown(buffer *buf, node *cur_node);
-void InputHome(buffer *buf, node *cur_node);
-void InputEnd(buffer *buf, node *cur_node);
-void InputTab(buffer *buf, node *cur_node);
+void InputText(buffer *buf);
+void InputReturn(buffer *buf);
+void InputBackspace(buffer *buf);
+void InputDelete(buffer *buf);
+void InputLeft(buffer *buf);
+void InputRight(buffer *buf);
+void InputUp(buffer *buf);
+void InputDown(buffer *buf);
+void InputDown(buffer *buf);
+void InputPageUp(buffer *buf);
+void InputPageDown(buffer *buf);
+void InputHome(buffer *buf);
+void InputEnd(buffer *buf);
+void InputTab(buffer *buf);
+
+void ListNav_Down(list *l);
+
+void GetTextEditingInput();
+void GetBindedCommandsInput();

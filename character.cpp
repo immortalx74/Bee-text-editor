@@ -1,52 +1,49 @@
 #include "character.h"
 #include <iostream>
 
-void InsertCharacterAt(buffer *buf, node *row, int col)
+void InsertCharacterAt(buffer *buf, int col)
 {
-    U8_strinsert(row->data, buf->column, app.e.text.text, 256);
+    U8_strinsert(buf->line_node->data, buf->column, app.e.text.text, 256);
     buf->column++;
     SyncCursorWithBuffer(buf);
 };
 
-node *DeleteCharacterAt(buffer *buf, node *row, int col)
+void DeleteCharacterAt(buffer *buf, int col)
 {
     if(buf->column > 0)
     {
         buf->column--;
         SyncCursorWithBuffer(buf);
-        U8_strdel(row->data, buf->column);
-        return row;
+        U8_strdel(buf->line_node->data, buf->column);
     }
     else // reached the start of line. merge line with previous and force a re-draw
     {
-        if(row->prev != buf->head)
+        if(buf->line_node->prev != buf->head)
         {
-            buf->column = strlen(row->prev->data);
+            buf->column = strlen(buf->line_node->prev->data);
             
             // check if there are characters left in line
-            if(strlen(row->data) > 0)
+            if(strlen(buf->line_node->data) > 0)
             {
-                int pos = strlen(row->prev->data);
+                int pos = strlen(buf->line_node->prev->data);
                 
-                for (int i = 0; i < strlen(row->data); ++i)
+                for (int i = 0; i < strlen(buf->line_node->data); ++i)
                 {
-                    row->prev->data[pos] = row->data[i];
+                    buf->line_node->prev->data[pos] = buf->line_node->data[i];
                     pos++;
                 }
             }
             
             DeleteLineAt(buf, buf->line);
-            row = row->prev;
+            buf->line_node = buf->line_node->prev;
             buf->line--;
             SyncCursorWithBuffer(buf);
             
-            RenderClearLine(buf, row, buf->line, characters_texture, buf->panel.texture);
-            
-            return row;
+            RenderClearLine(buf, buf->line, characters_texture, buf->panel.texture);
         }
         else
         {
-            return buf->head->next;
+            buf->line_node = buf->head->next;
         }
     }
 };

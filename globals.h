@@ -18,6 +18,7 @@ struct buffer
     int line_count;
     int column;
     int line;
+    node *line_node;
     char filename[128] = "*no file*";
     
     struct _cursor
@@ -69,6 +70,7 @@ struct font_data
 struct list
 {
     char title[256] = {0};
+    int selected = 0;
     int capacity;
     int element_size = 0;
     char *data;
@@ -85,8 +87,8 @@ extern buffer bufferB;
 
 enum _mode
 {
-    EDIT,
-    LIST
+    TEXT_EDIT,
+    LIST_NAV
 };
 
 struct app_info
@@ -100,7 +102,7 @@ struct app_info
     SDL_Window *window;
     SDL_Renderer *renderer;
     buffer *active_buffer;
-    _mode mode = EDIT;
+    _mode mode = TEXT_EDIT;
     
     void Init()
     {

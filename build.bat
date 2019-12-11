@@ -11,4 +11,4 @@ set EXE=build/ed.exe
 
 start /wait /B cl %CFLAGS% %SKIP_WARNINGS% %BUILD_DIR% /Fe%EXE% /Iinclude %SOURCES% /link %LINK% /SUBSYSTEM:CONSOLE
 
-start /wait %EXE%
+IF %ERRORLEVEL% EQU 0 start /wait %EXE%

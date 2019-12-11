@@ -13,43 +13,40 @@ node *CreateLine(void)
 };
 
 // Insert line at position. Return NULL on error or node pointer on success
-node *InsertLineAt(buffer *buf, int pos)
+void InsertLineAt(buffer *buf, int pos)
 {
-    node *head_current = buf->head;
-    
     if(pos < 0 || pos > buf->line_count)
     {
         node *p = NULL;
-        return p;
+        return;
     }
     else if(pos == 0) // node at start of list
     {
-        node *right = head_current->next;
-        node *newline = CreateLine();
+        node *right = buf->head->next;
+        buf->line_node = CreateLine();
         
         if(right == NULL) // No nodes yet
         {
-            head_current->next = newline;
-            newline->prev = head_current;
+            buf->head->next = buf->line_node;
+            buf->line_node->prev = buf->head;
         }
         else // Nodes exist but we want the new node at pos = 0
         {
-            node *right_of_head = head_current->next;
-            head_current->next = newline;
-            newline->prev = head_current;
-            newline->next = right_of_head;
+            node *right_of_head = buf->head->next;
+            buf->head->next = buf->line_node;
+            buf->line_node->prev = buf->head;
+            buf->line_node->next = right_of_head;
         }
         
-        memset(newline->data, 0, 256);
+        memset(buf->line_node->data, 0, 256);
         
         buf->line_count++;
-        return newline;
     }
     else if(pos == buf->line_count && buf->line_count >= 1) // add as last node
     {
         int count = 0;
-        node *newline = CreateLine();
-        node *ptr = head_current;
+        buf->line_node = CreateLine();
+        node *ptr = buf->head;
         
         while(count < pos)
         {
@@ -58,19 +55,18 @@ node *InsertLineAt(buffer *buf, int pos)
         };
         
         // ptr at this point is the last node (before insertion of the new node)
-        newline->prev = ptr;
-        ptr->next = newline;
-        newline->next = NULL;
+        buf->line_node->prev = ptr;
+        ptr->next = buf->line_node;
+        buf->line_node->next = NULL;
         buf->line_count++;
         
-        memset(newline->data, 0, 256);
-        return newline;
+        memset(buf->line_node->data, 0, 256);
     }
     else // Add in-between(NOTE: if pos = n, pushes existing n and all other nodes rightwards)
     {
         int count = 0;
-        node *newline = CreateLine();
-        node *ptr = head_current;
+        buf->line_node = CreateLine();
+        node *ptr = buf->head;
         
         while(count <= pos)
         {
@@ -81,15 +77,14 @@ node *InsertLineAt(buffer *buf, int pos)
         node *left = ptr->prev;
         node *right = ptr;
         
-        left->next = newline;
-        right->prev = newline;
-        newline->prev = left;
-        newline->next = right;
+        left->next = buf->line_node;
+        right->prev = buf->line_node;
+        buf->line_node->prev = left;
+        buf->line_node->next = right;
         
         buf->line_count++;
         
-        memset(newline->data, 0, 256);
-        return newline;
+        memset(buf->line_node->data, 0, 256);
     }
 };
 
@@ -154,14 +149,14 @@ void DeleteLineAt(buffer *buf, int pos)
 
 node *GetLineNode(buffer *buf, int pos)
 {
-    node *cur_head = buf->head;
+    node *nd = buf->head;
     
     for (int i = 0; i < pos; ++i)
     {
-        cur_head = cur_head->next;
+        nd = nd->next;
     }
     
-    return cur_head->next;
+    return nd->next;
 };
 
 node *KillBuffer(buffer *buf)
@@ -178,7 +173,8 @@ node *KillBuffer(buffer *buf)
     
     buf->head->prev = NULL;
     buf->head->next = NULL;
-    n = InsertLineAt(buf, 0);
+    InsertLineAt(buf, 0);
+    n = buf->line_node; 
     
     buf->line = 0;
     buf->line_count = 1;
@@ -208,14 +204,14 @@ node *KillBuffer(buffer *buf)
     return n;
 };
 
-void AttemptSetToLastColumn(buffer *buf, node *cur_node)
+void AttemptSetToLastColumn(buffer *buf)
 {
-    if(buf->cursor.last_hor_pos <= strlen(cur_node->data))
+    if(buf->cursor.last_hor_pos <= strlen(buf->line_node->data))
     {
         buf->column = buf->cursor.last_hor_pos;
     }
     else
     {
-        buf->column = strlen(cur_node->data);
+        buf->column = strlen(buf->line_node->data);
     }
 };

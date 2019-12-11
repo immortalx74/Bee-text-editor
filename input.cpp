@@ -4,58 +4,146 @@
 #include "draw.h"
 #include <iostream>
 
+
+void GetBindedCommandsInput()
+{
+    if (app.e.type == SDL_KEYDOWN)
+    {
+        if( app.e.key.keysym.sym == SDLK_s && SDL_GetModState() & KMOD_CTRL)
+        {
+            FileWriteToDisk(app.active_buffer, "example.txt");
+        }
+        else if( app.e.key.keysym.sym == SDLK_k && SDL_GetModState() & KMOD_CTRL)
+        {
+            app.active_buffer->line_node = KillBuffer(app.active_buffer);
+        }
+        else if( app.e.key.keysym.sym == SDLK_o && SDL_GetModState() & KMOD_CTRL)
+        {
+            FileReadToBuffer(app.active_buffer, "test.txt");
+        }
+        else if( app.e.key.keysym.sym == SDLK_q && SDL_GetModState() & KMOD_CTRL)
+        {
+            //if(f == NULL)
+            //{
+            //f = ListCreate("Open:", 100, app.active_buffer->panel.col_capacity - 5);
+            //f->selected = 0;
+            //PopulateFileList(f, "d:/dev/ed");
+            //app.mode = LIST_NAV;
+            //}
+        }
+        else if( app.e.key.keysym.sym == SDLK_KP_0 && SDL_GetModState() & KMOD_CTRL)
+        {
+            if(app.active_buffer == &bufferA)
+            {
+                app.active_buffer = &bufferB;
+            }
+            else
+            {
+                app.active_buffer = &bufferA;
+            }
+        }
+    }
+};
+
 void GetTextEditingInput()
 {
-    
+    if(app.e.type == SDL_TEXTINPUT)
+    {
+        InputText(app.active_buffer);
+    }
+    else if (app.e.type == SDL_KEYDOWN)
+    {
+        if(app.e.key.keysym.sym == SDLK_RETURN)
+        {
+            InputReturn(app.active_buffer);
+        }
+        else if(app.e.key.keysym.sym == SDLK_BACKSPACE)
+        {
+            InputBackspace(app.active_buffer);
+        }
+        else if(app.e.key.keysym.sym == SDLK_DELETE)
+        {
+            InputDelete(app.active_buffer);
+        }
+        else if(app.e.key.keysym.sym == SDLK_LEFT)
+        {
+            InputLeft(app.active_buffer);
+        }
+        else if(app.e.key.keysym.sym == SDLK_RIGHT)
+        {
+            InputRight(app.active_buffer);
+        }
+        else if(app.e.key.keysym.sym == SDLK_UP)
+        {
+            InputUp(app.active_buffer);
+        }
+        else if(app.e.key.keysym.sym == SDLK_DOWN)
+        {
+            InputDown(app.active_buffer);
+        }
+        else if(app.e.key.keysym.sym == SDLK_HOME)
+        {
+            InputHome(app.active_buffer);
+        }
+        else if(app.e.key.keysym.sym == SDLK_END)
+        {
+            InputEnd(app.active_buffer);
+        }
+        else if(app.e.key.keysym.sym == SDLK_PAGEUP)
+        {
+            InputPageUp(app.active_buffer);
+        }
+        else if(app.e.key.keysym.sym == SDLK_PAGEDOWN)
+        {
+            InputPageDown(app.active_buffer);
+        }
+        else if(app.e.key.keysym.sym == SDLK_TAB)
+        {
+            InputTab(app.active_buffer);
+        }
+    }
 };
 
-void GetListNavigationInput()
+void InputText(buffer *buf)
 {
-    
-}
-
-node *InputText(buffer *buf, node *cur_node)
-{
-    InsertCharacterAt(buf, cur_node, buf->column);
-    RenderCharacterAt(buf, cur_node, buf->cursor.row, buf->cursor.col - 1, strlen(cur_node->data), characters_texture, buf->panel.texture);
+    InsertCharacterAt(buf, buf->column);
+    RenderCharacterAt(buf, buf->cursor.row, buf->cursor.col - 1, strlen(buf->line_node->data), characters_texture, buf->panel.texture);
     buf->cursor.last_hor_pos = buf->cursor.col;
     
-    return cur_node;
+    //SyncCursorWithBuffer(buf);
+    SwitchHorizontalPage(buf);
 };
 
 
-node *InputReturn(buffer *buf, node *cur_node)
+void InputReturn(buffer *buf)
 {
-    if (buf->column == strlen(cur_node->data))//cursor at end of line
+    if (buf->column == strlen(buf->line_node->data))//cursor at end of line
     {
         buf->column = 0;
         buf->line++;
         SyncCursorWithBuffer(buf);
-        cur_node = InsertLineAt(buf, buf->line);
-        memset(cur_node, 0, 256);
+        InsertLineAt(buf, buf->line);
         
-        // re-draw trailing lines if this isn't the last line entered
         if (buf->line <  buf->line_count - 1)
         {
-            RenderClearLine(buf, cur_node, buf->cursor.row, characters_texture, buf->panel.texture);
+            RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
         }
     }
     else// cursor at start or middle of line
     {
-        cur_node = InsertLineAt(buf, buf->line + 1);
-        memset(cur_node, 0, 256);
+        InsertLineAt(buf, buf->line + 1);
         
         int index = 0;
-        int len = strlen(cur_node->prev->data);
+        int len = strlen(buf->line_node->prev->data);
         
         for (int i = buf->column; i < len; ++i)
         {
-            cur_node->data[index] = cur_node->prev->data[i];
-            cur_node->prev->data[i] = '\0';
+            buf->line_node->data[index] = buf->line_node->prev->data[i];
+            buf->line_node->prev->data[i] = '\0';
             index++;
         }
         
-        RenderClearLine(buf, cur_node->prev, buf->cursor.row, characters_texture, buf->panel.texture);
+        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
         
         buf->line++;
         buf->column = 0;
@@ -73,14 +161,13 @@ node *InputReturn(buffer *buf, node *cur_node)
     }
     
     SwitchHorizontalPage(buf);
-    return cur_node;
 };
 
 
-node *InputBackspace(buffer *buf, node *cur_node)
+void InputBackspace(buffer *buf)
 {
-    cur_node = DeleteCharacterAt(buf, cur_node, buf->column);
-    RenderClearCharacterAt(buf, cur_node, buf->cursor.row, buf->cursor.col, strlen(cur_node->data),characters_texture, buf->panel.texture);
+    DeleteCharacterAt(buf, buf->column);
+    RenderClearCharacterAt(buf, buf->cursor.row, buf->cursor.col, strlen(buf->line_node->data),characters_texture, buf->panel.texture);
     buf->cursor.last_hor_pos = buf->cursor.col;
     
     //test scroll
@@ -96,28 +183,26 @@ node *InputBackspace(buffer *buf, node *cur_node)
     
     SwitchHorizontalPage(buf);
     SyncCursorWithBuffer(buf);
-    
-    return cur_node;
 };
 
 
-node *InputDelete(buffer *buf, node *cur_node)
+void InputDelete(buffer *buf)
 {
-    if(buf->column < strlen(cur_node->data))
+    if(buf->column < strlen(buf->line_node->data))
     {
         buf->column++;
         SyncCursorWithBuffer(buf);
-        cur_node = DeleteCharacterAt(buf, cur_node, buf->column);
-        RenderClearCharacterAt(buf, cur_node, buf->cursor.row, buf->cursor.col, strlen(cur_node->data),characters_texture, buf->panel.texture);
+        DeleteCharacterAt(buf, buf->column);
+        RenderClearCharacterAt(buf, buf->cursor.row, buf->cursor.col, strlen(buf->line_node->data),characters_texture, buf->panel.texture);
     }
     else if(buf->line < buf->line_count - 1)
     {
         buf->line++;
         buf->column = 0;
         SyncCursorWithBuffer(buf);
-        cur_node = cur_node->next;
-        cur_node = DeleteCharacterAt(buf, cur_node, buf->column);
-        RenderClearCharacterAt(buf, cur_node, buf->cursor.row, buf->cursor.col, strlen(cur_node->data),characters_texture, buf->panel.texture);
+        buf->line_node = buf->line_node->next;
+        DeleteCharacterAt(buf, buf->column);
+        RenderClearCharacterAt(buf, buf->cursor.row, buf->cursor.col, strlen(buf->line_node->data),characters_texture, buf->panel.texture);
     }
     buf->cursor.last_hor_pos = buf->cursor.col;
     
@@ -134,12 +219,10 @@ node *InputDelete(buffer *buf, node *cur_node)
     
     SwitchHorizontalPage(buf);
     SyncCursorWithBuffer(buf);
-    
-    return cur_node;
 };
 
 
-node *InputLeft(buffer *buf, node *cur_node)
+void InputLeft(buffer *buf)
 {
     if(buf->column > 0)
     {
@@ -147,11 +230,11 @@ node *InputLeft(buffer *buf, node *cur_node)
     }
     else
     {
-        if(cur_node->prev != buf->head)
+        if(buf->line_node->prev != buf->head)
         {
-            cur_node = cur_node->prev;
+            buf->line_node = buf->line_node->prev;
             buf->line--;
-            buf->column = strlen(cur_node->data);
+            buf->column = strlen(buf->line_node->data);
         }
     }
     
@@ -166,22 +249,20 @@ node *InputLeft(buffer *buf, node *cur_node)
         RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
         SyncCursorWithBuffer(buf);
     }
-    
-    return cur_node;
 };
 
 
-node *InputRight(buffer *buf, node *cur_node)
+void InputRight(buffer *buf)
 {
-    if(buf->column < strlen(cur_node->data))
+    if(buf->column < strlen(buf->line_node->data))
     {
         buf->column++;
     }
     else
     {
-        if(cur_node->next != NULL)
+        if(buf->line_node->next != NULL)
         {
-            cur_node = cur_node->next;
+            buf->line_node = buf->line_node->next;
             buf->line++;
             buf->column = 0;
         }
@@ -198,19 +279,17 @@ node *InputRight(buffer *buf, node *cur_node)
         RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
         SyncCursorWithBuffer(buf);
     }
-    
-    return cur_node;
 };
 
 
-node *InputUp(buffer *buf, node *cur_node)
+void InputUp(buffer *buf)
 {
     if(buf->line > 0)
     {
         buf->line--;
         SyncCursorWithBuffer(buf);
-        cur_node = cur_node->prev;
-        AttemptSetToLastColumn(buf, cur_node);
+        buf->line_node = buf->line_node->prev;
+        AttemptSetToLastColumn(buf);
         SwitchHorizontalPage(buf);
     }
     else
@@ -229,23 +308,22 @@ node *InputUp(buffer *buf, node *cur_node)
     }
     
     SyncCursorWithBuffer(buf);
-    return cur_node;
 };
 
 
-node *InputDown(buffer *buf, node *cur_node)
+void InputDown(buffer *buf)
 {
     if(buf->line < buf->line_count - 1)
     {
         buf->line++;
         SyncCursorWithBuffer(buf);
-        cur_node = cur_node->next;
-        AttemptSetToLastColumn(buf, cur_node);
+        buf->line_node = buf->line_node->next;
+        AttemptSetToLastColumn(buf);
         SwitchHorizontalPage(buf);
     }
     else
     {
-        buf->column = strlen(cur_node->data);
+        buf->column = strlen(buf->line_node->data);
         SwitchHorizontalPage(buf);
         SyncCursorWithBuffer(buf);
     }
@@ -259,23 +337,22 @@ node *InputDown(buffer *buf, node *cur_node)
     }
     
     SyncCursorWithBuffer(buf);
-    return cur_node;
 };
 
 
-void InputTab(buffer *buf, node *cur_node)
+void InputTab(buffer *buf)
 {
     for (int i = 0; i < 4; ++i)
     {
-        U8_strinsert(cur_node->data, buf->column, " ", 256);
+        U8_strinsert(buf->line_node->data, buf->column, " ", 256);
         buf->column++;
         SyncCursorWithBuffer(buf);
-        RenderCharacterAt(buf, cur_node, buf->cursor.row, buf->cursor.col - 1, strlen(cur_node->data), characters_texture, buf->panel.texture);
+        RenderCharacterAt(buf, buf->cursor.row, buf->cursor.col - 1, strlen(buf->line_node->data), characters_texture, buf->panel.texture);
         buf->cursor.last_hor_pos = buf->cursor.col;
     }
 };
 
-void InputHome(buffer *buf, node *cur_node)
+void InputHome(buffer *buf)
 {
     if(buf->column > 0)
     {
@@ -286,22 +363,22 @@ void InputHome(buffer *buf, node *cur_node)
     }
 };
 
-void InputEnd(buffer *buf, node *cur_node)
+void InputEnd(buffer *buf)
 {
-    int len = strlen(cur_node->data);
+    int len = strlen(buf->line_node->data);
     buf->column = len;
     buf->cursor.last_hor_pos = len;
     SwitchHorizontalPage(buf);
     SyncCursorWithBuffer(buf);
 };
 
-node *InputPageUp(buffer *buf, node *cur_node)
+void InputPageUp(buffer *buf)
 {
     if(buf->line_count > buf->panel.row_capacity && buf->line > buf->panel.row_capacity)
     {
         for (int i = buf->line; i > buf->line - buf->panel.row_capacity; --i)
         {
-            cur_node = cur_node->prev;
+            buf->line_node = buf->line_node->prev;
         }
         
         buf->line -= buf->panel.row_capacity;
@@ -322,26 +399,24 @@ node *InputPageUp(buffer *buf, node *cur_node)
     }
     else
     {
-        cur_node = buf->head->next;
+        buf->line_node = buf->head->next;
         buf->line = 0;
         buf->panel.scroll_offset_ver = 0;
         RenderLineRange(buf, 0, buf->panel.row_capacity, characters_texture, buf->panel.texture);
     }
     
-    AttemptSetToLastColumn(buf, cur_node);
+    AttemptSetToLastColumn(buf);
     SwitchHorizontalPage(buf);
     SyncCursorWithBuffer(buf);
-    
-    return cur_node;
 };
 
-node *InputPageDown(buffer *buf, node *cur_node)
+void InputPageDown(buffer *buf)
 {
     if(buf->line_count > buf->panel.row_capacity && buf->line < buf->line_count - buf->panel.row_capacity)
     {
         for (int i = buf->line; i < buf->line + buf->panel.row_capacity; ++i)
         {
-            cur_node = cur_node->next;
+            buf->line_node = buf->line_node->next;
         }
         
         buf->line += buf->panel.row_capacity;
@@ -361,9 +436,9 @@ node *InputPageDown(buffer *buf, node *cur_node)
     }
     else
     {
-        while(cur_node->next != NULL)
+        while(buf->line_node->next != NULL)
         {
-            cur_node = cur_node->next;
+            buf->line_node = buf->line_node->next;
         }
         
         buf->line = buf->line_count-1;
@@ -371,9 +446,12 @@ node *InputPageDown(buffer *buf, node *cur_node)
         RenderLineRange(buf, buf->line_count - buf->panel.row_capacity, buf->panel.row_capacity, characters_texture, buf->panel.texture);
     }
     
-    AttemptSetToLastColumn(buf, cur_node);
+    AttemptSetToLastColumn(buf);
     SwitchHorizontalPage(buf);
     SyncCursorWithBuffer(buf);
+};
+
+void ListNav_Down(list *l)
+{
     
-    return cur_node;
 };

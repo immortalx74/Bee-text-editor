@@ -4,8 +4,8 @@
 #include "draw.h"
 #include <string>
 
-void InsertCharacterAt(buffer *buf, node *row, int col);
-node *DeleteCharacterAt(buffer *buf, node *row, int col);
+void InsertCharacterAt(buffer *buf, int col);
+void DeleteCharacterAt(buffer *buf, int col);
 
 /*! Returns the number of UTF-8 characters in the given string. */
 int U8_strlen(const char* string);

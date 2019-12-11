@@ -2,7 +2,7 @@
 #include <iostream>
 #include "draw.h"
 
-node *FileReadToBuffer(buffer *buf, char *filename)
+void FileReadToBuffer(buffer *buf, char *filename)
 {
     std::ifstream file;
     file.open(filename);
@@ -39,6 +39,7 @@ node *FileReadToBuffer(buffer *buf, char *filename)
     buf->cursor.last_hor_pos = 0;
     buf->panel.scroll_offset_ver = 0;
     buf->panel.page = 0;
+    buf->line_node = cur_node;
     
     
     //TEMP set filename
@@ -56,8 +57,6 @@ node *FileReadToBuffer(buffer *buf, char *filename)
     
     // Render content
     RenderLineRange(buf, 0, buf->line_count, characters_texture, buf->panel.texture);
-    
-    return cur_node;
 };
 
 void FileWriteToDisk(buffer *buf, char *filename)
