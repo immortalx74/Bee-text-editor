@@ -16,7 +16,11 @@ struct list
     char title[256] = {0};
     int selected = 0;
     int capacity;
+    int element_count = 0;
     int element_size = 0;
+    int scroll_offset = 0;
+    int row = 0;
+    char *current_path;
     char *data;
 };
 

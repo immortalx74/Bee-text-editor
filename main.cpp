@@ -135,7 +135,8 @@ int main(int argc, char *argv[])
         if(app.mode == LIST_NAV)
         {
             HighlightListSelectionDraw(app.active_buffer, app.active_buffer->lst);
-            ListDraw(app.active_buffer, app.active_buffer->lst, characters_texture, app.active_buffer->panel.texture);
+            //ListDraw(app.active_buffer, app.active_buffer->lst, characters_texture, app.active_buffer->panel.texture);
+            RenderListRange(app.active_buffer, app.active_buffer->lst->scroll_offset, app.active_buffer->lst->element_count, characters_texture, app.active_buffer->panel.texture);
         }
         
         SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 255);// background

@@ -18,5 +18,6 @@ void SyncCursorWithBuffer(buffer *buf);
 void SwitchHorizontalPage(buffer *buf);
 
 void ListDraw(buffer *buf, list *l, SDL_Texture *ch, SDL_Texture *pt);
+void RenderListRange(buffer *buf, int start, int count, SDL_Texture *ch, SDL_Texture *pt);
 
 void HighlightListSelectionDraw(buffer *buf, list *l);

@@ -77,7 +77,7 @@ void HighlightLineDraw(buffer *buf)
 void HighlightListSelectionDraw(buffer *buf, list *l)
 {
     int xx = buf->panel.x + margin;
-    int yy = (l->selected * font.height) + margin;
+    int yy = (l->row * font.height) + margin;
     
     SDL_Rect box = {xx, yy, buf->panel.w - (2 *margin), font.height};
     SDL_SetRenderDrawColor(app.renderer, buf->cursor.line_highlight.r, buf->cursor.line_highlight.g, buf->cursor.line_highlight.b, buf->cursor.line_highlight.a);
@@ -277,6 +277,32 @@ void ListDraw(buffer *buf, list *l, SDL_Texture *ch, SDL_Texture *pt)
     for (int i = 0; i < l->capacity; ++i)
     {
         char *entry = ListGetElement(l, i);
+        
+        for (int j = 0; j < strlen(entry); ++j)
+        {
+            cur_char = (int)entry[j];
+            SDL_Rect glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
+            SDL_Rect pos = {margin + (j * font.width), margin + (i * font.height), font.width, font.height};
+            SDL_RenderCopy(app.renderer, ch, &glyph_rect, &pos);
+        }
+    }
+    
+    SDL_SetRenderTarget(app.renderer, NULL);
+};
+
+void RenderListRange(buffer *buf, int start, int count, SDL_Texture *ch, SDL_Texture *pt)
+{
+    SDL_SetRenderTarget(app.renderer, pt);
+    SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 0);// background
+    
+    int cur_char;
+    SDL_Rect glyph_rect;
+    
+    SDL_RenderFillRect(app.renderer, NULL);
+    
+    for (int i = 0; i < count; ++i)
+    {
+        char *entry = ListGetElement(buf->lst, i+start);
         
         for (int j = 0; j < strlen(entry); ++j)
         {

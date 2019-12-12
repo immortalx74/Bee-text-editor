@@ -8,10 +8,10 @@ void GetGlobalInput()
 {
     if (app.e.type == SDL_KEYDOWN)
     {
-        if (app.e.key.keysym.sym == SDLK_ESCAPE)
-        {
-            app.quit = true;
-        }
+        //if (app.e.key.keysym.sym == SDLK_ESCAPE)
+        //{
+        //app.quit = true;
+        //}
     }
 };
 
@@ -21,36 +21,23 @@ void GetListNavigationInput()
     {
         if(app.e.key.keysym.sym == SDLK_DOWN)//NOTE: test list input
         {
-            app.active_buffer->lst->selected++;
+            Input_ListNav_Down(app.active_buffer->lst);
         }
         else if(app.e.key.keysym.sym == SDLK_UP)//NOTE: test list input
         {
-            app.active_buffer->lst->selected--;
+            Input_ListNav_Up(app.active_buffer->lst);
         }
         else if(app.e.key.keysym.sym == SDLK_RETURN)
         {
-            //TEST READ FILE FROM LIST
-            char *selected_file = ListGetElement(app.active_buffer->lst, app.active_buffer->lst->selected);
-            
-            FileReadToBuffer(app.active_buffer, selected_file);
-            
-            if(app.active_buffer->lst != NULL)
-            {
-                ListDelete(app.active_buffer->lst);
-                app.active_buffer->lst = NULL;
-                app.mode = TEXT_EDIT;
-                RenderLineRange(app.active_buffer, app.active_buffer->panel.scroll_offset_ver, app.active_buffer->panel.row_capacity, characters_texture, app.active_buffer->panel.texture);
-            }
+            Input_ListNav_Select(app.active_buffer->lst);
         }
-        else if( app.e.key.keysym.sym == SDLK_o && SDL_GetModState() & KMOD_CTRL)
+        else if( app.e.key.keysym.sym == SDLK_ESCAPE)
         {
-            if(app.active_buffer->lst != NULL)
-            {
-                ListDelete(app.active_buffer->lst);
-                app.active_buffer->lst = NULL;
-                app.mode = TEXT_EDIT;
-                RenderLineRange(app.active_buffer, app.active_buffer->panel.scroll_offset_ver, app.active_buffer->panel.row_capacity, characters_texture, app.active_buffer->panel.texture);
-            }
+            Input_ListNav_Abort(app.active_buffer->lst);
+        }
+        else if( app.e.key.keysym.sym == SDLK_BACKSPACE)
+        {
+            Input_ListNav_ParentDirectory(app.active_buffer->lst);
         }
     }
 };
@@ -71,8 +58,11 @@ void GetBindedCommandsInput()
         {
             if(app.active_buffer->lst == NULL)
             {
-                app.active_buffer->lst = ListCreate("Open:", 100, app.active_buffer->panel.col_capacity - 5);
-                PopulateFileList(app.active_buffer->lst, "d:/dev/ed");
+                app.active_buffer->lst = ListCreate("Open:", 400, app.active_buffer->panel.col_capacity - 5);
+                char *work_dir = SDL_GetBasePath();
+                app.active_buffer->lst->current_path = work_dir;
+                PopulateFileList(app.active_buffer->lst, work_dir);
+                //free(work_dir);
                 app.mode = LIST_NAV;
             }
         }
@@ -94,62 +84,62 @@ void GetTextEditingInput()
 {
     if(app.e.type == SDL_TEXTINPUT)
     {
-        InputText(app.active_buffer);
+        Input_TextEd_Text(app.active_buffer);
     }
     else if (app.e.type == SDL_KEYDOWN)
     {
         if(app.e.key.keysym.sym == SDLK_RETURN)
         {
-            InputReturn(app.active_buffer);
+            Input_TextEd_Return(app.active_buffer);
         }
         else if(app.e.key.keysym.sym == SDLK_BACKSPACE)
         {
-            InputBackspace(app.active_buffer);
+            Input_TextEd_Backspace(app.active_buffer);
         }
         else if(app.e.key.keysym.sym == SDLK_DELETE)
         {
-            InputDelete(app.active_buffer);
+            Input_TextEd_Delete(app.active_buffer);
         }
         else if(app.e.key.keysym.sym == SDLK_LEFT)
         {
-            InputLeft(app.active_buffer);
+            Input_TextEd_Left(app.active_buffer);
         }
         else if(app.e.key.keysym.sym == SDLK_RIGHT)
         {
-            InputRight(app.active_buffer);
+            Input_TextEd_Right(app.active_buffer);
         }
         else if(app.e.key.keysym.sym == SDLK_UP)
         {
-            InputUp(app.active_buffer);
+            Input_TextEd_Up(app.active_buffer);
         }
         else if(app.e.key.keysym.sym == SDLK_DOWN)
         {
-            InputDown(app.active_buffer);
+            Input_TextEd_Down(app.active_buffer);
         }
         else if(app.e.key.keysym.sym == SDLK_HOME)
         {
-            InputHome(app.active_buffer);
+            Input_TextEd_Home(app.active_buffer);
         }
         else if(app.e.key.keysym.sym == SDLK_END)
         {
-            InputEnd(app.active_buffer);
+            Input_TextEd_End(app.active_buffer);
         }
         else if(app.e.key.keysym.sym == SDLK_PAGEUP)
         {
-            InputPageUp(app.active_buffer);
+            Input_TextEd_PageUp(app.active_buffer);
         }
         else if(app.e.key.keysym.sym == SDLK_PAGEDOWN)
         {
-            InputPageDown(app.active_buffer);
+            Input_TextEd_PageDown(app.active_buffer);
         }
         else if(app.e.key.keysym.sym == SDLK_TAB)
         {
-            InputTab(app.active_buffer);
+            Input_TextEd_Tab(app.active_buffer);
         }
     }
 };
 
-void InputText(buffer *buf)
+void Input_TextEd_Text(buffer *buf)
 {
     InsertCharacterAt(buf, buf->column);
     RenderCharacterAt(buf, buf->cursor.row, buf->cursor.col - 1, strlen(buf->line_node->data), characters_texture, buf->panel.texture);
@@ -160,7 +150,7 @@ void InputText(buffer *buf)
 };
 
 
-void InputReturn(buffer *buf)
+void Input_TextEd_Return(buffer *buf)
 {
     if (buf->column == strlen(buf->line_node->data))//cursor at end of line
     {
@@ -209,7 +199,7 @@ void InputReturn(buffer *buf)
 };
 
 
-void InputBackspace(buffer *buf)
+void Input_TextEd_Backspace(buffer *buf)
 {
     DeleteCharacterAt(buf, buf->column);
     RenderClearCharacterAt(buf, buf->cursor.row, buf->cursor.col, strlen(buf->line_node->data),characters_texture, buf->panel.texture);
@@ -231,7 +221,7 @@ void InputBackspace(buffer *buf)
 };
 
 
-void InputDelete(buffer *buf)
+void Input_TextEd_Delete(buffer *buf)
 {
     if(buf->column < strlen(buf->line_node->data))
     {
@@ -267,7 +257,7 @@ void InputDelete(buffer *buf)
 };
 
 
-void InputLeft(buffer *buf)
+void Input_TextEd_Left(buffer *buf)
 {
     if(buf->column > 0)
     {
@@ -297,7 +287,7 @@ void InputLeft(buffer *buf)
 };
 
 
-void InputRight(buffer *buf)
+void Input_TextEd_Right(buffer *buf)
 {
     if(buf->column < strlen(buf->line_node->data))
     {
@@ -327,7 +317,7 @@ void InputRight(buffer *buf)
 };
 
 
-void InputUp(buffer *buf)
+void Input_TextEd_Up(buffer *buf)
 {
     if(buf->line > 0)
     {
@@ -356,7 +346,7 @@ void InputUp(buffer *buf)
 };
 
 
-void InputDown(buffer *buf)
+void Input_TextEd_Down(buffer *buf)
 {
     if(buf->line < buf->line_count - 1)
     {
@@ -385,7 +375,7 @@ void InputDown(buffer *buf)
 };
 
 
-void InputTab(buffer *buf)
+void Input_TextEd_Tab(buffer *buf)
 {
     for (int i = 0; i < 4; ++i)
     {
@@ -397,7 +387,7 @@ void InputTab(buffer *buf)
     }
 };
 
-void InputHome(buffer *buf)
+void Input_TextEd_Home(buffer *buf)
 {
     if(buf->column > 0)
     {
@@ -408,7 +398,7 @@ void InputHome(buffer *buf)
     }
 };
 
-void InputEnd(buffer *buf)
+void Input_TextEd_End(buffer *buf)
 {
     int len = strlen(buf->line_node->data);
     buf->column = len;
@@ -417,7 +407,7 @@ void InputEnd(buffer *buf)
     SyncCursorWithBuffer(buf);
 };
 
-void InputPageUp(buffer *buf)
+void Input_TextEd_PageUp(buffer *buf)
 {
     if(buf->line_count > buf->panel.row_capacity && buf->line > buf->panel.row_capacity)
     {
@@ -455,7 +445,7 @@ void InputPageUp(buffer *buf)
     SyncCursorWithBuffer(buf);
 };
 
-void InputPageDown(buffer *buf)
+void Input_TextEd_PageDown(buffer *buf)
 {
     if(buf->line_count > buf->panel.row_capacity && buf->line < buf->line_count - buf->panel.row_capacity)
     {
@@ -496,7 +486,94 @@ void InputPageDown(buffer *buf)
     SyncCursorWithBuffer(buf);
 };
 
-void ListNav_Down(list *l)
+void Input_ListNav_Down(list *l)
 {
+    if(l->selected < l->element_count - 1)
+    {
+        l->selected++;
+        
+        if (l->element_count > app.active_buffer->panel.row_capacity && l->row >= app.active_buffer->panel.row_capacity-1)
+        {
+            l->scroll_offset++;
+        }
+        l->row = l->selected - l->scroll_offset;
+    }
+};
+
+void Input_ListNav_Up(list *l)
+{
+    if(l->selected > 0)
+    {
+        l->selected--;
+        l->row = l->selected - l->scroll_offset;
+        
+        if(l->element_count > app.active_buffer->panel.row_capacity && l->row == 0 && l->selected > 0)
+        {
+            l->scroll_offset--;
+        }
+    }
+};
+
+void Input_ListNav_Select(list *l)
+{
+    char *selected_element = ListGetElement(app.active_buffer->lst, app.active_buffer->lst->selected);
     
+    if (selected_element[strlen(selected_element) - 1] == '\\')
+    {
+        int new_size = strlen(l->current_path) + strlen(selected_element);
+        char *new_path = (char*)malloc(new_size);
+        
+        strcpy(new_path, l->current_path);
+        strcat(new_path, "\\");
+        strcat(new_path, selected_element);
+        l->current_path = new_path;
+        
+        ListClear(l);
+        PopulateFileList(l, new_path);
+        
+        free(new_path);
+    }
+    else
+    {
+        char *path_and_filename = (char*)malloc(strlen(l->current_path) + strlen(selected_element));
+        
+        strcpy(path_and_filename, l->current_path);
+        strcat(path_and_filename, "\\");
+        strcat(path_and_filename, selected_element);
+        
+        FileReadToBuffer(app.active_buffer, path_and_filename);
+        
+        free(path_and_filename);
+        
+        if(app.active_buffer->lst != NULL)
+        {
+            ListDelete(app.active_buffer->lst);
+            app.active_buffer->lst = NULL;
+            app.mode = TEXT_EDIT;
+            RenderLineRange(app.active_buffer, app.active_buffer->panel.scroll_offset_ver, app.active_buffer->panel.row_capacity, characters_texture, app.active_buffer->panel.texture);
+        }
+    }
+};
+
+void Input_ListNav_ParentDirectory(list *l)
+{
+    char *pos = strrchr(l->current_path, '\\');
+    for (int i = pos - l->current_path; i < strlen(l->current_path); ++i)
+    {
+        l->current_path[i] = 0;
+    }
+    std::cout << l->current_path << std::endl;
+    ListClear(l);
+    PopulateFileList(l, l->current_path);
+};
+
+void Input_ListNav_Abort(list *l)
+{
+    if(app.active_buffer->lst != NULL)
+    {
+        ListDelete(app.active_buffer->lst);
+        app.active_buffer->lst = NULL;
+        app.mode = TEXT_EDIT;
+        RenderLineRange(app.active_buffer, app.active_buffer->panel.scroll_offset_ver, app.active_buffer->panel.row_capacity, characters_texture, app.active_buffer->panel.texture);
+    }
 };
