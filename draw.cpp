@@ -22,46 +22,77 @@ void PanelDraw(buffer *buf)
 
 void BarDraw(buffer *buf)
 {
-    SDL_Rect box = {buf->status_bar.x, buf->status_bar.y, buf->status_bar.w, buf->status_bar.h};
-    SDL_SetRenderDrawColor(app.renderer, buf->panel.color.r, buf->panel.color.g, buf->panel.color.b, buf->panel.color.a);
-    SDL_RenderDrawRect(app.renderer, &box);
-    
-    //draw info
-    SDL_SetRenderTarget(app.renderer, buf->status_bar.texture);
-    SDL_SetRenderDrawColor(app.renderer, buf->status_bar.text_color.r, buf->status_bar.text_color.g, buf->status_bar.text_color.b, buf->status_bar.text_color.a);
-    
-    SDL_SetRenderDrawColor(app.renderer, buf->status_bar.color.r, buf->status_bar.color.g, buf->status_bar.color.b, buf->status_bar.color.a);
-    SDL_Rect clear_rect = {1, 1, buf->status_bar.w - 2, buf->status_bar.h - 2};
-    SDL_RenderFillRect(app.renderer, &clear_rect);
-    
-    int cur_char;
-    SDL_Rect glyph_rect;
-    SDL_Rect pos;
-    
-    int len_fn = strlen(buf->filename);
-    for (int i = 0; i < len_fn; ++i)
+    if(app.mode == TEXT_EDIT)
     {
-        cur_char = (int)buf->filename[i];
-        glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-        pos = {margin + (i * font.width), margin, font.width, font.height};
-        SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
-    }
-    
-    // print line/col
-    int len_lc = GetDigitCount(buf->line) + GetDigitCount(buf->column) + 4;
-    char linecol_str[20] = {0};
-    sprintf (linecol_str, "L%d,C%d", buf->line + 1, buf->column + 1);
-    
-    for (int i = 0; i < len_lc; ++i)
-    {
-        cur_char = linecol_str[i];
+        SDL_Rect box = {buf->status_bar.x, buf->status_bar.y, buf->status_bar.w, buf->status_bar.h};
+        SDL_SetRenderDrawColor(app.renderer, buf->panel.color.r, buf->panel.color.g, buf->panel.color.b, buf->panel.color.a);
+        SDL_RenderDrawRect(app.renderer, &box);
         
-        glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-        pos = {((len_fn + 2) * font.width) + margin + (i * font.width), margin, font.width, font.height};
-        SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
+        //draw info
+        SDL_SetRenderTarget(app.renderer, buf->status_bar.texture);
+        SDL_SetRenderDrawColor(app.renderer, buf->status_bar.color.r, buf->status_bar.color.g, buf->status_bar.color.b, buf->status_bar.color.a);
+        SDL_Rect clear_rect = {1, 1, buf->status_bar.w - 2, buf->status_bar.h - 2};
+        SDL_RenderFillRect(app.renderer, &clear_rect);
+        
+        int cur_char;
+        SDL_Rect glyph_rect;
+        SDL_Rect pos;
+        
+        int len_fn = strlen(buf->filename);
+        for (int i = 0; i < len_fn; ++i)
+        {
+            cur_char = (int)buf->filename[i];
+            glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
+            pos = {margin + (i * font.width), margin, font.width, font.height};
+            SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
+        }
+        
+        // print line/col
+        int len_lc = GetDigitCount(buf->line) + GetDigitCount(buf->column) + 4;
+        char linecol_str[20] = {0};
+        sprintf (linecol_str, "L%d,C%d", buf->line + 1, buf->column + 1);
+        
+        for (int i = 0; i < len_lc; ++i)
+        {
+            cur_char = linecol_str[i];
+            
+            glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
+            pos = {((len_fn + 2) * font.width) + margin + (i * font.width), margin, font.width, font.height};
+            SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
+        }
+        
+        SDL_SetRenderTarget(app.renderer, NULL);
     }
-    
-    SDL_SetRenderTarget(app.renderer, NULL);
+    else if(app.mode == LIST_NAV)
+    {
+        SDL_Rect box = {buf->status_bar.x, buf->status_bar.y, buf->status_bar.w, buf->status_bar.h};
+        SDL_SetRenderDrawColor(app.renderer, buf->panel.color.r, buf->panel.color.g, buf->panel.color.b, buf->panel.color.a);
+        SDL_RenderDrawRect(app.renderer, &box);
+        
+        SDL_SetRenderTarget(app.renderer, buf->status_bar.texture);
+        SDL_SetRenderDrawColor(app.renderer, buf->status_bar.color.r, buf->status_bar.color.g, buf->status_bar.color.b, buf->status_bar.color.a);
+        SDL_Rect clear_rect = {1, 1, buf->status_bar.w - 2, buf->status_bar.h - 2};
+        SDL_RenderFillRect(app.renderer, &clear_rect);
+        
+        int cur_char;
+        SDL_Rect glyph_rect;
+        SDL_Rect pos;
+        
+        if(buf->lst != NULL)
+        {
+            int len_cp = strlen(buf->lst->current_path);
+            for (int i = 0; i < len_cp; ++i)
+            {
+                cur_char = (int)buf->lst->current_path[i];
+                glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
+                pos = {margin + (i * font.width), margin, font.width, font.height};
+                SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
+            }
+        }
+        
+        
+        SDL_SetRenderTarget(app.renderer, NULL);
+    }
 };
 
 void HighlightLineDraw(buffer *buf)

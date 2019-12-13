@@ -1,6 +1,7 @@
 #pragma once
 #include "SDL.h"
 #include "SDL_ttf.h"
+#include <string.h>
 
 extern int margin;
 
@@ -106,6 +107,7 @@ struct app_info
     SDL_Renderer *renderer;
     buffer *active_buffer;
     _mode mode = TEXT_EDIT;
+    char *last_path;
     
     void Init()
     {
@@ -115,6 +117,9 @@ struct app_info
         font.name = TTF_OpenFont("liberation-mono.ttf", 13);
         font.height = TTF_FontHeight(font.name);
         TTF_SizeText(font.name, "A", &font.width, 0);
+        
+        last_path = SDL_GetBasePath();
+        last_path[strlen(last_path) - 1] = 0;
         
         window = SDL_CreateWindow("Ed", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
                                   1024, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);

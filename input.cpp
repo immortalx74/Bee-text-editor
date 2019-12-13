@@ -59,10 +59,8 @@ void GetBindedCommandsInput()
             if(app.active_buffer->lst == NULL)
             {
                 app.active_buffer->lst = ListCreate("Open:", 400, app.active_buffer->panel.col_capacity - 5);
-                char *work_dir = SDL_GetBasePath();
-                app.active_buffer->lst->current_path = work_dir;
-                PopulateFileList(app.active_buffer->lst, work_dir);
-                //free(work_dir);
+                app.active_buffer->lst->current_path = app.last_path;
+                PopulateFileList(app.active_buffer->lst, app.last_path);
                 app.mode = LIST_NAV;
             }
         }
@@ -518,40 +516,13 @@ void Input_ListNav_Select(list *l)
 {
     char *selected_element = ListGetElement(app.active_buffer->lst, app.active_buffer->lst->selected);
     
-    if (selected_element[strlen(selected_element) - 1] == '\\')
+    if (IsDirectory(selected_element))
     {
-        int new_size = strlen(l->current_path) + strlen(selected_element);
-        char *new_path = (char*)malloc(new_size);
-        
-        strcpy(new_path, l->current_path);
-        strcat(new_path, "\\");
-        strcat(new_path, selected_element);
-        l->current_path = new_path;
-        
-        ListClear(l);
-        PopulateFileList(l, new_path);
-        
-        free(new_path);
+        ListSwitchToSelectedDirectory(l, selected_element);
     }
     else
     {
-        char *path_and_filename = (char*)malloc(strlen(l->current_path) + strlen(selected_element));
-        
-        strcpy(path_and_filename, l->current_path);
-        strcat(path_and_filename, "\\");
-        strcat(path_and_filename, selected_element);
-        
-        FileReadToBuffer(app.active_buffer, path_and_filename);
-        
-        free(path_and_filename);
-        
-        if(app.active_buffer->lst != NULL)
-        {
-            ListDelete(app.active_buffer->lst);
-            app.active_buffer->lst = NULL;
-            app.mode = TEXT_EDIT;
-            RenderLineRange(app.active_buffer, app.active_buffer->panel.scroll_offset_ver, app.active_buffer->panel.row_capacity, characters_texture, app.active_buffer->panel.texture);
-        }
+        ListLoadSelectedFile(l, selected_element);
     }
 };
 
@@ -562,7 +533,7 @@ void Input_ListNav_ParentDirectory(list *l)
     {
         l->current_path[i] = 0;
     }
-    std::cout << l->current_path << std::endl;
+    
     ListClear(l);
     PopulateFileList(l, l->current_path);
 };

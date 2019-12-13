@@ -14,6 +14,7 @@ list *ListCreate(char title_text[], int cap, int el_size)
     l->selected = 0;
     l->row = 0;
     l->scroll_offset = 0;
+    l->current_path = app.last_path;
     memset(l->data, 0, cap * el_size);
     return l;
 };
@@ -88,6 +89,46 @@ void PopulateFileList(list *l, char *path)
     }
     
     tinydir_close(&dir);
+};
+
+void ListSwitchToSelectedDirectory(list *l, char *sel_dir)
+{
+    int new_size = strlen(l->current_path) + strlen(sel_dir);
+    char *new_path = (char*)malloc(new_size);
+    
+    strcpy(new_path, l->current_path);
+    strcat(new_path, "\\");
+    strcat(new_path, sel_dir);
+    new_path[strlen(new_path) - 1] = 0;
+    l->current_path = new_path;
+    
+    ListClear(l);
+    PopulateFileList(l, new_path);
+    
+    free(new_path);
+};
+
+void ListLoadSelectedFile(list *l, char *sel_file)
+{
+    app.last_path = l->current_path;
+    int size = strlen(l->current_path) + strlen(sel_file);
+    char *path_and_filename = (char*)malloc(size);
+    
+    strcpy(path_and_filename, l->current_path);
+    strcat(path_and_filename, "\\");
+    strcat(path_and_filename, sel_file);
+    
+    FileReadToBuffer(app.active_buffer, path_and_filename);
+    
+    free(path_and_filename);
+    
+    if(app.active_buffer->lst != NULL)
+    {
+        ListDelete(app.active_buffer->lst);
+        app.active_buffer->lst = NULL;
+        app.mode = TEXT_EDIT;
+        RenderLineRange(app.active_buffer, app.active_buffer->panel.scroll_offset_ver, app.active_buffer->panel.row_capacity, characters_texture, app.active_buffer->panel.texture);
+    }
 };
 
 //list *GenerateFileList(buffer *buf)

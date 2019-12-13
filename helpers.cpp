@@ -17,3 +17,13 @@ int GetDigitCount(int n)
     
     return count;
 };
+
+bool IsDirectory(char *name)
+{
+    if (name[strlen(name) - 1] == '\\')
+    {
+        return true;
+    }
+    
+    return false;
+};

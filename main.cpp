@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 {
     app.Init();
     WindowResize(&app, app.window);
-    
+    print(app.last_path);
     //START WITH LEFT BUFFER
     app.active_buffer = &bufferA;
     
@@ -135,7 +135,6 @@ int main(int argc, char *argv[])
         if(app.mode == LIST_NAV)
         {
             HighlightListSelectionDraw(app.active_buffer, app.active_buffer->lst);
-            //ListDraw(app.active_buffer, app.active_buffer->lst, characters_texture, app.active_buffer->panel.texture);
             RenderListRange(app.active_buffer, app.active_buffer->lst->scroll_offset, app.active_buffer->lst->element_count, characters_texture, app.active_buffer->panel.texture);
         }
         
