@@ -5,7 +5,12 @@ list *ListCreate(char title_text[], int cap, int el_size)
 {
     list *l = (list*)malloc(sizeof(list));
     
-    memset(l->title, 0, 256);
+    //filter test
+    l->filter = (char*)malloc(20);
+    memset(l->filter, 0, 20);
+    
+    l->title = (char*)malloc(strlen(title_text) + 1);
+    l->title[strlen(l->title)] = 0;
     strcpy(l->title, title_text);
     
     l->capacity = cap;
@@ -22,6 +27,8 @@ list *ListCreate(char title_text[], int cap, int el_size)
 void ListDelete(list *l)
 {
     free(l->data);
+    free(l->title);
+    free(l->filter);
     free(l);
 };
 
@@ -81,11 +88,48 @@ void PopulateFileList(list *l, char *path)
             current[len + 1] = '\0';
         }
         
-        ListSetElement(l, count, file.name);
+        ListSetElement(l, count, current);
         l->element_count++;
         
         tinydir_next(&dir);
         count++;
+    }
+    
+    tinydir_close(&dir);
+};
+
+void FilterFileList(list *l, char *path)
+{
+    tinydir_dir dir;
+    tinydir_open(&dir, path);
+    int count = 0;
+    l->element_count= 0;
+    l->current_path = (char*)malloc(strlen(path));
+    strcpy(l->current_path, path);
+    char *current;
+    
+    while (dir.has_next)
+    {
+        tinydir_file file;
+        tinydir_readfile(&dir, &file);
+        
+        current = file.name;
+        
+        if(strstr(current, l->filter) != NULL)
+        {
+            if (file.is_dir)
+            {
+                int len = strlen(current);
+                current[len] = '\\';
+                current[len + 1] = '\0';
+            }
+            
+            ListSetElement(l, count, current);
+            l->element_count++;
+            count++;
+        }
+        
+        tinydir_next(&dir);
     }
     
     tinydir_close(&dir);
@@ -103,6 +147,7 @@ void ListSwitchToSelectedDirectory(list *l, char *sel_dir)
     l->current_path = new_path;
     
     ListClear(l);
+    memset(l->filter, 0, sizeof(l->filter));
     PopulateFileList(l, new_path);
     
     free(new_path);

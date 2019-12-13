@@ -17,7 +17,14 @@ void GetGlobalInput()
 
 void GetListNavigationInput()
 {
-    if (app.e.type == SDL_KEYDOWN)
+    if(app.e.type == SDL_TEXTINPUT)
+    {
+        strcat(app.active_buffer->lst->filter, app.e.text.text);
+        //std::cout << app.active_buffer->lst->filter << std::endl;
+        ListClear(app.active_buffer->lst);
+        FilterFileList(app.active_buffer->lst, app.active_buffer->lst->current_path);
+    }
+    else if (app.e.type == SDL_KEYDOWN)
     {
         if(app.e.key.keysym.sym == SDLK_DOWN)//NOTE: test list input
         {
@@ -37,7 +44,19 @@ void GetListNavigationInput()
         }
         else if( app.e.key.keysym.sym == SDLK_BACKSPACE)
         {
-            Input_ListNav_ParentDirectory(app.active_buffer->lst);
+            if(strlen(app.active_buffer->lst->filter) == 0)
+            {
+                Input_ListNav_ParentDirectory(app.active_buffer->lst);
+            }
+            else
+            {
+                int pos = strlen(app.active_buffer->lst->filter) - 1;
+                app.active_buffer->lst->filter[pos] = 0;
+                
+                ListClear(app.active_buffer->lst);
+                FilterFileList(app.active_buffer->lst, app.active_buffer->lst->current_path);
+            }
+            
         }
     }
 };

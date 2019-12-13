@@ -14,5 +14,6 @@ char *ListGetElement(list *l, int index);
 void ListSwitchToSelectedDirectory(list *l, char *sel_dir);
 void ListLoadSelectedFile(list *l, char *sel_file);
 
-list *GenerateFileList(buffer *buf);
+//list *GenerateFileList(buffer *buf);
 void PopulateFileList(list *l, char *path);
+void FilterFileList(list *l, char *path);

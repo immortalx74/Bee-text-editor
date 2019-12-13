@@ -14,7 +14,7 @@ struct node
 
 struct list
 {
-    char title[256] = {0};
+    char *title;
     int selected = 0;
     int capacity;
     int element_count = 0;
@@ -23,6 +23,7 @@ struct list
     int row = 0;
     char *current_path;
     char *data;
+    char *filter;
 };
 
 struct buffer
