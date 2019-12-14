@@ -67,7 +67,6 @@ void PopulateFileList(list *l, char *path)
     tinydir_dir dir;
     tinydir_open(&dir, path);
     int count = 0;
-    int skip = 0;
     l->element_count= 0;
     l->current_path = (char*)malloc(strlen(path) + 1);
     l->current_path[strlen(l->current_path) - 1] = 0;
@@ -77,25 +76,22 @@ void PopulateFileList(list *l, char *path)
     
     while (dir.has_next)
     {
-        if(skip > 1)
+        tinydir_file file;
+        tinydir_readfile(&dir, &file);
+        
+        current = file.name;
+        
+        if (file.is_dir)
         {
-            tinydir_file file;
-            tinydir_readfile(&dir, &file);
-            
-            current = file.name;
-            
-            if (file.is_dir)
-            {
-                int len = strlen(current);
-                current[len] = '\\';
-                current[len + 1] = '\0';
-            }
-            
-            ListSetElement(l, count, current);
-            l->element_count++;
-            
-            count++;
+            int len = strlen(current);
+            current[len] = '\\';
+            current[len + 1] = '\0';
         }
+        
+        ListSetElement(l, count, current);
+        l->element_count++;
+        
+        count++;
         
         tinydir_next(&dir);
         skip++;
