@@ -20,7 +20,19 @@ void GetListNavigationInput()
     if(app.e.type == SDL_TEXTINPUT)
     {
         strcat(app.active_buffer->lst->filter, app.e.text.text);
-        //std::cout << app.active_buffer->lst->filter << std::endl;
+        //if(app.e.text.text[0] == 92) // backslash
+        //{
+        //for (int i = 0; i < app.active_buffer->lst->element_count; ++i)
+        //{
+        //char *temp = ListGetElement(app.active_buffer->lst, i);
+        //
+        //if(strcmp(temp, app.active_buffer->lst->filter))
+        //{
+        //std::cout << "found";
+        //}
+        //}
+        //}
+        
         ListClear(app.active_buffer->lst);
         FilterFileList(app.active_buffer->lst, app.active_buffer->lst->current_path);
     }
@@ -541,14 +553,18 @@ void Input_ListNav_Select(list *l)
     }
     else
     {
-        ListLoadSelectedFile(l, selected_element);
+        if(selected_element[0] != 0)
+        {
+            ListLoadSelectedFile(l, selected_element);
+        }
     }
 };
 
 void Input_ListNav_ParentDirectory(list *l)
 {
+    l->current_path[strlen(l->current_path) - 1] = 0;
     char *pos = strrchr(l->current_path, '\\');
-    for (int i = pos - l->current_path; i < strlen(l->current_path); ++i)
+    for (int i = pos - l->current_path + 1; i < strlen(l->current_path); ++i)
     {
         l->current_path[i] = 0;
     }

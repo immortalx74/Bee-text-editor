@@ -102,16 +102,16 @@ void BarDraw(buffer *buf)
             
             if(len_filter > 0)
             {
-                cur_char = '\\';
-                glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-                pos = {(len_title * font.width) + (len_cp * font.width) + margin , margin, font.width, font.height};
-                SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
+                //cur_char = '\\';
+                //glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
+                //pos = {(len_title * font.width) + (len_cp * font.width) + margin , margin, font.width, font.height};
+                //SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
                 
                 for (int i = 0; i < len_filter; ++i)
                 {
                     cur_char = (int)buf->lst->filter[i];
                     glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-                    pos = {(len_title * font.width) + (len_cp * font.width) + font.width + margin + (i * font.width), margin, font.width, font.height};
+                    pos = {(len_title * font.width) + (len_cp * font.width) + margin + (i * font.width), margin, font.width, font.height};
                     SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
                 }
             }

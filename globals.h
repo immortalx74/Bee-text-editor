@@ -120,7 +120,7 @@ struct app_info
         TTF_SizeText(font.name, "A", &font.width, 0);
         
         last_path = SDL_GetBasePath();
-        last_path[strlen(last_path) - 1] = 0;
+        //last_path[strlen(last_path) - 1] = 0;
         
         window = SDL_CreateWindow("Ed", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
                                   1024, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);

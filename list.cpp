@@ -5,7 +5,6 @@ list *ListCreate(char title_text[], int cap, int el_size)
 {
     list *l = (list*)malloc(sizeof(list));
     
-    //filter test
     l->filter = (char*)malloc(20);
     memset(l->filter, 0, 20);
     
@@ -68,31 +67,38 @@ void PopulateFileList(list *l, char *path)
     tinydir_dir dir;
     tinydir_open(&dir, path);
     int count = 0;
+    int skip = 0;
     l->element_count= 0;
-    l->current_path = (char*)malloc(strlen(path));
+    l->current_path = (char*)malloc(strlen(path) + 1);
+    l->current_path[strlen(l->current_path) - 1] = 0;
     strcpy(l->current_path, path);
     char *current;
     
     
     while (dir.has_next)
     {
-        tinydir_file file;
-        tinydir_readfile(&dir, &file);
-        
-        current = file.name;
-        
-        if (file.is_dir)
+        if(skip > 1)
         {
-            int len = strlen(current);
-            current[len] = '\\';
-            current[len + 1] = '\0';
+            tinydir_file file;
+            tinydir_readfile(&dir, &file);
+            
+            current = file.name;
+            
+            if (file.is_dir)
+            {
+                int len = strlen(current);
+                current[len] = '\\';
+                current[len + 1] = '\0';
+            }
+            
+            ListSetElement(l, count, current);
+            l->element_count++;
+            
+            count++;
         }
         
-        ListSetElement(l, count, current);
-        l->element_count++;
-        
         tinydir_next(&dir);
-        count++;
+        skip++;
     }
     
     tinydir_close(&dir);
@@ -137,13 +143,13 @@ void FilterFileList(list *l, char *path)
 
 void ListSwitchToSelectedDirectory(list *l, char *sel_dir)
 {
-    int new_size = strlen(l->current_path) + strlen(sel_dir);
-    char *new_path = (char*)malloc(new_size);
+    int new_size = strlen(l->current_path) + strlen(sel_dir) + 1;
+    char *new_path = (char*)calloc(new_size, 1);
+    
     
     strcpy(new_path, l->current_path);
-    strcat(new_path, "\\");
     strcat(new_path, sel_dir);
-    new_path[strlen(new_path) - 1] = 0;
+    
     l->current_path = new_path;
     
     ListClear(l);
@@ -156,11 +162,10 @@ void ListSwitchToSelectedDirectory(list *l, char *sel_dir)
 void ListLoadSelectedFile(list *l, char *sel_file)
 {
     app.last_path = l->current_path;
-    int size = strlen(l->current_path) + strlen(sel_file);
-    char *path_and_filename = (char*)malloc(size);
+    int size = strlen(l->current_path) + strlen(sel_file) + 1;
+    char *path_and_filename = (char*)calloc(size, 1);
     
     strcpy(path_and_filename, l->current_path);
-    strcat(path_and_filename, "\\");
     strcat(path_and_filename, sel_file);
     
     FileReadToBuffer(app.active_buffer, path_and_filename);
