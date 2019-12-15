@@ -34,10 +34,6 @@ int main(int argc, char *argv[])
     app.Init();
     WindowResize(&app, app.window);
     
-    xstring *somestring = XstringCreate("");
-    XstringConcat(somestring, 3, "Hi", "You", "There");
-    std::cout << XstringGet(somestring);
-    
     //START WITH LEFT BUFFER
     app.active_buffer = &bufferA;
     

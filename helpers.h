@@ -15,3 +15,5 @@ int XstringGetLength(xstring *str);
 void XstringTruncateTail(xstring *str, int count);
 void XstringTruncateHead(xstring *str, int count);
 void XstringConcat(xstring *str, int arg_count, ...);
+int XstringIndexOfLastOccurrance(xstring *str, char ch);
+int XstringIndexOfFirstOccurrance(xstring *str, char ch);

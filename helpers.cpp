@@ -136,3 +136,33 @@ void XstringConcat(xstring *str, int arg_count, ...)
     
     str->data[str->length] = 0;
 };
+
+int XstringIndexOfLastOccurrance(xstring *str, char ch)
+{
+    int len = str->length;
+    
+    for (int i = len - 1; i >= 0; --i)
+    {
+        if(str->data[i] == ch)
+        {
+            return i;
+        }
+    }
+    
+    return -1;
+};
+
+int XstringIndexOfFirstOccurrance(xstring *str, char ch)
+{
+    int len = str->length;
+    
+    for (int i = 0; i < len; ++i)
+    {
+        if(str->data[i] == ch)
+        {
+            return i;
+        }
+    }
+    
+    return - 1;
+};
