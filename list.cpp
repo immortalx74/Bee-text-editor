@@ -94,7 +94,6 @@ void PopulateFileList(list *l, char *path)
         count++;
         
         tinydir_next(&dir);
-        skip++;
     }
     
     tinydir_close(&dir);

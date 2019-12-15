@@ -74,6 +74,12 @@ struct buffer
     
 };
 
+struct xstring
+{
+    char *data;
+    int length;
+};
+
 struct font_data
 {
     TTF_Font *name;
