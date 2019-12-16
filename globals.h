@@ -12,18 +12,24 @@ struct node
     struct node *prev;
 };
 
+struct xstring
+{
+    char *data;
+    int length;
+};
+
 struct list
 {
-    char *title;
     int selected = 0;
     int capacity;
     int element_count = 0;
     int element_size = 0;
     int scroll_offset = 0;
     int row = 0;
-    char *current_path;
+    xstring *title;
+    xstring *current_path;
+    xstring *filter;
     char *data;
-    char *filter;
 };
 
 struct buffer
@@ -74,12 +80,6 @@ struct buffer
     
 };
 
-struct xstring
-{
-    char *data;
-    int length;
-};
-
 struct font_data
 {
     TTF_Font *name;
@@ -114,7 +114,7 @@ struct app_info
     SDL_Renderer *renderer;
     buffer *active_buffer;
     _mode mode = TEXT_EDIT;
-    char *last_path;
+    xstring *last_path;
     
     void Init()
     {
@@ -125,8 +125,7 @@ struct app_info
         font.height = TTF_FontHeight(font.name);
         TTF_SizeText(font.name, "A", &font.width, 0);
         
-        last_path = SDL_GetBasePath();
-        //last_path[strlen(last_path) - 1] = 0;
+        //last_path = XstringCreate(SDL_GetBasePath);
         
         window = SDL_CreateWindow("Ed", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
                                   1024, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);

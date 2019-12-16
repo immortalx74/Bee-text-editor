@@ -32,6 +32,7 @@ void PrintData(node *head_node)
 int main(int argc, char *argv[])
 {
     app.Init();
+    app.last_path = XstringCreate(SDL_GetBasePath());
     WindowResize(&app, app.window);
     
     //START WITH LEFT BUFFER

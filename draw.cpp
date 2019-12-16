@@ -80,25 +80,25 @@ void BarDraw(buffer *buf)
         
         if(buf->lst != NULL)
         {
-            int len_title = strlen(buf->lst->title);
+            int len_title = XstringGetLength(buf->lst->title);
             for (int i = 0; i < len_title; ++i)
             {
-                cur_char = (int)buf->lst->title[i];
+                cur_char = (int)XstringGet(buf->lst->title)[i];
                 glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
                 pos = {margin + (i * font.width), margin, font.width, font.height};
                 SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
             }
             
-            int len_cp = strlen(buf->lst->current_path);
+            int len_cp = XstringGetLength(buf->lst->current_path);
             for (int i = 0; i < len_cp; ++i)
             {
-                cur_char = (int)buf->lst->current_path[i];
+                cur_char = (int)XstringGet(buf->lst->current_path)[i];
                 glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
                 pos = {(len_title * font.width) + margin + (i * font.width), margin, font.width, font.height};
                 SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
             }
             
-            int len_filter = strlen(buf->lst->filter);
+            int len_filter = XstringGetLength(buf->lst->filter);
             
             if(len_filter > 0)
             {
@@ -109,7 +109,7 @@ void BarDraw(buffer *buf)
                 
                 for (int i = 0; i < len_filter; ++i)
                 {
-                    cur_char = (int)buf->lst->filter[i];
+                    cur_char = (int)XstringGet(buf->lst->filter)[i];
                     glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
                     pos = {(len_title * font.width) + (len_cp * font.width) + margin + (i * font.width), margin, font.width, font.height};
                     SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);

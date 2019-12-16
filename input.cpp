@@ -19,7 +19,7 @@ void GetListNavigationInput()
 {
     if(app.e.type == SDL_TEXTINPUT)
     {
-        strcat(app.active_buffer->lst->filter, app.e.text.text);
+        XstringConcat(app.active_buffer->lst->filter, 2, XstringGet(app.active_buffer->lst->filter), app.e.text.text);
         //if(app.e.text.text[0] == 92) // backslash
         //{
         //for (int i = 0; i < app.active_buffer->lst->element_count; ++i)
@@ -34,7 +34,7 @@ void GetListNavigationInput()
         //}
         
         ListClear(app.active_buffer->lst);
-        FilterFileList(app.active_buffer->lst, app.active_buffer->lst->current_path);
+        FilterFileList(app.active_buffer->lst, XstringGet(app.active_buffer->lst->current_path));
     }
     else if (app.e.type == SDL_KEYDOWN)
     {
@@ -56,17 +56,16 @@ void GetListNavigationInput()
         }
         else if( app.e.key.keysym.sym == SDLK_BACKSPACE)
         {
-            if(strlen(app.active_buffer->lst->filter) == 0)
+            if(XstringGetLength(app.active_buffer->lst->filter) == 0)
             {
                 Input_ListNav_ParentDirectory(app.active_buffer->lst);
             }
             else
             {
-                int pos = strlen(app.active_buffer->lst->filter) - 1;
-                app.active_buffer->lst->filter[pos] = 0;
+                XstringTruncateTail(app.active_buffer->lst->filter, 1);
                 
                 ListClear(app.active_buffer->lst);
-                FilterFileList(app.active_buffer->lst, app.active_buffer->lst->current_path);
+                FilterFileList(app.active_buffer->lst, XstringGet(app.active_buffer->lst->current_path));
             }
             
         }
@@ -90,8 +89,8 @@ void GetBindedCommandsInput()
             if(app.active_buffer->lst == NULL)
             {
                 app.active_buffer->lst = ListCreate("Open:", 400, app.active_buffer->panel.col_capacity - 5);
-                app.active_buffer->lst->current_path = app.last_path;
-                PopulateFileList(app.active_buffer->lst, app.last_path);
+                XstringSet(app.active_buffer->lst->current_path, XstringGet(app.last_path));
+                PopulateFileList(app.active_buffer->lst, XstringGet(app.last_path));
                 app.mode = LIST_NAV;
             }
         }
@@ -562,15 +561,12 @@ void Input_ListNav_Select(list *l)
 
 void Input_ListNav_ParentDirectory(list *l)
 {
-    l->current_path[strlen(l->current_path) - 1] = 0;
-    char *pos = strrchr(l->current_path, '\\');
-    for (int i = pos - l->current_path + 1; i < strlen(l->current_path); ++i)
-    {
-        l->current_path[i] = 0;
-    }
+    XstringTruncateTail(l->current_path, 1);
+    int pos = XstringIndexOfLastOccurrance(l->current_path, '\\') + 1;
+    XstringTruncateTail(l->current_path, XstringGetLength(l->current_path) - pos);
     
     ListClear(l);
-    PopulateFileList(l, l->current_path);
+    PopulateFileList(l, XstringGet(l->current_path));
 };
 
 void Input_ListNav_Abort(list *l)
