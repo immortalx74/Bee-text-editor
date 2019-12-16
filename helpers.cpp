@@ -42,6 +42,57 @@ bool IsSymLink(char *name)
     return false;
 };
 
+bool IsValidPathFilter(char *path, char *name)
+{
+    tinydir_dir dir;
+    tinydir_open(&dir, path);
+    char *current;
+    
+    while (dir.has_next)
+    {
+        tinydir_file file;
+        tinydir_readfile(&dir, &file);
+        
+        current = file.name;
+        
+        if (file.is_dir)
+        {
+            int len = strlen(current);
+            current[len] = '\\';
+            current[len + 1] = '\0';
+        }
+        
+        if(strcmp(current, name) == 0)
+        {
+            return true;
+        }
+        
+        tinydir_next(&dir);
+    }
+    
+    tinydir_close(&dir);
+    
+    return false;
+};
+
+bool IsTopLevelDirectory(xstring *path)
+{
+#ifdef _WIN32
+    if(XstringGetLength(path) == 3)
+    {
+        if(XstringGet(path)[1] == ':' && XstringGet(path)[2] == '\\')
+        {
+            return true;
+        }
+    }
+#endif
+    
+#ifdef __linux__
+    return true;
+#endif
+    return false;
+};
+
 xstring *XstringCreate(char text[])
 {
     xstring *str = (xstring*)malloc(sizeof(xstring));

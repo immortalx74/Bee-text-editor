@@ -20,21 +20,25 @@ void GetListNavigationInput()
     if(app.e.type == SDL_TEXTINPUT)
     {
         XstringConcat(app.active_buffer->lst->filter, 2, XstringGet(app.active_buffer->lst->filter), app.e.text.text);
-        //if(app.e.text.text[0] == 92) // backslash
-        //{
-        //for (int i = 0; i < app.active_buffer->lst->element_count; ++i)
-        //{
-        //char *temp = ListGetElement(app.active_buffer->lst, i);
-        //
-        //if(strcmp(temp, app.active_buffer->lst->filter))
-        //{
-        //std::cout << "found";
-        //}
-        //}
-        //}
+        char *selected_element = ListGetElement(app.active_buffer->lst, app.active_buffer->lst->selected);
         
-        ListClear(app.active_buffer->lst);
-        FilterFileList(app.active_buffer->lst, XstringGet(app.active_buffer->lst->current_path));
+        if(app.e.text.text[0] == 92)//Backslash
+        {
+            if(IsValidPathFilter(XstringGet(app.active_buffer->lst->current_path), XstringGet(app.active_buffer->lst->filter)))
+            {
+                ListSwitchToSelectedDirectory(app.active_buffer->lst, selected_element);
+            }
+            else
+            {
+                ListClear(app.active_buffer->lst);
+                FilterFileList(app.active_buffer->lst, XstringGet(app.active_buffer->lst->current_path));
+            }
+        }
+        else
+        {
+            ListClear(app.active_buffer->lst);
+            FilterFileList(app.active_buffer->lst, XstringGet(app.active_buffer->lst->current_path));
+        }
     }
     else if (app.e.type == SDL_KEYDOWN)
     {
@@ -561,12 +565,22 @@ void Input_ListNav_Select(list *l)
 
 void Input_ListNav_ParentDirectory(list *l)
 {
-    XstringTruncateTail(l->current_path, 1);
-    int pos = XstringIndexOfLastOccurrance(l->current_path, '\\') + 1;
-    XstringTruncateTail(l->current_path, XstringGetLength(l->current_path) - pos);
-    
-    ListClear(l);
-    PopulateFileList(l, XstringGet(l->current_path));
+    if(!IsTopLevelDirectory(l->current_path))
+    {
+        XstringTruncateTail(l->current_path, 1);
+        int pos = XstringIndexOfLastOccurrance(l->current_path, '\\') + 1;
+        XstringTruncateTail(l->current_path, XstringGetLength(l->current_path) - pos);
+        
+        ListClear(l);
+        PopulateFileList(l, XstringGet(l->current_path));
+    }
+    else
+    {
+        XstringTruncateTail(l->current_path, 1);
+        int pos = XstringIndexOfLastOccurrance(l->current_path, '\\') + 1;
+        XstringTruncateTail(l->current_path, XstringGetLength(l->current_path) - pos);
+        ListClear(l);
+    }
 };
 
 void Input_ListNav_Abort(list *l)

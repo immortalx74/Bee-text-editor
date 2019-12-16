@@ -1,5 +1,6 @@
 #pragma once
 #include "globals.h"
+#include "tinydir.h"
 #include <string.h>
 #include <iostream>
 #include "stdarg.h"
@@ -7,6 +8,8 @@
 int GetDigitCount(int n);
 bool IsDirectory(char *name);
 bool IsSymLink(char *name);
+bool IsValidPathFilter(char *path, char *name);
+bool IsTopLevelDirectory(xstring *path);
 
 xstring *XstringCreate(char text[]);
 void XstringDestroy(xstring *str);
