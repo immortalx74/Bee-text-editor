@@ -28,6 +28,20 @@ bool IsDirectory(char *name)
     return false;
 };
 
+bool IsSymLink(char *name)
+{
+    if(strlen(name) == 1 && name[0] == '.')
+    {
+        return true;
+    }
+    else if(strlen(name) == 2 && name[0] == '.' && name[1] == '.')
+    {
+        return true;
+    }
+    
+    return false;
+};
+
 xstring *XstringCreate(char text[])
 {
     xstring *str = (xstring*)malloc(sizeof(xstring));
@@ -54,7 +68,9 @@ void XstringSet(xstring *str, char text[])
     }
     else if(len > str->length)
     {
-        memcpy(str->data, text, str->length);
+        str->data = (char*)realloc(str->data, len + 1);
+        str->length = len;
+        memcpy(str->data, text, len);
         str->data[str->length] = 0;
     }
     else

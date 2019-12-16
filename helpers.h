@@ -6,6 +6,7 @@
 
 int GetDigitCount(int n);
 bool IsDirectory(char *name);
+bool IsSymLink(char *name);
 
 xstring *XstringCreate(char text[]);
 void XstringDestroy(xstring *str);

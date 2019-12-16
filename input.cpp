@@ -89,7 +89,7 @@ void GetBindedCommandsInput()
             if(app.active_buffer->lst == NULL)
             {
                 app.active_buffer->lst = ListCreate("Open:", 400, app.active_buffer->panel.col_capacity - 5);
-                XstringSet(app.active_buffer->lst->current_path, XstringGet(app.last_path));
+                //XstringSet(app.active_buffer->lst->current_path, XstringGet(app.last_path));
                 PopulateFileList(app.active_buffer->lst, XstringGet(app.last_path));
                 app.mode = LIST_NAV;
             }

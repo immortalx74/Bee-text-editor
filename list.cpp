@@ -79,17 +79,20 @@ void PopulateFileList(list *l, char *path)
         
         current = file.name;
         
-        if (file.is_dir)
+        if(!IsSymLink(current))
         {
-            int len = strlen(current);
-            current[len] = '\\';
-            current[len + 1] = '\0';
+            if (file.is_dir)
+            {
+                int len = strlen(current);
+                current[len] = '\\';
+                current[len + 1] = '\0';
+            }
+            
+            ListSetElement(l, count, current);
+            l->element_count++;
+            
+            count++;
         }
-        
-        ListSetElement(l, count, current);
-        l->element_count++;
-        
-        count++;
         
         tinydir_next(&dir);
     }
@@ -115,16 +118,19 @@ void FilterFileList(list *l, char *path)
         
         if(strstr(current, XstringGet(l->filter)) != NULL)
         {
-            if (file.is_dir)
+            if(!IsSymLink(current))
             {
-                int len = strlen(current);
-                current[len] = '\\';
-                current[len + 1] = '\0';
+                if (file.is_dir)
+                {
+                    int len = strlen(current);
+                    current[len] = '\\';
+                    current[len + 1] = '\0';
+                }
+                
+                ListSetElement(l, count, current);
+                l->element_count++;
+                count++;
             }
-            
-            ListSetElement(l, count, current);
-            l->element_count++;
-            count++;
         }
         
         tinydir_next(&dir);
@@ -136,7 +142,6 @@ void FilterFileList(list *l, char *path)
 void ListSwitchToSelectedDirectory(list *l, char *sel_dir)
 {
     XstringConcat(l->current_path, 2, XstringGet(l->current_path), sel_dir);
-    
     ListClear(l);
     XstringSet(l->filter, "");
     PopulateFileList(l, XstringGet(l->current_path));
@@ -144,8 +149,9 @@ void ListSwitchToSelectedDirectory(list *l, char *sel_dir)
 
 void ListLoadSelectedFile(list *l, char *sel_file)
 {
-    XstringConcat(l->current_path, 2, XstringGet(l->current_path), sel_file);
     XstringSet(app.last_path, XstringGet(l->current_path));
+    
+    XstringConcat(l->current_path, 2, XstringGet(l->current_path), sel_file);
     
     FileReadToBuffer(app.active_buffer, XstringGet(l->current_path));
     

@@ -35,6 +35,12 @@ int main(int argc, char *argv[])
     app.last_path = XstringCreate(SDL_GetBasePath());
     WindowResize(&app, app.window);
     
+    //
+    //xstring *test = XstringCreate("test");
+    //XstringConcat(test, 2, XstringGet(test), "Hel");
+    //std::cout << XstringGet(test) << std::endl;
+    //std::cout << XstringGetLength(test) << std::endl;
+    
     //START WITH LEFT BUFFER
     app.active_buffer = &bufferA;
     
