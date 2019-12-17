@@ -85,8 +85,8 @@ struct font_data
     TTF_Font *name;
     int width;
     int height;
+    int size = 13;
     SDL_Color text_color = {143, 175, 127, 255};
-    //SDL_Color text_color = {0, 0, 255, 255};
     SDL_Color text_color_inv = {5, 5, 5, 255};
 };
 
@@ -119,22 +119,35 @@ struct app_info
     buffer *active_buffer;
     _mode mode = TEXT_EDIT;
     xstring *last_path;
-    SDL_BlendMode custom_mode;
+    SDL_BlendMode custom_blendmode;
     
     void Init()
     {
         SDL_Init(SDL_INIT_VIDEO);
         TTF_Init();
         
-        font.name = TTF_OpenFont("liberation-mono.ttf", 26);
+        font.name = TTF_OpenFont("liberation-mono.ttf", font.size);
         font.height = TTF_FontHeight(font.name);
         TTF_SizeText(font.name, "A", &font.width, 0);
         
-        //last_path = XstringCreate(SDL_GetBasePath);
-        
         window = SDL_CreateWindow("Ed", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
-                                  1024, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+                                  1024, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE/* | SDL_WINDOW_MAXIMIZED*/);
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        
+        custom_blendmode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR,
+                                                      SDL_BLENDFACTOR_ZERO,
+                                                      SDL_BLENDOPERATION_ADD,
+                                                      SDL_BLENDFACTOR_ONE,
+                                                      SDL_BLENDFACTOR_ONE,
+                                                      SDL_BLENDOPERATION_ADD);
+        
+        // This blendmode results in black cursor with green text
+        //app.custom_blendmode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_DST_COLOR,
+        //SDL_BLENDFACTOR_SRC_ALPHA,
+        //SDL_BLENDOPERATION_ADD,
+        //SDL_BLENDFACTOR_ZERO,
+        //SDL_BLENDFACTOR_ONE,
+        //SDL_BLENDOPERATION_ADD);
         
         SDL_GetWindowSize(window, &ww, &wh);
         

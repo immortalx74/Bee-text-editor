@@ -1,66 +1,13 @@
 #include <iostream>
 #include <fstream>
-//#include <array>
-#include "SDL.h"
-//#include <stdio.h>
-//#include <string>
 #include "globals.h"
-#include "line.h"
 #include "draw.h"
-#include "character.h"
-#include "print.h"
-#include "input.h"
-#include "file.h"
-#include "list.h"
-#include "tinydir.h"
-
-void PrintData(node *head_node)
-{
-    print("--------------------------------------------");
-    
-    node *start = head_node->next;
-    while(start != NULL)
-    {
-        print(start->data);
-        start = start->next;
-    }
-    
-    print("--------------------------------------------");
-    return;
-};
 
 int main(int argc, char *argv[])
 {
     app.Init();
     app.last_path = XstringCreate(SDL_GetBasePath());
     WindowResize(&app, app.window);
-    
-    //====================
-    //app.custom_mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_DST_ALPHA,
-    //SDL_BLENDFACTOR_ONE,
-    //SDL_BLENDOPERATION_ADD,
-    //SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
-    //SDL_BLENDFACTOR_ONE,
-    //SDL_BLENDOPERATION_ADD);
-    
-#if 0    
-    // results in black cursor with the green text
-    app.custom_mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_DST_COLOR,
-                                                 SDL_BLENDFACTOR_SRC_ALPHA,
-                                                 SDL_BLENDOPERATION_ADD,
-                                                 SDL_BLENDFACTOR_ZERO,
-                                                 SDL_BLENDFACTOR_ONE,
-                                                 SDL_BLENDOPERATION_ADD);
-#endif
-    // this is the one we prob want
-    // yyayyyyyyyyyyyyyyyyy <3 <3 :D
-    app.custom_mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR,
-                                                 SDL_BLENDFACTOR_ZERO,
-                                                 SDL_BLENDOPERATION_ADD,
-                                                 SDL_BLENDFACTOR_ONE,
-                                                 SDL_BLENDFACTOR_ONE,
-                                                 SDL_BLENDOPERATION_ADD);
-    
     
     //START WITH LEFT BUFFER
     app.active_buffer = &bufferA;
@@ -156,11 +103,9 @@ int main(int argc, char *argv[])
         
         if(app.mode == TEXT_EDIT)
         {
-            //HighlightLineDraw(app.active_buffer);
-            //CursorDraw(&bufferA);
-            CursorDraw(&bufferB);
+            HighlightLineDraw(app.active_buffer);
         }
-        if(app.mode == LIST_NAV)
+        else if(app.mode == LIST_NAV)
         {
             HighlightListSelectionDraw(app.active_buffer, app.active_buffer->lst);
             RenderListRange(app.active_buffer, app.active_buffer->lst->scroll_offset, app.active_buffer->lst->element_count, characters_texture, app.active_buffer->panel.texture);
@@ -174,8 +119,11 @@ int main(int argc, char *argv[])
         SDL_RenderCopy(app.renderer, bufferA.panel.texture, NULL, &panA);
         SDL_RenderCopy(app.renderer, bufferB.panel.texture, NULL, &panB);
         
-        //test blend
-        CursorDraw(&bufferA);
+        if(app.mode == TEXT_EDIT)
+        {
+            CursorDraw(&bufferA);
+            CursorDraw(&bufferB);
+        }
         
         SDL_Rect barA = {bufferA.status_bar.x,bufferA.status_bar.y,bufferA.status_bar.w,bufferA.status_bar.h};
         SDL_Rect barB = {bufferB.status_bar.x,bufferB.status_bar.y,bufferB.status_bar.w,bufferB.status_bar.h};

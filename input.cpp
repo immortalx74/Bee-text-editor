@@ -533,8 +533,16 @@ void Input_TextEd_PageDown(buffer *buf)
         }
         
         buf->line = buf->line_count-1;
-        buf->panel.scroll_offset_ver = buf->line_count - buf->panel.row_capacity;
-        RenderLineRange(buf, buf->line_count - buf->panel.row_capacity, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+        
+        if(buf->line_count > buf->panel.row_capacity)
+        {
+            buf->panel.scroll_offset_ver = buf->line_count - buf->panel.row_capacity;
+            RenderLineRange(buf, buf->line_count - buf->panel.row_capacity, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+        }
+        else
+        {
+            RenderLineRange(buf, 0, buf->line_count, characters_texture, buf->panel.texture);
+        }
     }
     
     AttemptSetToLastColumn(buf);
