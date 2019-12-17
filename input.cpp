@@ -22,11 +22,19 @@ void GetListNavigationInput()
         XstringConcat(app.active_buffer->lst->filter, 2, XstringGet(app.active_buffer->lst->filter), app.e.text.text);
         char *selected_element = ListGetElement(app.active_buffer->lst, app.active_buffer->lst->selected);
         
-        if(app.e.text.text[0] == 92)//Backslash
+        if(XstringGetLength(app.last_path) > 0) // haven't reached top level dir
         {
-            if(IsValidPathFilter(XstringGet(app.active_buffer->lst->current_path), XstringGet(app.active_buffer->lst->filter)))
+            if(app.e.text.text[0] == 92)//Backslash
             {
-                ListSwitchToSelectedDirectory(app.active_buffer->lst, selected_element);
+                if(IsValidPathFilter(XstringGet(app.active_buffer->lst->current_path), XstringGet(app.active_buffer->lst->filter)))
+                {
+                    ListSwitchToSelectedDirectory(app.active_buffer->lst, selected_element);
+                }
+                else
+                {
+                    ListClear(app.active_buffer->lst);
+                    FilterFileList(app.active_buffer->lst, XstringGet(app.active_buffer->lst->current_path));
+                }
             }
             else
             {
@@ -34,11 +42,16 @@ void GetListNavigationInput()
                 FilterFileList(app.active_buffer->lst, XstringGet(app.active_buffer->lst->current_path));
             }
         }
-        else
+        else// reached top level dir
         {
-            ListClear(app.active_buffer->lst);
-            FilterFileList(app.active_buffer->lst, XstringGet(app.active_buffer->lst->current_path));
+            if(app.e.text.text[0] == 92)//Backslash
+            {
+                XstringSet(app.last_path, XstringGet(app.active_buffer->lst->filter));
+                
+                ListSwitchToSelectedDirectory(app.active_buffer->lst, XstringGet(app.active_buffer->lst->filter));
+            }
         }
+        
     }
     else if (app.e.type == SDL_KEYDOWN)
     {
@@ -60,18 +73,28 @@ void GetListNavigationInput()
         }
         else if( app.e.key.keysym.sym == SDLK_BACKSPACE)
         {
-            if(XstringGetLength(app.active_buffer->lst->filter) == 0)
+            if(XstringGetLength(app.last_path) > 0) // haven't reached top level dir
             {
-                Input_ListNav_ParentDirectory(app.active_buffer->lst);
+                if(XstringGetLength(app.active_buffer->lst->filter) == 0)
+                {
+                    Input_ListNav_ParentDirectory(app.active_buffer->lst);
+                }
+                else
+                {
+                    XstringTruncateTail(app.active_buffer->lst->filter, 1);
+                    
+                    ListClear(app.active_buffer->lst);
+                    FilterFileList(app.active_buffer->lst, XstringGet(app.active_buffer->lst->current_path));
+                }
             }
-            else
+            else if(XstringGetLength(app.last_path) == 0 && XstringGetLength(app.active_buffer->lst->filter) > 0)// reached top level dir
             {
                 XstringTruncateTail(app.active_buffer->lst->filter, 1);
-                
-                ListClear(app.active_buffer->lst);
-                FilterFileList(app.active_buffer->lst, XstringGet(app.active_buffer->lst->current_path));
             }
-            
+            else if(XstringGetLength(app.last_path) == 0 && XstringGetLength(app.active_buffer->lst->filter) == 0)//test remove later
+            {
+                std::cout << XstringGet(app.last_path) << std::endl;
+            }
         }
     }
 };
@@ -580,6 +603,7 @@ void Input_ListNav_ParentDirectory(list *l)
         int pos = XstringIndexOfLastOccurrance(l->current_path, '\\') + 1;
         XstringTruncateTail(l->current_path, XstringGetLength(l->current_path) - pos);
         ListClear(l);
+        XstringSet(app.last_path, "");
     }
 };
 
