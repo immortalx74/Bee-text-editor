@@ -9,8 +9,15 @@ void CursorDraw(buffer *buf)
     int yy = (buf->cursor.row * font.height) + margin;
     
     SDL_Rect box = {xx, yy, font.width, font.height};
+    
     SDL_SetRenderDrawColor(app.renderer, buf->cursor.color.r, buf->cursor.color.g, buf->cursor.color.b, buf->cursor.color.a);
+    
+    SDL_SetRenderDrawBlendMode(app.renderer, app.custom_mode);
+    
     SDL_RenderFillRect(app.renderer, &box);
+    
+    SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_NONE);
+    SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 255);// background
 };
 
 void PanelDraw(buffer *buf)
@@ -129,7 +136,12 @@ void HighlightLineDraw(buffer *buf)
     
     SDL_Rect box = {xx, yy, buf->panel.w - (2 *margin), font.height};
     SDL_SetRenderDrawColor(app.renderer, buf->cursor.line_highlight.r, buf->cursor.line_highlight.g, buf->cursor.line_highlight.b, buf->cursor.line_highlight.a);
+    
+    SDL_SetRenderDrawBlendMode(app.renderer, app.custom_mode);
     SDL_RenderFillRect(app.renderer, &box);
+    
+    SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_NONE);
+    SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 255);// background
 };
 
 void HighlightListSelectionDraw(buffer *buf, list *l)

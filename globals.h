@@ -85,6 +85,9 @@ struct font_data
     TTF_Font *name;
     int width;
     int height;
+    SDL_Color text_color = {143, 175, 127, 255};
+    //SDL_Color text_color = {0, 0, 255, 255};
+    SDL_Color text_color_inv = {5, 5, 5, 255};
 };
 
 extern font_data font;
@@ -108,6 +111,7 @@ struct app_info
     int wh;
     
     bool quit = false;
+    bool idle = false;
     SDL_Event e;
     char ascii_sequence[96];
     SDL_Window *window;
@@ -115,13 +119,14 @@ struct app_info
     buffer *active_buffer;
     _mode mode = TEXT_EDIT;
     xstring *last_path;
+    SDL_BlendMode custom_mode;
     
     void Init()
     {
         SDL_Init(SDL_INIT_VIDEO);
         TTF_Init();
         
-        font.name = TTF_OpenFont("liberation-mono.ttf", 13);
+        font.name = TTF_OpenFont("liberation-mono.ttf", 26);
         font.height = TTF_FontHeight(font.name);
         TTF_SizeText(font.name, "A", &font.width, 0);
         

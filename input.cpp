@@ -369,6 +369,7 @@ void Input_TextEd_Right(buffer *buf)
         RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
         SyncCursorWithBuffer(buf);
     }
+    
 };
 
 

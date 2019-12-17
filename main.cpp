@@ -35,11 +35,32 @@ int main(int argc, char *argv[])
     app.last_path = XstringCreate(SDL_GetBasePath());
     WindowResize(&app, app.window);
     
-    //
-    //xstring *test = XstringCreate("test");
-    //XstringConcat(test, 2, XstringGet(test), "Hel");
-    //std::cout << XstringGet(test) << std::endl;
-    //std::cout << XstringGetLength(test) << std::endl;
+    //====================
+    //app.custom_mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_DST_ALPHA,
+    //SDL_BLENDFACTOR_ONE,
+    //SDL_BLENDOPERATION_ADD,
+    //SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+    //SDL_BLENDFACTOR_ONE,
+    //SDL_BLENDOPERATION_ADD);
+    
+#if 0    
+    // results in black cursor with the green text
+    app.custom_mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_DST_COLOR,
+                                                 SDL_BLENDFACTOR_SRC_ALPHA,
+                                                 SDL_BLENDOPERATION_ADD,
+                                                 SDL_BLENDFACTOR_ZERO,
+                                                 SDL_BLENDFACTOR_ONE,
+                                                 SDL_BLENDOPERATION_ADD);
+#endif
+    // this is the one we prob want
+    // yyayyyyyyyyyyyyyyyyy <3 <3 :D
+    app.custom_mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR,
+                                                 SDL_BLENDFACTOR_ZERO,
+                                                 SDL_BLENDOPERATION_ADD,
+                                                 SDL_BLENDFACTOR_ONE,
+                                                 SDL_BLENDFACTOR_ONE,
+                                                 SDL_BLENDOPERATION_ADD);
+    
     
     //START WITH LEFT BUFFER
     app.active_buffer = &bufferA;
@@ -49,8 +70,8 @@ int main(int argc, char *argv[])
     InsertLineAt(&bufferB, 0);
     
     // Set textures/surfaces
-    SDL_Color textColor = {143, 175, 127, 255};
-    SDL_Surface *characters_surface = TTF_RenderText_Blended(font.name, app.ascii_sequence, textColor);
+    
+    SDL_Surface *characters_surface = TTF_RenderText_Blended(font.name, app.ascii_sequence, font.text_color);
     characters_texture = SDL_CreateTextureFromSurface(app.renderer, characters_surface);
     
     SDL_Surface *bar_characters_surface = TTF_RenderText_Blended(font.name, app.ascii_sequence, bufferA.status_bar.text_color);
@@ -135,8 +156,8 @@ int main(int argc, char *argv[])
         
         if(app.mode == TEXT_EDIT)
         {
-            HighlightLineDraw(app.active_buffer);
-            CursorDraw(&bufferA);
+            //HighlightLineDraw(app.active_buffer);
+            //CursorDraw(&bufferA);
             CursorDraw(&bufferB);
         }
         if(app.mode == LIST_NAV)
@@ -152,6 +173,9 @@ int main(int argc, char *argv[])
         
         SDL_RenderCopy(app.renderer, bufferA.panel.texture, NULL, &panA);
         SDL_RenderCopy(app.renderer, bufferB.panel.texture, NULL, &panB);
+        
+        //test blend
+        CursorDraw(&bufferA);
         
         SDL_Rect barA = {bufferA.status_bar.x,bufferA.status_bar.y,bufferA.status_bar.w,bufferA.status_bar.h};
         SDL_Rect barB = {bufferB.status_bar.x,bufferB.status_bar.y,bufferB.status_bar.w,bufferB.status_bar.h};
