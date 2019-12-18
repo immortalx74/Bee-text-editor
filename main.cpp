@@ -123,6 +123,8 @@ int main(int argc, char *argv[])
         {
             CursorDraw(&bufferA);
             CursorDraw(&bufferB);
+            MarkerDraw(&bufferA);
+            MarkerDraw(&bufferB);
         }
         
         SDL_Rect barA = {bufferA.status_bar.x,bufferA.status_bar.y,bufferA.status_bar.w,bufferA.status_bar.h};

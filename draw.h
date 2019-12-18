@@ -6,6 +6,7 @@
 #include <string>
 
 void CursorDraw(buffer *buf);
+void MarkerDraw(buffer *buf);
 void HighlightLineDraw(buffer *buf);
 void PanelDraw(buffer *buf);
 void BarDraw(buffer *buf);

@@ -107,6 +107,12 @@ void GetBindedCommandsInput()
         {
             FileWriteToDisk(app.active_buffer, "example.txt");
         }
+        else if( app.e.key.keysym.sym == SDLK_SPACE && SDL_GetModState() & KMOD_CTRL)
+        {
+            //marker test
+            app.active_buffer->marker.row = app.active_buffer->cursor.row;
+            app.active_buffer->marker.col = app.active_buffer->cursor.col;
+        }
         else if( app.e.key.keysym.sym == SDLK_k && SDL_GetModState() & KMOD_CTRL)
         {
             app.active_buffer->line_node = KillBuffer(app.active_buffer);
@@ -116,7 +122,6 @@ void GetBindedCommandsInput()
             if(app.active_buffer->lst == NULL)
             {
                 app.active_buffer->lst = ListCreate("Open:", 400, app.active_buffer->panel.col_capacity - 5);
-                //XstringSet(app.active_buffer->lst->current_path, XstringGet(app.last_path));
                 PopulateFileList(app.active_buffer->lst, XstringGet(app.last_path));
                 app.mode = LIST_NAV;
             }
@@ -137,7 +142,10 @@ void GetBindedCommandsInput()
 
 void GetTextEditingInput()
 {
-    if(app.e.type == SDL_TEXTINPUT)
+    const SDL_Keymod modkeys = (SDL_Keymod)(KMOD_CTRL | KMOD_SHIFT | KMOD_ALT | KMOD_GUI);
+    const bool no_mod_keys{(SDL_GetModState() & modkeys) == KMOD_NONE};
+    
+    if(app.e.type == SDL_TEXTINPUT && no_mod_keys)
     {
         Input_TextEd_Text(app.active_buffer);
     }

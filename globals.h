@@ -51,6 +51,15 @@ struct buffer
         SDL_Color line_highlight = {40, 0, 180, 255};
     }cursor;
     
+    struct _marker
+    {
+        int col = 0;
+        int row = 0;
+        int bufcol = 0;
+        int bufrow = 0;
+        SDL_Color color = {255, 0, 0, 0};
+    }marker;
+    
     struct _panel
     {
         int x;

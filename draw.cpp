@@ -20,6 +20,20 @@ void CursorDraw(buffer *buf)
     SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 255);// background
 };
 
+void MarkerDraw(buffer *buf)
+{
+    int xx = ((buf->marker.col - buf->panel.page * buf->panel.col_capacity) * font.width) + margin + buf->panel.x;
+    int yy = (buf->marker.row * font.height) + margin;
+    
+    SDL_Rect box = {xx, yy, font.width, font.height};
+    
+    SDL_SetRenderDrawColor(app.renderer, buf->marker.color.r, buf->marker.color.g, buf->marker.color.b, buf->marker.color.a);
+    
+    SDL_RenderDrawRect(app.renderer, &box);
+    
+    SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 255);// background
+};
+
 void PanelDraw(buffer *buf)
 {
     SDL_Rect box = {buf->panel.x, buf->panel.y, buf->panel.w, buf->panel.h};
