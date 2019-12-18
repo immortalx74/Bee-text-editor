@@ -24,7 +24,12 @@ void GetListNavigationInput()
         
         if(XstringGetLength(app.last_path) > 0) // haven't reached top level dir
         {
+#ifdef _WIN32
             if(app.e.text.text[0] == 92)//Backslash
+#endif
+#ifdef __linux__
+                if(app.e.text.text[0] == 47)//Backslash
+#endif
             {
                 if(IsValidPathFilter(XstringGet(app.active_buffer->lst->current_path), XstringGet(app.active_buffer->lst->filter)))
                 {
@@ -44,7 +49,12 @@ void GetListNavigationInput()
         }
         else// reached top level dir
         {
+#ifdef _WIN32
             if(app.e.text.text[0] == 92)//Backslash
+#endif
+#ifdef __linux__
+                if(app.e.text.text[0] == 47)//Backslash
+#endif
             {
                 XstringSet(app.last_path, XstringGet(app.active_buffer->lst->filter));
                 
@@ -631,7 +641,12 @@ void Input_ListNav_ParentDirectory(list *l)
     if(!IsTopLevelDirectory(l->current_path))
     {
         XstringTruncateTail(l->current_path, 1);
+#ifdef _WIN32
         int pos = XstringIndexOfLastOccurrance(l->current_path, '\\') + 1;
+#endif
+#ifdef __linux__
+        int pos = XstringIndexOfLastOccurrance(l->current_path, '/') + 1;
+#endif
         XstringTruncateTail(l->current_path, XstringGetLength(l->current_path) - pos);
         
         ListClear(l);
@@ -640,7 +655,12 @@ void Input_ListNav_ParentDirectory(list *l)
     else
     {
         XstringTruncateTail(l->current_path, 1);
+#ifdef _WIN32
         int pos = XstringIndexOfLastOccurrance(l->current_path, '\\') + 1;
+#endif
+#ifdef __linux__
+        int pos = XstringIndexOfLastOccurrance(l->current_path, '/') + 1;
+#endif
         XstringTruncateTail(l->current_path, XstringGetLength(l->current_path) - pos);
         ListClear(l);
         XstringSet(app.last_path, "");
