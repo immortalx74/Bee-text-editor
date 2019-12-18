@@ -22,8 +22,9 @@ void CursorDraw(buffer *buf)
 
 void MarkerDraw(buffer *buf)
 {
-    int xx = ((buf->marker.col - buf->panel.page * buf->panel.col_capacity) * font.width) + margin + buf->panel.x;
-    int yy = (buf->marker.row * font.height) + margin;
+    int xx = (buf->marker.col - (buf->panel.page * buf->panel.col_capacity)) * font.width + margin + buf->panel.x;
+    //int yy = (buf->marker.row * font.height) + margin;
+    int yy = (buf->marker.row - buf->panel.scroll_offset_ver) * font.height + margin;
     
     SDL_Rect box = {xx, yy, font.width, font.height};
     
@@ -334,16 +335,21 @@ void SyncCursorWithBuffer(buffer *buf)
 
 void SwitchHorizontalPage(buffer *buf)
 {
-    if(buf->column + 1 > (buf->panel.page + 1) * buf->panel.col_capacity)
+    if(buf->column + 1 > (buf->panel.page + 1) * buf->panel.col_capacity || buf->column  < buf->panel.page * buf->panel.col_capacity)
     {
-        buf->panel.page++;
+        buf->panel.page = buf->column / buf->panel.col_capacity;
         RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
     }
-    if(buf->column  < buf->panel.page * buf->panel.col_capacity)
+};
+
+bool MarkerIsWithinDrawingBounds(buffer *buf)
+{
+    if (buf->marker.col / buf->panel.col_capacity == buf->panel.page && buf->marker.row >= buf->panel.scroll_offset_ver && buf->marker.row < buf->panel.scroll_offset_ver + buf->panel.row_capacity)
     {
-        buf->panel.page--;
-        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+        return true;
     }
+    
+    return false;
 };
 
 void ListDraw(buffer *buf, list *l, SDL_Texture *ch, SDL_Texture *pt)

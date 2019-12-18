@@ -13,6 +13,16 @@ void DeleteCharacterAt(buffer *buf, int col)
     if(buf->column > 0)
     {
         buf->column--;
+        
+        //update marker pos
+        if(buf->marker.row == buf->line)
+        {
+            if(buf->column < buf->marker.col)
+            {
+                buf->marker.col--;
+            }
+        }
+        
         SyncCursorWithBuffer(buf);
         U8_strdel(buf->line_node->data, buf->column);
     }
@@ -21,6 +31,17 @@ void DeleteCharacterAt(buffer *buf, int col)
         if(buf->line_node->prev != buf->head)
         {
             buf->column = strlen(buf->line_node->prev->data);
+            
+            // update marker pos
+            if(buf->marker.row == buf->line)
+            {
+                buf->marker.row--;
+                buf->marker.col += buf->column;
+            }
+            else if(buf->marker.row > buf->line)
+            {
+                buf->marker.row--;
+            }
             
             // check if there are characters left in line
             if(strlen(buf->line_node->data) > 0)

@@ -109,9 +109,9 @@ void GetBindedCommandsInput()
         }
         else if( app.e.key.keysym.sym == SDLK_SPACE && SDL_GetModState() & KMOD_CTRL)
         {
-            //marker test
-            app.active_buffer->marker.row = app.active_buffer->cursor.row;
-            app.active_buffer->marker.col = app.active_buffer->cursor.col;
+            //set marker
+            app.active_buffer->marker.row = app.active_buffer->line;
+            app.active_buffer->marker.col = app.active_buffer->column;
         }
         else if( app.e.key.keysym.sym == SDLK_k && SDL_GetModState() & KMOD_CTRL)
         {
@@ -204,11 +204,19 @@ void GetTextEditingInput()
 
 void Input_TextEd_Text(buffer *buf)
 {
+    //marker update test
+    if(buf->marker.row == buf->line)
+    {
+        if(buf->marker.col > buf->column)
+        {
+            buf->marker.col++;
+        }
+    }
+    
     InsertCharacterAt(buf, buf->column);
     RenderCharacterAt(buf, buf->cursor.row, buf->cursor.col - 1, strlen(buf->line_node->data), characters_texture, buf->panel.texture);
     buf->cursor.last_hor_pos = buf->cursor.col;
     
-    //SyncCursorWithBuffer(buf);
     SwitchHorizontalPage(buf);
 };
 
@@ -217,6 +225,11 @@ void Input_TextEd_Return(buffer *buf)
 {
     if (buf->column == strlen(buf->line_node->data))//cursor at end of line
     {
+        if(buf->marker.row > buf->line)
+        {
+            buf->marker.row++;
+        }
+        
         buf->column = 0;
         buf->line++;
         SyncCursorWithBuffer(buf);
@@ -229,6 +242,16 @@ void Input_TextEd_Return(buffer *buf)
     }
     else// cursor at start or middle of line
     {
+        if(buf->marker.row > buf->line)
+        {
+            buf->marker.row++;
+        }
+        else if(buf->marker.row >= buf->line && buf->column < buf->marker.col)
+        {
+            buf->marker.row++;
+            buf->marker.col -= buf->column;
+        }
+        
         InsertLineAt(buf, buf->line + 1);
         
         int index = 0;

@@ -17,6 +17,7 @@ void RenderClearLine(buffer *buf, int row, SDL_Texture *ch, SDL_Texture *pt);
 void RenderLineRange(buffer *buf, int start, int end, SDL_Texture *ch, SDL_Texture *pt);
 void SyncCursorWithBuffer(buffer *buf);
 void SwitchHorizontalPage(buffer *buf);
+bool MarkerIsWithinDrawingBounds(buffer *buf);
 
 void ListDraw(buffer *buf, list *l, SDL_Texture *ch, SDL_Texture *pt);
 void RenderListRange(buffer *buf, int start, int count, SDL_Texture *ch, SDL_Texture *pt);
