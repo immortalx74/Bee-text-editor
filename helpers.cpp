@@ -20,11 +20,19 @@ int GetDigitCount(int n)
 
 bool IsDirectory(char *name)
 {
+#ifdef _WIN32
     if (name[strlen(name) - 1] == '\\')
     {
         return true;
     }
+#endif
     
+#ifdef __linux__
+    if (name[strlen(name) - 1] == '/')
+    {
+        return true;
+    }
+#endif
     return false;
 };
 
@@ -58,7 +66,12 @@ bool IsValidPathFilter(char *path, char *name)
         if (file.is_dir)
         {
             int len = strlen(current);
+#ifdef _WIN32
             current[len] = '\\';
+#endif
+#ifdef __linux__
+            current[len] = '/';
+#endif
             current[len + 1] = '\0';
         }
         
@@ -88,7 +101,13 @@ bool IsTopLevelDirectory(xstring *path)
 #endif
     
 #ifdef __linux__
-    return true;
+    if(XstringGetLength(path) == 1)
+    {
+        if(XstringGet(path)[0] == '/')
+        {
+            return true;
+        }
+    }
 #endif
     return false;
 };

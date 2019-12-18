@@ -84,7 +84,12 @@ void PopulateFileList(list *l, char *path)
             if (file.is_dir)
             {
                 int len = strlen(current);
+#ifdef _WIN32
                 current[len] = '\\';
+#endif
+#ifdef __linux__
+                current[len] = '/';
+#endif
                 current[len + 1] = '\0';
             }
             
@@ -123,7 +128,12 @@ void FilterFileList(list *l, char *path)
                 if (file.is_dir)
                 {
                     int len = strlen(current);
+#ifdef _WIN32
                     current[len] = '\\';
+#endif
+#ifdef __linux__
+                    current[len] = '/';
+#endif
                     current[len + 1] = '\0';
                 }
                 
