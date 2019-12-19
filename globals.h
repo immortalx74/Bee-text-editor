@@ -4,10 +4,13 @@
 #include <string.h>
 
 extern int margin;
+#define LINE_MEM_CHUNK 64
 
 struct node
 {
-    char data[256] = {0};
+    //char data[LINE_MEM_CHUNK] = {0};
+    char *data;
+    int num_chunks;
     struct node *next;
     struct node *prev;
 };

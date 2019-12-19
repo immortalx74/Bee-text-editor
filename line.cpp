@@ -2,10 +2,21 @@
 #include <iostream>
 #include "draw.h"
 
+void LineRequestMemChunk(node *ln, int num)
+{
+    int old_num_chunks = ln->num_chunks;
+    ln->num_chunks += num;
+    int new_size = ln->num_chunks * LINE_MEM_CHUNK;
+    ln->data = (char*)realloc(ln->data, new_size);
+    memset(ln->data + (old_num_chunks * LINE_MEM_CHUNK), 0, num * LINE_MEM_CHUNK);
+};
+
 // Create line and return pointer to it
 node *CreateLine(void)
 {
     node *newline = (node*)malloc(sizeof(node));
+    newline->data = (char*)calloc(LINE_MEM_CHUNK, 1);
+    newline->num_chunks = 1;
     newline->next = NULL;
     newline->prev = NULL;
     
@@ -38,7 +49,7 @@ void InsertLineAt(buffer *buf, int pos)
             buf->line_node->next = right_of_head;
         }
         
-        memset(buf->line_node->data, 0, 256);
+        //memset(buf->line_node->data, 0, LINE_MEM_CHUNK);
         
         buf->line_count++;
     }
@@ -60,7 +71,7 @@ void InsertLineAt(buffer *buf, int pos)
         buf->line_node->next = NULL;
         buf->line_count++;
         
-        memset(buf->line_node->data, 0, 256);
+        //memset(buf->line_node->data, 0, LINE_MEM_CHUNK);
     }
     else // Add in-between(NOTE: if pos = n, pushes existing n and all other nodes rightwards)
     {
@@ -84,7 +95,7 @@ void InsertLineAt(buffer *buf, int pos)
         
         buf->line_count++;
         
-        memset(buf->line_node->data, 0, 256);
+        //memset(buf->line_node->data, 0, LINE_MEM_CHUNK);
     }
 };
 
@@ -102,6 +113,7 @@ void DeleteLineAt(buffer *buf, int pos)
         node *line = head_current->next;
         head_current->next = head_current->next->next;
         head_current->next->next->prev = head_current;
+        free(line->data);
         free(line);
         buf->line_count--;
         
@@ -118,6 +130,7 @@ void DeleteLineAt(buffer *buf, int pos)
             count++;
         }
         line->prev->next = NULL;
+        free(line->data);
         free(line);
         buf->line_count--;
         
@@ -139,6 +152,7 @@ void DeleteLineAt(buffer *buf, int pos)
         
         left->next = right;
         right->prev = left;
+        free(line->data);
         free(line);
         buf->line_count--;
         
@@ -161,12 +175,16 @@ node *GetLineNode(buffer *buf, int pos)
 
 node *KillBuffer(buffer *buf)
 {
+    //TEST: should i free head data?
+    //free(buf->head->data);
+    
     node *n = buf->head->next;
     node *ahead = NULL;
     
     while(n != NULL)
     {
         ahead = n->next;
+        free(n->data);
         free(n);
         n = ahead;
     };

@@ -7,16 +7,25 @@ void FileReadToBuffer(buffer *buf, char *filename)
     std::ifstream file;
     file.open(filename);
     std::string str;
+    str.reserve(LINE_MEM_CHUNK);
     
     node *cur_node = KillBuffer(buf);
     
     while (std::getline(file, str))
     {
+        if(str.length() / LINE_MEM_CHUNK > 0)
+        {
+            int num = (str.length() / LINE_MEM_CHUNK) + 1;
+            LineRequestMemChunk(cur_node, num);
+        }
+        
         strcpy(cur_node->data, str.c_str());
         buf->column = strlen(cur_node->data);
         
         node *newline = (node*)malloc(sizeof(node));
-        memset(newline->data, 0, 256);
+        newline->data = (char*)calloc(LINE_MEM_CHUNK, 1);
+        newline->num_chunks = 1;
+        //memset(newline->data, 0, LINE_MEM_CHUNK);
         newline->prev = cur_node;
         newline->next = NULL;
         cur_node->next = newline;

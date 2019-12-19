@@ -117,6 +117,10 @@ void GetBindedCommandsInput()
         {
             FileWriteToDisk(app.active_buffer, "example.txt");
         }
+        else if( app.e.key.keysym.sym == SDLK_m && SDL_GetModState() & KMOD_CTRL)
+        {
+            LineRequestMemChunk(app.active_buffer->line_node, 1);
+        }
         else if( app.e.key.keysym.sym == SDLK_SPACE && SDL_GetModState() & KMOD_CTRL)
         {
             //set marker
@@ -214,7 +218,7 @@ void GetTextEditingInput()
 
 void Input_TextEd_Text(buffer *buf)
 {
-    //marker update test
+    //marker update
     if(buf->marker.row == buf->line)
     {
         if(buf->marker.col > buf->column)
@@ -476,7 +480,7 @@ void Input_TextEd_Tab(buffer *buf)
 {
     for (int i = 0; i < 4; ++i)
     {
-        U8_strinsert(buf->line_node->data, buf->column, " ", 256);
+        U8_strinsert(buf->line_node->data, buf->column, " ", LINE_MEM_CHUNK);
         buf->column++;
         SyncCursorWithBuffer(buf);
         RenderCharacterAt(buf, buf->cursor.row, buf->cursor.col - 1, strlen(buf->line_node->data), characters_texture, buf->panel.texture);
