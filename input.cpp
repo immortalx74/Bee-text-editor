@@ -117,9 +117,42 @@ void GetBindedCommandsInput()
         {
             FileWriteToDisk(app.active_buffer, "example.txt");
         }
-        else if( app.e.key.keysym.sym == SDLK_m && SDL_GetModState() & KMOD_CTRL)
+        else if( app.e.key.keysym.sym == SDLK_c && SDL_GetModState() & KMOD_CTRL)
         {
-            LineRequestMemChunk(app.active_buffer->line_node, 1);
+            int start_line, end_line, start_col, end_col;
+            
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+            start_line = MIN(app.active_buffer->line, app.active_buffer->marker.row);
+            end_line = MAX(app.active_buffer->line, app.active_buffer->marker.row);
+            start_col = MIN(app.active_buffer->column, app.active_buffer->marker.col);
+            end_col = MAX(app.active_buffer->column, app.active_buffer->marker.col);
+            
+            int line_diff = end_line - start_line;
+            int char_count = 0;
+            xstring *clip_text= XstringCreate("");
+            
+            std::cout << start_line << "," << end_line << "-" << start_col << "," << end_col << std::endl;
+            
+            if(app.active_buffer->line > app.active_buffer->marker.row)
+            {
+                node *cur = app.active_buffer->line_node;
+                
+                for (int i = 0; i <= line_diff; ++i)
+                {
+                    XstringConcat(clip_text, 2, clip_text, cur->data);
+                    std::cout << XstringGet(clip_text) << std::endl;
+                    cur= cur->prev;
+                }
+                
+                SDL_SetClipboardText(XstringGet(clip_text));
+                XstringDestroy(clip_text);
+            }
+        }
+        else if( app.e.key.keysym.sym == SDLK_v && SDL_GetModState() & KMOD_CTRL)
+        {
+            char *temp = SDL_GetClipboardText();
+            std::cout << temp << std::endl;
         }
         else if( app.e.key.keysym.sym == SDLK_SPACE && SDL_GetModState() & KMOD_CTRL)
         {
