@@ -5,6 +5,10 @@
 
 extern int margin;
 #define LINE_MEM_CHUNK 64
+#define margin 4
+
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 struct node
 {
@@ -19,6 +23,12 @@ struct xstring
 {
     char *data;
     int length;
+};
+
+struct _clipboard
+{
+    xstring *text;
+    int *line_lengths;
 };
 
 struct list
@@ -180,6 +190,7 @@ struct app_info
     };
 };
 
+extern _clipboard clipboard;
 extern app_info app;
 extern SDL_Texture *characters_texture;
 extern SDL_Texture *bar_characters_texture;

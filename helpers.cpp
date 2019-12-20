@@ -188,6 +188,7 @@ void XstringTruncateHead(xstring *str, int count)
     memcpy(str->data, temp, new_size);
     str->length = new_size;
     str->data[str->length] = 0;
+    free(temp);
 };
 
 void XstringConcat(xstring *str, int arg_count, ...)
