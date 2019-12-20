@@ -16,7 +16,7 @@ void FileReadToBuffer(buffer *buf, char *filename)
         if(str.length() / LINE_MEM_CHUNK > 0)
         {
             int num = (str.length() / LINE_MEM_CHUNK) + 1;
-            LineRequestMemChunk(cur_node, num);
+            LineRequestMemChunks(cur_node, num);
         }
         
         strcpy(cur_node->data, str.c_str());
@@ -25,7 +25,6 @@ void FileReadToBuffer(buffer *buf, char *filename)
         node *newline = (node*)malloc(sizeof(node));
         newline->data = (char*)calloc(LINE_MEM_CHUNK, 1);
         newline->num_chunks = 1;
-        //memset(newline->data, 0, LINE_MEM_CHUNK);
         newline->prev = cur_node;
         newline->next = NULL;
         cur_node->next = newline;

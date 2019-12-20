@@ -380,12 +380,20 @@ void Input_TextEd_Return(buffer *buf)
         int index = 0;
         int len = strlen(buf->line_node->prev->data);
         
+        if(len - buf->column > LINE_MEM_CHUNK)
+        {
+            int chunks_to_ask = ((len - buf->column - LINE_MEM_CHUNK) / LINE_MEM_CHUNK) + 1;
+            LineRequestMemChunks(buf->line_node, chunks_to_ask);
+        }
+        
         for (int i = buf->column; i < len; ++i)
         {
             buf->line_node->data[index] = buf->line_node->prev->data[i];
             buf->line_node->prev->data[i] = '\0';
             index++;
         }
+        
+        LineShrinkMemChunks(buf->line_node->prev);
         
         RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
         

@@ -2,7 +2,9 @@
 #include "globals.h"
 #include <string>
 
-void LineRequestMemChunk(node *ln, int num);
+void LineRequestMemChunks(node *ln, int num);
+void LineShrinkMemChunks(node *ln);
+void LineEnsureSufficientCapacity(node *ln);
 node *CreateLine(void);
 void InsertLineAt(buffer *buf, int pos);
 void DeleteLineAt(buffer *buf, int pos);

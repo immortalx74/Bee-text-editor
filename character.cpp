@@ -3,7 +3,15 @@
 
 void InsertCharacterAt(buffer *buf, int col)
 {
-    U8_strinsert(buf->line_node->data, buf->column, app.e.text.text, buf->line_node->num_chunks * LINE_MEM_CHUNK);
+    LineEnsureSufficientCapacity(buf->line_node);
+    
+    if(col < strlen(buf->line_node->data))
+    {
+        int char_count = strlen(buf->line_node->data) - col;
+        memmove(buf->line_node->data + col + 1, buf->line_node->data + col, char_count);
+    }
+    
+    *(buf->line_node->data + buf->column) = app.e.text.text[0];
     buf->column++;
     SyncCursorWithBuffer(buf);
 };
@@ -47,6 +55,15 @@ void DeleteCharacterAt(buffer *buf, int col)
             if(strlen(buf->line_node->data) > 0)
             {
                 int pos = strlen(buf->line_node->prev->data);
+                
+                int prev_capacity_left = (buf->line_node->prev->num_chunks * LINE_MEM_CHUNK) - strlen(buf->line_node->prev->data);
+                int cur_char_count = strlen(buf->line_node->data);
+                
+                if(cur_char_count > prev_capacity_left)
+                {
+                    int chunks_to_ask = ((cur_char_count - prev_capacity_left) / LINE_MEM_CHUNK) + 1;
+                    LineRequestMemChunks(buf->line_node->prev, chunks_to_ask);
+                }
                 
                 for (int i = 0; i < strlen(buf->line_node->data); ++i)
                 {

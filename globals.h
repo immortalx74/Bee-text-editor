@@ -3,8 +3,7 @@
 #include "SDL_ttf.h"
 #include <string.h>
 
-extern int margin;
-#define LINE_MEM_CHUNK 64
+#define LINE_MEM_CHUNK 10
 #define margin 4
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
@@ -12,7 +11,6 @@ extern int margin;
 
 struct node
 {
-    //char data[LINE_MEM_CHUNK] = {0};
     char *data;
     int num_chunks;
     struct node *next;

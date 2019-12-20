@@ -2,13 +2,30 @@
 #include <iostream>
 #include "draw.h"
 
-void LineRequestMemChunk(node *ln, int num)
+void LineEnsureSufficientCapacity(node *ln)
+{
+    if(strlen(ln->data) + 1 >= ln->num_chunks * LINE_MEM_CHUNK)
+    {
+        LineRequestMemChunks(ln, 1);
+    }
+};
+
+void LineRequestMemChunks(node *ln, int num)
 {
     int old_num_chunks = ln->num_chunks;
     ln->num_chunks += num;
     int new_size = ln->num_chunks * LINE_MEM_CHUNK;
     ln->data = (char*)realloc(ln->data, new_size);
     memset(ln->data + (old_num_chunks * LINE_MEM_CHUNK), 0, num * LINE_MEM_CHUNK);
+};
+
+void LineShrinkMemChunks(node *ln)
+{
+    int len = strlen(ln->data);
+    ln->num_chunks = (len / LINE_MEM_CHUNK) + 1;
+    int new_size = ln->num_chunks * LINE_MEM_CHUNK;
+    ln->data = (char*)realloc(ln->data, new_size);
+    memset(ln->data + len, 0, new_size - len);
 };
 
 // Create line and return pointer to it
