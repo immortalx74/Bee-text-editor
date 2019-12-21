@@ -151,7 +151,7 @@ void FilterFileList(list *l, char *path)
 
 void ListSwitchToSelectedDirectory(list *l, char *sel_dir)
 {
-    XstringConcat(l->current_path, 2, XstringGet(l->current_path), sel_dir);
+    XstringConcat(l->current_path, 1, sel_dir);
     ListClear(l);
     XstringSet(l->filter, "");
     PopulateFileList(l, XstringGet(l->current_path));
@@ -161,7 +161,7 @@ void ListLoadSelectedFile(list *l, char *sel_file)
 {
     XstringSet(app.last_path, XstringGet(l->current_path));
     
-    XstringConcat(l->current_path, 2, XstringGet(l->current_path), sel_file);
+    XstringConcat(l->current_path, 1, sel_file);
     
     FileReadToBuffer(app.active_buffer, XstringGet(l->current_path));
     

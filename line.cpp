@@ -296,11 +296,11 @@ void ClipBoardCopy()
         {
             if(i == line_diff)
             {
-                XstringConcat(clipboard.text, 2, XstringGet(clipboard.text), cur->data);
+                XstringConcat(clipboard.text, 1, cur->data);
             }
             else
             {
-                XstringConcat(clipboard.text, 3, XstringGet(clipboard.text), cur->data, "\r\n");
+                XstringConcat(clipboard.text, 2, cur->data, "\r\n");
             }
             
             cur = cur->next;
@@ -323,11 +323,11 @@ void ClipBoardCopy()
         {
             if(i == line_diff)
             {
-                XstringConcat(clipboard.text, 1, XstringGet(clipboard.text), cur->data);
+                XstringConcat(clipboard.text, 1, cur->data);
             }
             else
             {
-                XstringConcat(clipboard.text, 3, XstringGet(clipboard.text), cur->data, "\r\n");
+                XstringConcat(clipboard.text, 2, cur->data, "\r\n");
             }
             
             cur = cur->next;

@@ -19,7 +19,7 @@ void GetListNavigationInput()
 {
     if(app.e.type == SDL_TEXTINPUT)
     {
-        XstringConcat(app.active_buffer->lst->filter, 2, XstringGet(app.active_buffer->lst->filter), app.e.text.text);
+        XstringConcat(app.active_buffer->lst->filter, 1, app.e.text.text);
         char *selected_element = ListGetElement(app.active_buffer->lst, app.active_buffer->lst->selected);
         
         if(XstringGetLength(app.last_path) > 0) // haven't reached top level dir
