@@ -128,7 +128,7 @@ void XstringDestroy(xstring *str)
     free(str);
 };
 
-void XstringSet(xstring *str, char text[])
+void XstringSet(xstring *str, char *text)
 {
     int len = strlen(text);
     
@@ -168,6 +168,10 @@ int XstringGetLength(xstring *str)
 
 void XstringTruncateTail(xstring *str, int count)
 {
+    if(count == 0)
+    {
+        return;
+    }
     int new_size = str->length - count;
     str->data = (char*)realloc(str->data, new_size + 1);
     str->length = new_size;
@@ -176,6 +180,10 @@ void XstringTruncateTail(xstring *str, int count)
 
 void XstringTruncateHead(xstring *str, int count)
 {
+    if(count == 0)
+    {
+        return;
+    }
     int new_size = str->length - count;
     char *temp = (char*)malloc(new_size);
     

@@ -116,9 +116,13 @@ void GetBindedCommandsInput()
         else if( app.e.key.keysym.sym == SDLK_c && SDL_GetModState() & KMOD_CTRL)
         {
             ClipBoardCopy();
+            system("cls");
+            char *temp = SDL_GetClipboardText();
+            std::cout << temp << std::endl;
         }
         else if( app.e.key.keysym.sym == SDLK_v && SDL_GetModState() & KMOD_CTRL)
         {
+            system("cls");
             char *temp = SDL_GetClipboardText();
             std::cout << temp << std::endl;
             ClipBoardPaste();

@@ -1,7 +1,6 @@
 #pragma once
 #include "globals.h"
 #include <string>
-#include "character.h"
 
 void LineRequestMemChunks(node *ln, int num);
 void LineShrinkMemChunks(node *ln);

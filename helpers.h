@@ -13,7 +13,7 @@ bool IsTopLevelDirectory(xstring *path);
 
 xstring *XstringCreate(char text[]);
 void XstringDestroy(xstring *str);
-void XstringSet(xstring *str, char text[]);
+void XstringSet(xstring *str, char *text);
 char *XstringGet(xstring *str);
 int XstringGetLength(xstring *str);
 void XstringTruncateTail(xstring *str, int count);

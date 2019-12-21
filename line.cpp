@@ -253,7 +253,7 @@ void AttemptSetToLastColumn(buffer *buf)
 
 void ClipBoardCopy()
 {
-    if(app.active_buffer->column == app.active_buffer->marker.col)
+    if(app.active_buffer->column == app.active_buffer->marker.col && app.active_buffer->line == app.active_buffer->marker.row)
     {
         if(strlen(app.active_buffer->line_node->data + app.active_buffer->column) == 0)
         {
@@ -365,6 +365,8 @@ void ClipBoardPaste()
 {
     if(clipboard.has_content)
     {
+        XstringSet(clipboard.text, SDL_GetClipboardText());
+        
         int len = XstringGetLength(clipboard.text);
         
         for (int i = 0; i < len; ++i)
@@ -384,8 +386,8 @@ void ClipBoardPaste()
             }
             if (XstringGet(clipboard.text)[i] == '\n')//windows test
             {
-                //app.active_buffer->column = strlen(app.active_buffer->line_node->data);
                 Input_TextEd_Return(app.active_buffer);
+                app.active_buffer->column = strlen(app.active_buffer->line_node->data);
             }
         }
         
