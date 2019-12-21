@@ -106,3 +106,50 @@ else if( app.e.key.keysym.sym == SDLK_c && SDL_GetModState() & KMOD_CTRL)
         }
     }
 }
+
+
+//concat
+void XstringConcat(xstring *str, int arg_count, ...)
+{
+    va_list valist;
+    int total_length = 0;
+    int index = 0;
+    int *sizes = (int*)malloc(arg_count * sizeof(int));
+    
+    va_start(valist, arg_count);
+    for (int i = 0; i < arg_count; ++i)
+    {
+        sizes[i] = strlen(va_arg(valist, char*));
+        total_length += sizes[i];
+    }
+    va_end(valist);
+    
+    str->length = total_length;
+    str->data = (char*)realloc(str->data, total_length + 1);
+    
+    va_start(valist, arg_count);
+    
+    int offset = 0;
+    for (int i = 0; i < arg_count; ++i)
+    {
+        //memmove(str->data + offset, va_arg(valist, char*), sizes[i]);
+        //offset += sizes[i];
+        
+        if(i == 0)
+        {
+            //just a call to va_arg in order to move to next argument
+            char *dummy = va_arg(valist, char*);
+            offset += sizes[i];
+        }
+        else
+        {
+            memmove(str->data + offset, va_arg(valist, char*), sizes[i]);
+            offset += sizes[i];
+        }
+    }
+    va_end(valist);
+    
+    free(sizes);
+    
+    str->data[str->length] = 0;
+};

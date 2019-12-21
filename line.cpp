@@ -323,7 +323,7 @@ void ClipBoardCopy()
         {
             if(i == line_diff)
             {
-                XstringConcat(clipboard.text, 2, XstringGet(clipboard.text), cur->data);
+                XstringConcat(clipboard.text, 1, XstringGet(clipboard.text), cur->data);
             }
             else
             {

@@ -202,7 +202,8 @@ void XstringTruncateHead(xstring *str, int count)
 void XstringConcat(xstring *str, int arg_count, ...)
 {
     va_list valist;
-    int total_length = 0;
+    int old_len = XstringGetLength(str);
+    int total_length = old_len;
     int index = 0;
     int *sizes = (int*)malloc(arg_count * sizeof(int));
     
@@ -219,7 +220,7 @@ void XstringConcat(xstring *str, int arg_count, ...)
     
     va_start(valist, arg_count);
     
-    int offset = 0;
+    int offset = old_len;
     for (int i = 0; i < arg_count; ++i)
     {
         memmove(str->data + offset, va_arg(valist, char*), sizes[i]);
