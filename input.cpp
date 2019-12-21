@@ -65,11 +65,11 @@ void GetListNavigationInput()
     }
     else if (app.e.type == SDL_KEYDOWN)
     {
-        if(app.e.key.keysym.sym == SDLK_DOWN)//NOTE: test list input
+        if(app.e.key.keysym.sym == SDLK_DOWN)
         {
             Input_ListNav_Down(app.active_buffer->lst);
         }
-        else if(app.e.key.keysym.sym == SDLK_UP)//NOTE: test list input
+        else if(app.e.key.keysym.sym == SDLK_UP)
         {
             Input_ListNav_Up(app.active_buffer->lst);
         }
@@ -101,10 +101,6 @@ void GetListNavigationInput()
             {
                 XstringTruncateTail(app.active_buffer->lst->filter, 1);
             }
-            else if(XstringGetLength(app.last_path) == 0 && XstringGetLength(app.active_buffer->lst->filter) == 0)//test remove later
-            {
-                std::cout << XstringGet(app.last_path) << std::endl;
-            }
         }
     }
 };
@@ -119,116 +115,13 @@ void GetBindedCommandsInput()
         }
         else if( app.e.key.keysym.sym == SDLK_c && SDL_GetModState() & KMOD_CTRL)
         {
-            clipboard.text = XstringCreate("");
-            int start_line = MIN(app.active_buffer->line, app.active_buffer->marker.row);
-            int end_line = MAX(app.active_buffer->line, app.active_buffer->marker.row);
-            int line_diff = end_line - start_line;
-            
-            clipboard.line_lengths = (int*)malloc((line_diff + 1) * sizeof(int));
-            
-            int trim_left, trim_right;
-            
-            if (start_line == app.active_buffer->line)
-            {
-                trim_left = app.active_buffer->column;
-                node *temp = app.active_buffer->line_node;
-                
-                for (int i = 0; i < line_diff; ++i)
-                {
-                    temp = temp->next;
-                }
-                
-                trim_right = strlen(temp->data) - app.active_buffer->marker.col;
-            }
-            else
-            {
-                trim_left = app.active_buffer->marker.col;
-                trim_right = strlen(app.active_buffer->line_node->data) - app.active_buffer->column;
-            }
-            
-            if(app.active_buffer->line < app.active_buffer->marker.row)//cursor first
-            {
-                node *cur = app.active_buffer->line_node;
-                
-                for (int i = 0; i <= line_diff; ++i)
-                {
-                    clipboard.line_lengths[i] = strlen(cur->data);
-                    
-                    if(i == 0)
-                    {
-                        clipboard.line_lengths[i] -= trim_left;
-                    }
-                    if(i == line_diff)
-                    {
-                        clipboard.line_lengths[i] -= trim_right;
-                    }
-                    
-                    XstringConcat(clipboard.text, 2, XstringGet(clipboard.text), cur->data);
-                    cur = cur->next;
-                }
-                
-                XstringTruncateHead(clipboard.text, trim_left);
-                XstringTruncateTail(clipboard.text, trim_right);
-            }
-            else if(app.active_buffer->line > app.active_buffer->marker.row)//marker first
-            {
-                node *cur = app.active_buffer->line_node;
-                
-                // Firstly move to the node where the marker is at
-                for (int i = 0; i < line_diff; ++i)
-                {
-                    cur = cur->prev;
-                }
-                
-                for (int i = 0; i <= line_diff; ++i)
-                {
-                    clipboard.line_lengths[i] = strlen(cur->data);
-                    
-                    if(i == 0)
-                    {
-                        clipboard.line_lengths[i] -= trim_left;
-                    }
-                    if(i == line_diff)
-                    {
-                        clipboard.line_lengths[i] -= trim_right;
-                    }
-                    
-                    XstringConcat(clipboard.text, 2, XstringGet(clipboard.text), cur->data);
-                    cur = cur->next;
-                }
-                
-                XstringTruncateHead(clipboard.text, trim_left);
-                XstringTruncateTail(clipboard.text, trim_right);
-            }
-            else if(app.active_buffer->line == app.active_buffer->marker.row)//cursor row = marker row
-            {
-                if(app.active_buffer->column != app.active_buffer->marker.col)
-                {
-                    node *cur = app.active_buffer->line_node;
-                    XstringSet(clipboard.text, cur->data);
-                    
-                    int col_left = MIN(app.active_buffer->column, app.active_buffer->marker.col);
-                    int col_right = MAX(app.active_buffer->column, app.active_buffer->marker.col);
-                    col_right= strlen(cur->data) - col_right;
-                    XstringTruncateHead(clipboard.text, col_left);
-                    XstringTruncateTail(clipboard.text, col_right);
-                }
-                else//copy single character
-                {
-                    char *singlechar = (char*)calloc(2, 1);
-                    memcpy(singlechar, app.active_buffer->line_node->data + app.active_buffer->column, 1);
-                    XstringSet(clipboard.text, singlechar);
-                    free(singlechar);
-                }
-            }
-            
-            SDL_SetClipboardText(XstringGet(clipboard.text));
-            XstringDestroy(clipboard.text);
+            ClipBoardCopy();
         }
         else if( app.e.key.keysym.sym == SDLK_v && SDL_GetModState() & KMOD_CTRL)
         {
             char *temp = SDL_GetClipboardText();
             std::cout << temp << std::endl;
+            ClipBoardPaste();
         }
         else if( app.e.key.keysym.sym == SDLK_SPACE && SDL_GetModState() & KMOD_CTRL)
         {
@@ -265,7 +158,8 @@ void GetBindedCommandsInput()
 
 void GetTextEditingInput()
 {
-    const SDL_Keymod modkeys = (SDL_Keymod)(KMOD_CTRL | KMOD_SHIFT | KMOD_ALT | KMOD_GUI);
+    //const SDL_Keymod modkeys = (SDL_Keymod)(KMOD_CTRL | KMOD_SHIFT | KMOD_ALT | KMOD_GUI);
+    const SDL_Keymod modkeys = (SDL_Keymod)(KMOD_CTRL | KMOD_ALT | KMOD_GUI);
     const bool no_mod_keys{(SDL_GetModState() & modkeys) == KMOD_NONE};
     
     if(app.e.type == SDL_TEXTINPUT && no_mod_keys)

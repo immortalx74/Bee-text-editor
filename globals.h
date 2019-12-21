@@ -26,7 +26,7 @@ struct xstring
 struct _clipboard
 {
     xstring *text;
-    int *line_lengths;
+    bool has_content;
 };
 
 struct list

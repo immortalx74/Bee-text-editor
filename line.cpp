@@ -250,3 +250,159 @@ void AttemptSetToLastColumn(buffer *buf)
         buf->column = strlen(buf->line_node->data);
     }
 };
+
+void ClipBoardCopy()
+{
+    if(app.active_buffer->column == app.active_buffer->marker.col)
+    {
+        if(strlen(app.active_buffer->line_node->data + app.active_buffer->column) == 0)
+        {
+            return;
+        }
+    }
+    
+    int start_line = MIN(app.active_buffer->line, app.active_buffer->marker.row);
+    int end_line = MAX(app.active_buffer->line, app.active_buffer->marker.row);
+    int line_diff = end_line - start_line;
+    
+    XstringDestroy(clipboard.text);
+    clipboard.text = XstringCreate("");
+    
+    int trim_left, trim_right;
+    
+    if (start_line == app.active_buffer->line)
+    {
+        trim_left = app.active_buffer->column;
+        node *temp = app.active_buffer->line_node;
+        
+        for (int i = 0; i < line_diff; ++i)
+        {
+            temp = temp->next;
+        }
+        
+        trim_right = strlen(temp->data) - app.active_buffer->marker.col;
+    }
+    else
+    {
+        trim_left = app.active_buffer->marker.col;
+        trim_right = strlen(app.active_buffer->line_node->data) - app.active_buffer->column;
+    }
+    
+    if(app.active_buffer->line < app.active_buffer->marker.row)//cursor first
+    {
+        node *cur = app.active_buffer->line_node;
+        
+        for (int i = 0; i <= line_diff; ++i)
+        {
+            if(i == line_diff)
+            {
+                XstringConcat(clipboard.text, 2, XstringGet(clipboard.text), cur->data);
+            }
+            else
+            {
+                XstringConcat(clipboard.text, 3, XstringGet(clipboard.text), cur->data, "\r\n");
+            }
+            
+            cur = cur->next;
+        }
+        
+        XstringTruncateHead(clipboard.text, trim_left);
+        XstringTruncateTail(clipboard.text, trim_right);
+    }
+    else if(app.active_buffer->line > app.active_buffer->marker.row)//marker first
+    {
+        node *cur = app.active_buffer->line_node;
+        
+        // Firstly move to the node where the marker is at
+        for (int i = 0; i < line_diff; ++i)
+        {
+            cur = cur->prev;
+        }
+        
+        for (int i = 0; i <= line_diff; ++i)
+        {
+            if(i == line_diff)
+            {
+                XstringConcat(clipboard.text, 2, XstringGet(clipboard.text), cur->data);
+            }
+            else
+            {
+                XstringConcat(clipboard.text, 3, XstringGet(clipboard.text), cur->data, "\r\n");
+            }
+            
+            cur = cur->next;
+        }
+        
+        XstringTruncateHead(clipboard.text, trim_left);
+        XstringTruncateTail(clipboard.text, trim_right);
+    }
+    else if(app.active_buffer->line == app.active_buffer->marker.row)//cursor row = marker row
+    {
+        if(app.active_buffer->column != app.active_buffer->marker.col)
+        {
+            node *cur = app.active_buffer->line_node;
+            XstringSet(clipboard.text, cur->data);
+            
+            int col_left = MIN(app.active_buffer->column, app.active_buffer->marker.col);
+            int col_right = MAX(app.active_buffer->column, app.active_buffer->marker.col);
+            col_right= strlen(cur->data) - col_right;
+            XstringTruncateHead(clipboard.text, col_left);
+            XstringTruncateTail(clipboard.text, col_right);
+        }
+        else//copy single character
+        {
+            char *singlechar = (char*)calloc(2, 1);
+            memcpy(singlechar, app.active_buffer->line_node->data + app.active_buffer->column, 1);
+            XstringSet(clipboard.text, singlechar);
+            free(singlechar);
+        }
+    }
+    
+    SDL_SetClipboardText(XstringGet(clipboard.text));
+};
+
+void ClipBoardPaste()
+{
+    if(clipboard.has_content)
+    {
+        int len = XstringGetLength(clipboard.text);
+        
+        for (int i = 0; i < len; ++i)
+        {
+            if(XstringGet(clipboard.text)[i] != '\r' || XstringGet(clipboard.text)[i] != '\n')
+            {
+                LineEnsureSufficientCapacity(app.active_buffer->line_node);
+                
+                if(app.active_buffer->column < strlen(app.active_buffer->line_node->data))
+                {
+                    int char_count = strlen(app.active_buffer->line_node->data) - app.active_buffer->column;
+                    memmove(app.active_buffer->line_node->data + app.active_buffer->column + 1, app.active_buffer->line_node->data + app.active_buffer->column, char_count);
+                }
+                
+                *(app.active_buffer->line_node->data + app.active_buffer->column) = XstringGet(clipboard.text)[i];
+                app.active_buffer->column++;
+            }
+            if (XstringGet(clipboard.text)[i] == '\n')//windows test
+            {
+                //app.active_buffer->column = strlen(app.active_buffer->line_node->data);
+                Input_TextEd_Return(app.active_buffer);
+            }
+        }
+        
+        RenderLineRange(app.active_buffer, app.active_buffer->panel.scroll_offset_ver, app.active_buffer->panel.row_capacity, characters_texture, app.active_buffer->panel.texture);
+    }
+};
+
+void ClipBoardGetExternal()
+{
+    if(SDL_HasClipboardText())
+    {
+        char *ext = SDL_GetClipboardText();
+        XstringSet(clipboard.text, ext);
+        clipboard.has_content = true;
+    }
+    else
+    {
+        clipboard.has_content = false;
+    }
+};

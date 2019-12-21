@@ -7,6 +7,8 @@ int main(int argc, char *argv[])
 {
     app.Init();
     app.last_path = XstringCreate(SDL_GetBasePath());
+    clipboard.text = XstringCreate("");
+    ClipBoardGetExternal();
     WindowResize(&app, app.window);
     
     //START WITH LEFT BUFFER
@@ -139,6 +141,7 @@ int main(int argc, char *argv[])
         SDL_RenderPresent(app.renderer);
     }
     
+    XstringDestroy(clipboard.text);
     SDL_FreeSurface(characters_surface);
     SDL_FreeSurface(bar_characters_surface);
     SDL_FreeSurface(screen_surface);
