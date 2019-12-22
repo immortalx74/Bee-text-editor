@@ -120,6 +120,13 @@ void GetBindedCommandsInput()
             char *temp = SDL_GetClipboardText();
             std::cout << temp << std::endl;
         }
+        else if( app.e.key.keysym.sym == SDLK_x && SDL_GetModState() & KMOD_CTRL)
+        {
+            ClipBoardCut();
+            //system("cls");
+            //char *temp = SDL_GetClipboardText();
+            //std::cout << temp << std::endl;
+        }
         else if( app.e.key.keysym.sym == SDLK_v && SDL_GetModState() & KMOD_CTRL)
         {
             system("cls");

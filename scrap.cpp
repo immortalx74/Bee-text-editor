@@ -1,3 +1,16 @@
+//undo/redo
+//ctrl X
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 //clipboard
 else if( app.e.key.keysym.sym == SDLK_c && SDL_GetModState() & KMOD_CTRL)
 {
@@ -152,4 +165,40 @@ void XstringConcat(xstring *str, int arg_count, ...)
     free(sizes);
     
     str->data[str->length] = 0;
+};
+
+
+// PASTE
+void ClipBoardPaste()
+{
+    if(clipboard.has_content)
+    {
+        XstringSet(clipboard.text, SDL_GetClipboardText());
+        
+        int len = XstringGetLength(clipboard.text);
+        
+        for (int i = 0; i < len; ++i)
+        {
+            if(XstringGet(clipboard.text)[i] != '\r' || XstringGet(clipboard.text)[i] != '\n')
+            {
+                LineEnsureSufficientCapacity(app.active_buffer->line_node);
+                
+                if(app.active_buffer->column < strlen(app.active_buffer->line_node->data))
+                {
+                    int char_count = strlen(app.active_buffer->line_node->data) - app.active_buffer->column;
+                    memmove(app.active_buffer->line_node->data + app.active_buffer->column + 1, app.active_buffer->line_node->data + app.active_buffer->column, char_count);
+                }
+                
+                *(app.active_buffer->line_node->data + app.active_buffer->column) = XstringGet(clipboard.text)[i];
+                app.active_buffer->column++;
+            }
+            if (XstringGet(clipboard.text)[i] == '\n')//windows test
+            {
+                Input_TextEd_Return(app.active_buffer);
+                //app.active_buffer->column = strlen(app.active_buffer->line_node->data);
+            }
+        }
+        
+        RenderLineRange(app.active_buffer, app.active_buffer->panel.scroll_offset_ver, app.active_buffer->panel.row_capacity, characters_texture, app.active_buffer->panel.texture);
+    }
 };

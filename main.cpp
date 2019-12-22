@@ -46,6 +46,12 @@ int main(int argc, char *argv[])
     
     while(!app.quit)
     {
+        int flags = SDL_GetWindowFlags(app.window );
+        if(flags & SDL_WINDOW_MINIMIZED)
+        {
+            SDL_Delay(16);
+        }
+        
         while (SDL_PollEvent(&app.e))
         {
             // INPUT EVENTS
