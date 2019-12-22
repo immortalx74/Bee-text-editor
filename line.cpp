@@ -251,18 +251,18 @@ void AttemptSetToLastColumn(buffer *buf)
     }
 };
 
-void ClipBoardCopy()
+void ClipBoardCopy(buffer *buf)
 {
-    if(app.active_buffer->column == app.active_buffer->marker.col && app.active_buffer->line == app.active_buffer->marker.row)
+    if(buf->column == buf->marker.col && buf->line == buf->marker.row)
     {
-        if(strlen(app.active_buffer->line_node->data + app.active_buffer->column) == 0)
+        if(strlen(buf->line_node->data + buf->column) == 0)
         {
             return;
         }
     }
     
-    int start_line = MIN(app.active_buffer->line, app.active_buffer->marker.row);
-    int end_line = MAX(app.active_buffer->line, app.active_buffer->marker.row);
+    int start_line = MIN(buf->line, buf->marker.row);
+    int end_line = MAX(buf->line, buf->marker.row);
     int line_diff = end_line - start_line;
     
     XstringDestroy(clipboard.text);
@@ -270,29 +270,29 @@ void ClipBoardCopy()
     
     int trim_left, trim_right;
     
-    if (start_line == app.active_buffer->line)
+    if (start_line == buf->line)
     {
-        trim_left = app.active_buffer->column;
-        node *temp = app.active_buffer->line_node;
+        trim_left = buf->column;
+        node *temp = buf->line_node;
         
         for (int i = 0; i < line_diff; ++i)
         {
             temp = temp->next;
         }
         
-        trim_right = strlen(temp->data) - app.active_buffer->marker.col;
+        trim_right = strlen(temp->data) - buf->marker.col;
     }
     else
     {
-        trim_left = app.active_buffer->marker.col;
-        trim_right = strlen(app.active_buffer->line_node->data) - app.active_buffer->column;
+        trim_left = buf->marker.col;
+        trim_right = strlen(buf->line_node->data) - buf->column;
     }
     
-    if(app.active_buffer->line != app.active_buffer->marker.row)//multi line
+    if(buf->line != buf->marker.row)//multi line
     {
-        node *cur = app.active_buffer->line_node;
+        node *cur = buf->line_node;
         
-        if(app.active_buffer->line > app.active_buffer->marker.row)
+        if(buf->line > buf->marker.row)
         {
             // Firstly move up to the node where the marker is at
             for (int i = 0; i < line_diff; ++i)
@@ -309,7 +309,12 @@ void ClipBoardCopy()
             }
             else
             {
+#ifdef _WIN32
                 XstringConcat(clipboard.text, 2, cur->data, "\r\n");
+#endif
+#ifdef __linux__
+                XstringConcat(clipboard.text, 2, cur->data, "\n");
+#endif
             }
             
             cur = cur->next;
@@ -318,15 +323,15 @@ void ClipBoardCopy()
         XstringTruncateHead(clipboard.text, trim_left);
         XstringTruncateTail(clipboard.text, trim_right);
     }
-    else if(app.active_buffer->line == app.active_buffer->marker.row)//single line
+    else if(buf->line == buf->marker.row)//single line
     {
-        if(app.active_buffer->column != app.active_buffer->marker.col)
+        if(buf->column != buf->marker.col)
         {
-            node *cur = app.active_buffer->line_node;
+            node *cur = buf->line_node;
             XstringSet(clipboard.text, cur->data);
             
-            int col_left = MIN(app.active_buffer->column, app.active_buffer->marker.col);
-            int col_right = MAX(app.active_buffer->column, app.active_buffer->marker.col);
+            int col_left = MIN(buf->column, buf->marker.col);
+            int col_right = MAX(buf->column, buf->marker.col);
             col_right= strlen(cur->data) - col_right;
             XstringTruncateHead(clipboard.text, col_left);
             XstringTruncateTail(clipboard.text, col_right);
@@ -334,7 +339,7 @@ void ClipBoardCopy()
         else//copy single character
         {
             char *singlechar = (char*)calloc(2, 1);
-            memcpy(singlechar, app.active_buffer->line_node->data + app.active_buffer->column, 1);
+            memcpy(singlechar, buf->line_node->data + buf->column, 1);
             XstringSet(clipboard.text, singlechar);
             free(singlechar);
         }
@@ -343,18 +348,18 @@ void ClipBoardCopy()
     SDL_SetClipboardText(XstringGet(clipboard.text));
 };
 
-void ClipBoardCut()
+void ClipBoardCut(buffer *buf)
 {
-    if(app.active_buffer->column == app.active_buffer->marker.col && app.active_buffer->line == app.active_buffer->marker.row)
+    if(buf->column == buf->marker.col && buf->line == buf->marker.row)
     {
-        if(strlen(app.active_buffer->line_node->data + app.active_buffer->column) == 0)
+        if(strlen(buf->line_node->data + buf->column) == 0)
         {
             return;
         }
     }
     
-    int start_line = MIN(app.active_buffer->line, app.active_buffer->marker.row);
-    int end_line = MAX(app.active_buffer->line, app.active_buffer->marker.row);
+    int start_line = MIN(buf->line, buf->marker.row);
+    int end_line = MAX(buf->line, buf->marker.row);
     int line_diff = end_line - start_line;
     
     XstringDestroy(clipboard.text);
@@ -362,37 +367,37 @@ void ClipBoardCut()
     
     int trim_left, trim_right;
     
-    if (start_line == app.active_buffer->line)
+    if (start_line == buf->line)
     {
-        trim_left = app.active_buffer->column;
-        node *temp = app.active_buffer->line_node;
+        trim_left = buf->column;
+        node *temp = buf->line_node;
         
         for (int i = 0; i < line_diff; ++i)
         {
             temp = temp->next;
         }
         
-        trim_right = strlen(temp->data) - app.active_buffer->marker.col;
+        trim_right = strlen(temp->data) - buf->marker.col;
     }
     else
     {
-        trim_left = app.active_buffer->marker.col;
-        trim_right = strlen(app.active_buffer->line_node->data) - app.active_buffer->column;
+        trim_left = buf->marker.col;
+        trim_right = strlen(buf->line_node->data) - buf->column;
     }
     
-    if(app.active_buffer->line != app.active_buffer->marker.row)//multi line
+    if(buf->line != buf->marker.row)//multi line
     {
-        node *cur = app.active_buffer->line_node;
+        node *cur = buf->line_node;
         
-        if(app.active_buffer->line > app.active_buffer->marker.row)
+        if(buf->line > buf->marker.row)
         {
             // Firstly move to the node where the marker is at
             for (int i = 0; i < line_diff; ++i)
             {
                 cur = cur->prev;
-                app.active_buffer->line--;
+                buf->line--;
             }
-            app.active_buffer->line_node = cur;
+            buf->line_node = cur;
         }
         
         for (int i = 0; i <= line_diff; ++i)
@@ -403,25 +408,30 @@ void ClipBoardCut()
                 
                 if(trim_right == 0)
                 {
-                    node *ln = app.active_buffer->line_node->prev;
-                    DeleteLineAt(app.active_buffer, app.active_buffer->line);
-                    app.active_buffer->line_node = ln;
+                    node *ln = buf->line_node->prev;
+                    DeleteLineAt(buf, buf->line);
+                    buf->line_node = ln;
                     
-                    if(app.active_buffer->line_node->next != NULL)
+                    if(buf->line_node->next != NULL)
                     {
-                        app.active_buffer->line_node = app.active_buffer->line_node->next;
+                        buf->line_node = buf->line_node->next;
                     }
                 }
             }
             else
             {
+#ifdef _WIN32
                 XstringConcat(clipboard.text, 2, cur->data, "\r\n");
+#endif
+#ifdef __linux__
+                XstringConcat(clipboard.text, 2, cur->data, "\n");
+#endif
                 cur = cur->next;
                 
                 if(trim_left == 0)
                 {
-                    DeleteLineAt(app.active_buffer, app.active_buffer->line);
-                    app.active_buffer->line_node = cur;
+                    DeleteLineAt(buf, buf->line);
+                    buf->line_node = cur;
                 }
             }
         }
@@ -429,15 +439,15 @@ void ClipBoardCut()
         XstringTruncateHead(clipboard.text, trim_left);
         XstringTruncateTail(clipboard.text, trim_right);
     }
-    else if(app.active_buffer->line == app.active_buffer->marker.row)//single line
+    else if(buf->line == buf->marker.row)//single line
     {
-        if(app.active_buffer->column != app.active_buffer->marker.col)
+        if(buf->column != buf->marker.col)
         {
-            node *cur = app.active_buffer->line_node;
+            node *cur = buf->line_node;
             XstringSet(clipboard.text, cur->data);
             
-            int col_left = MIN(app.active_buffer->column, app.active_buffer->marker.col);
-            int col_right = MAX(app.active_buffer->column, app.active_buffer->marker.col);
+            int col_left = MIN(buf->column, buf->marker.col);
+            int col_right = MAX(buf->column, buf->marker.col);
             col_right= strlen(cur->data) - col_right;
             XstringTruncateHead(clipboard.text, col_left);
             XstringTruncateTail(clipboard.text, col_right);
@@ -445,7 +455,7 @@ void ClipBoardCut()
         else//copy single character
         {
             char *singlechar = (char*)calloc(2, 1);
-            memcpy(singlechar, app.active_buffer->line_node->data + app.active_buffer->column, 1);
+            memcpy(singlechar, buf->line_node->data + buf->column, 1);
             XstringSet(clipboard.text, singlechar);
             free(singlechar);
         }
@@ -453,14 +463,14 @@ void ClipBoardCut()
     
     SDL_SetClipboardText(XstringGet(clipboard.text));
     
-    app.active_buffer->marker.row = app.active_buffer->line;
-    app.active_buffer->marker.col = app.active_buffer->column;
-    SyncCursorWithBuffer(app.active_buffer);
+    buf->marker.row = buf->line;
+    buf->marker.col = buf->column;
+    SyncCursorWithBuffer(buf);
     
-    RenderLineRange(app.active_buffer, app.active_buffer->panel.scroll_offset_ver, app.active_buffer->panel.row_capacity, characters_texture, app.active_buffer->panel.texture);
+    RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
 };
 
-void ClipBoardPaste()
+void ClipBoardPaste(buffer *buf)
 {
     if(clipboard.has_content)
     {
@@ -470,27 +480,31 @@ void ClipBoardPaste()
         
         for (int i = 0; i < len; ++i)
         {
-            if(XstringGet(clipboard.text)[i] != '\r' || XstringGet(clipboard.text)[i] != '\n')
+            if(XstringGet(clipboard.text)[i] != '\r' && XstringGet(clipboard.text)[i] != '\n')
             {
-                LineEnsureSufficientCapacity(app.active_buffer->line_node);
+                LineEnsureSufficientCapacity(buf->line_node);
                 
-                if(app.active_buffer->column < strlen(app.active_buffer->line_node->data))
+                if(buf->column < strlen(buf->line_node->data))
                 {
-                    int char_count = strlen(app.active_buffer->line_node->data) - app.active_buffer->column;
-                    memmove(app.active_buffer->line_node->data + app.active_buffer->column + 1, app.active_buffer->line_node->data + app.active_buffer->column, char_count);
+                    int char_count = strlen(buf->line_node->data) - buf->column;
+                    memmove(buf->line_node->data + buf->column + 1, buf->line_node->data + buf->column, char_count);
                 }
                 
-                *(app.active_buffer->line_node->data + app.active_buffer->column) = XstringGet(clipboard.text)[i];
-                app.active_buffer->column++;
+                *(buf->line_node->data + buf->column) = XstringGet(clipboard.text)[i];
+                buf->column++;
             }
-            if (XstringGet(clipboard.text)[i] == '\n')//windows test
+            
+            if (XstringGet(clipboard.text)[i] == '\n')//windows & linux??
             {
-                Input_TextEd_Return(app.active_buffer);
-                //app.active_buffer->column = strlen(app.active_buffer->line_node->data);
+                Input_TextEd_Return(buf);
             }
         }
         
-        RenderLineRange(app.active_buffer, app.active_buffer->panel.scroll_offset_ver, app.active_buffer->panel.row_capacity, characters_texture, app.active_buffer->panel.texture);
+        buf->marker.row = buf->line;
+        buf->marker.col = buf->column;
+        SyncCursorWithBuffer(buf);
+        
+        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
     }
 };
 

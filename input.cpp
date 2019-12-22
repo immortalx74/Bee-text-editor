@@ -115,14 +115,14 @@ void GetBindedCommandsInput()
         }
         else if( app.e.key.keysym.sym == SDLK_c && SDL_GetModState() & KMOD_CTRL)
         {
-            ClipBoardCopy();
+            ClipBoardCopy(app.active_buffer);
             system("cls");
             char *temp = SDL_GetClipboardText();
             std::cout << temp << std::endl;
         }
         else if( app.e.key.keysym.sym == SDLK_x && SDL_GetModState() & KMOD_CTRL)
         {
-            ClipBoardCut();
+            ClipBoardCut(app.active_buffer);
             //system("cls");
             //char *temp = SDL_GetClipboardText();
             //std::cout << temp << std::endl;
@@ -132,7 +132,7 @@ void GetBindedCommandsInput()
             system("cls");
             char *temp = SDL_GetClipboardText();
             std::cout << temp << std::endl;
-            ClipBoardPaste();
+            ClipBoardPaste(app.active_buffer);
         }
         else if( app.e.key.keysym.sym == SDLK_SPACE && SDL_GetModState() & KMOD_CTRL)
         {
