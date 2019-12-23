@@ -400,6 +400,7 @@ void ClipBoardCut(buffer *buf)
                 buf->line--;
             }
             buf->line_node = cur;
+            
         }
         
         for (int i = 0; i <= line_diff; ++i)
@@ -435,7 +436,7 @@ void ClipBoardCut(buffer *buf)
                 
                 if(trim_right == 0)// delete entire last line
                 {
-                    DeleteLineAt(buf, buf->line + i);
+                    DeleteLineAt(buf, buf->line + 1);
                 }
                 else// Copy the chars AFTER right and merge with previous line 
                 {
