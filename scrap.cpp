@@ -16,8 +16,8 @@ asdfgh
 zxcvbn
 123456
 
-
-
+qwertyuiop123456
+qwp12345600000000
 //clipboard
 else if( app.e.key.keysym.sym == SDLK_c && SDL_GetModState() & KMOD_CTRL)
 {

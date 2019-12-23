@@ -404,31 +404,7 @@ void ClipBoardCut(buffer *buf)
         
         for (int i = 0; i <= line_diff; ++i)
         {
-            if(i == line_diff)
-            {
-                XstringConcat(clipboard.text, 1, cur->data);
-                
-                if(trim_right == 0)
-                {
-                    node *ln = buf->line_node->prev;
-                    DeleteLineAt(buf, buf->line);
-                    buf->line_node = ln;
-                    
-                    if(buf->line_node->next != NULL)
-                    {
-                        buf->line_node = buf->line_node->next;
-                    }
-                }
-                else// don't delete entire line, just some chars from right 
-                {
-                    node *ln = buf->line_node->prev;
-                    int new_len = strlen(cur->data) - trim_right;
-                    memset(cur->data + new_len, 0, trim_right);
-                    //buf->line_node = ln;
-                    buf->line_node = buf->head->next;
-                }
-            }
-            else
+            if(i < line_diff)
             {
 #ifdef _WIN32
                 XstringConcat(clipboard.text, 2, cur->data, "\r\n");
@@ -436,25 +412,50 @@ void ClipBoardCut(buffer *buf)
 #ifdef __linux__
                 XstringConcat(clipboard.text, 2, cur->data, "\n");
 #endif
-                cur = cur->next;
-                
-                if(i == 0 && trim_left > 0)// don't delete entire line, just some chars from left
+                if(i == 0 && trim_left > 0)// don't delete entire line, just the chars AFTER left
                 {
-                    int new_len = strlen(cur->prev->data) - trim_left;
-                    memmove(cur->prev->data, cur->prev->data + trim_left, new_len);
-                    memset(cur->prev->data + new_len, 0, trim_left);
-                    buf->line_node = cur;
+                    int chars_to_zero = strlen(cur->data) - trim_left;
+                    memset(cur->data + trim_left, 0, chars_to_zero);
+                    cur = cur->next;
                 }
-                else if(i >= 0)
+                else if(i == 0 && trim_left == 0)// still don't delete line. Just delete all chars
                 {
-                    DeleteLineAt(buf, buf->line);
-                    buf->line_node = cur;
+                    memset(cur->data, 0, strlen(cur->data));
+                    cur = cur->next;
+                }
+                else if(i > 0)
+                {
+                    cur = cur->next;
+                    DeleteLineAt(buf, buf->line + i);
+                }
+            }
+            else if(i == line_diff)
+            {
+                XstringConcat(clipboard.text, 1, cur->data);
+                
+                if(trim_right == 0)// delete entire last line
+                {
+                    DeleteLineAt(buf, buf->line + i);
+                }
+                else// Copy the chars AFTER right and merge with previous line 
+                {
+                    int total_new_len = strlen(cur->prev->data) + trim_right;
+                    int prev_capacity_left = (cur->prev->num_chunks * LINE_MEM_CHUNK) - strlen(cur->prev->data);
+                    if(prev_capacity_left < trim_right)
+                    {
+                        LineRequestMemChunks(cur->prev, ((prev_capacity_left + trim_right) / LINE_MEM_CHUNK) + 1);
+                    }
+                    
+                    memcpy(cur->prev->data + strlen(cur->prev->data), cur->data + strlen(cur->data) - trim_right, trim_right);
+                    DeleteLineAt(buf, buf->line + i);
                 }
             }
         }
         
         XstringTruncateHead(clipboard.text, trim_left);
         XstringTruncateTail(clipboard.text, trim_right);
+        buf->column = trim_left;
+        SyncCursorWithBuffer(buf);
         std::cout << clipboard.text->data << std::endl;
     }
     else if(buf->line == buf->marker.row)//single line
@@ -466,9 +467,21 @@ void ClipBoardCut(buffer *buf)
             
             int col_left = MIN(buf->column, buf->marker.col);
             int col_right = MAX(buf->column, buf->marker.col);
-            col_right= strlen(cur->data) - col_right;
+            
+            int chars_to_zero = col_right - col_left;
+            int col_right_before = col_right;
+            
+            col_right = strlen(cur->data) - col_right;
             XstringTruncateHead(clipboard.text, col_left);
             XstringTruncateTail(clipboard.text, col_right);
+            
+            
+            int len = strlen(cur->data);
+            memmove(cur->data + col_left, cur->data + col_right_before, len - col_right_before);
+            memset(cur->data + len - chars_to_zero, 0, chars_to_zero);
+            
+            buf->column = col_left;
+            SyncCursorWithBuffer(buf);
         }
         else//copy single character
         {
@@ -477,6 +490,7 @@ void ClipBoardCut(buffer *buf)
             XstringSet(clipboard.text, singlechar);
             free(singlechar);
         }
+        std::cout << clipboard.text->data << std::endl;
     }
     
     SDL_SetClipboardText(XstringGet(clipboard.text));
