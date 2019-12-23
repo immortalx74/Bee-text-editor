@@ -217,6 +217,8 @@ node *KillBuffer(buffer *buf)
     buf->cursor.row = 0;
     buf->cursor.col = 0;
     buf->cursor.last_hor_pos = 0;
+    buf->marker.col = 0;
+    buf->marker.row = 0;
     buf->panel.scroll_offset_ver = 0;
     buf->panel.page = 0;
     
@@ -417,6 +419,14 @@ void ClipBoardCut(buffer *buf)
                         buf->line_node = buf->line_node->next;
                     }
                 }
+                else// don't delete entire line, just some chars from right 
+                {
+                    node *ln = buf->line_node->prev;
+                    int new_len = strlen(cur->data) - trim_right;
+                    memset(cur->data + new_len, 0, trim_right);
+                    //buf->line_node = ln;
+                    buf->line_node = buf->head->next;
+                }
             }
             else
             {
@@ -428,7 +438,14 @@ void ClipBoardCut(buffer *buf)
 #endif
                 cur = cur->next;
                 
-                if(trim_left == 0)
+                if(i == 0 && trim_left > 0)// don't delete entire line, just some chars from left
+                {
+                    int new_len = strlen(cur->prev->data) - trim_left;
+                    memmove(cur->prev->data, cur->prev->data + trim_left, new_len);
+                    memset(cur->prev->data + new_len, 0, trim_left);
+                    buf->line_node = cur;
+                }
+                else if(i >= 0)
                 {
                     DeleteLineAt(buf, buf->line);
                     buf->line_node = cur;
@@ -438,6 +455,7 @@ void ClipBoardCut(buffer *buf)
         
         XstringTruncateHead(clipboard.text, trim_left);
         XstringTruncateTail(clipboard.text, trim_right);
+        std::cout << clipboard.text->data << std::endl;
     }
     else if(buf->line == buf->marker.row)//single line
     {

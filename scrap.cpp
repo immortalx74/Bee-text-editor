@@ -11,6 +11,13 @@
 //
 //
 
+qwerty
+asdfgh
+zxcvbn
+123456
+
+
+
 //clipboard
 else if( app.e.key.keysym.sym == SDLK_c && SDL_GetModState() & KMOD_CTRL)
 {
