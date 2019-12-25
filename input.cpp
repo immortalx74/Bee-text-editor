@@ -2,6 +2,7 @@
 #include "line.h"
 #include "character.h"
 #include "draw.h"
+#include "clipboard.h"
 #include <iostream>
 
 void GetGlobalInput()

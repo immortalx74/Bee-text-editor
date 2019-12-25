@@ -4,7 +4,8 @@
 #include <string.h>
 
 #define LINE_MEM_CHUNK 10
-#define margin 4
+#define MARGIN 4
+#define UNDO_STEPS 50
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
@@ -99,6 +100,28 @@ struct buffer
     }status_bar;
     
 };
+
+enum op_type
+{
+    INSERT,
+    DELETE,
+    LINE_MERGE,
+    LINE_SPLIT
+};
+
+struct text_op
+{
+    buffer *buf;
+    op_type type;
+    int row;
+    int col;
+    xstring *text;
+};
+
+extern text_op *undo_stack;
+extern int undo_rec_index;
+
+
 
 struct font_data
 {

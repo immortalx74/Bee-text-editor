@@ -5,8 +5,8 @@
 void CursorDraw(buffer *buf)
 {
     // NOTE xx now takes page into account
-    int xx = ((buf->cursor.col - buf->panel.page * buf->panel.col_capacity) * font.width) + margin + buf->panel.x;
-    int yy = (buf->cursor.row * font.height) + margin;
+    int xx = ((buf->cursor.col - buf->panel.page * buf->panel.col_capacity) * font.width) + MARGIN + buf->panel.x;
+    int yy = (buf->cursor.row * font.height) + MARGIN;
     
     SDL_Rect box = {xx, yy, font.width, font.height};
     
@@ -22,9 +22,9 @@ void CursorDraw(buffer *buf)
 
 void MarkerDraw(buffer *buf)
 {
-    int xx = (buf->marker.col - (buf->panel.page * buf->panel.col_capacity)) * font.width + margin + buf->panel.x;
-    //int yy = (buf->marker.row * font.height) + margin;
-    int yy = (buf->marker.row - buf->panel.scroll_offset_ver) * font.height + margin;
+    int xx = (buf->marker.col - (buf->panel.page * buf->panel.col_capacity)) * font.width + MARGIN + buf->panel.x;
+    //int yy = (buf->marker.row * font.height) + MARGIN;
+    int yy = (buf->marker.row - buf->panel.scroll_offset_ver) * font.height + MARGIN;
     
     SDL_Rect box = {xx, yy, font.width, font.height};
     
@@ -65,7 +65,7 @@ void BarDraw(buffer *buf)
         {
             cur_char = (int)buf->filename[i];
             glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-            pos = {margin + (i * font.width), margin, font.width, font.height};
+            pos = {MARGIN + (i * font.width), MARGIN, font.width, font.height};
             SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
         }
         
@@ -79,7 +79,7 @@ void BarDraw(buffer *buf)
             cur_char = linecol_str[i];
             
             glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-            pos = {((len_fn + 2) * font.width) + margin + (i * font.width), margin, font.width, font.height};
+            pos = {((len_fn + 2) * font.width) + MARGIN + (i * font.width), MARGIN, font.width, font.height};
             SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
         }
         
@@ -107,7 +107,7 @@ void BarDraw(buffer *buf)
             {
                 cur_char = (int)XstringGet(buf->lst->title)[i];
                 glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-                pos = {margin + (i * font.width), margin, font.width, font.height};
+                pos = {MARGIN + (i * font.width), MARGIN, font.width, font.height};
                 SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
             }
             
@@ -116,7 +116,7 @@ void BarDraw(buffer *buf)
             {
                 cur_char = (int)XstringGet(buf->lst->current_path)[i];
                 glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-                pos = {(len_title * font.width) + margin + (i * font.width), margin, font.width, font.height};
+                pos = {(len_title * font.width) + MARGIN + (i * font.width), MARGIN, font.width, font.height};
                 SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
             }
             
@@ -126,14 +126,14 @@ void BarDraw(buffer *buf)
             {
                 //cur_char = '\\';
                 //glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-                //pos = {(len_title * font.width) + (len_cp * font.width) + margin , margin, font.width, font.height};
+                //pos = {(len_title * font.width) + (len_cp * font.width) + MARGIN , MARGIN, font.width, font.height};
                 //SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
                 
                 for (int i = 0; i < len_filter; ++i)
                 {
                     cur_char = (int)XstringGet(buf->lst->filter)[i];
                     glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-                    pos = {(len_title * font.width) + (len_cp * font.width) + margin + (i * font.width), margin, font.width, font.height};
+                    pos = {(len_title * font.width) + (len_cp * font.width) + MARGIN + (i * font.width), MARGIN, font.width, font.height};
                     SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
                 }
             }
@@ -146,10 +146,10 @@ void BarDraw(buffer *buf)
 
 void HighlightLineDraw(buffer *buf)
 {
-    int xx = buf->panel.x + margin;
-    int yy = (buf->cursor.row * font.height) + margin;
+    int xx = buf->panel.x + MARGIN;
+    int yy = (buf->cursor.row * font.height) + MARGIN;
     
-    SDL_Rect box = {xx, yy, buf->panel.w - (2 *margin), font.height};
+    SDL_Rect box = {xx, yy, buf->panel.w - (2 *MARGIN), font.height};
     SDL_SetRenderDrawColor(app.renderer, buf->cursor.line_highlight.r, buf->cursor.line_highlight.g, buf->cursor.line_highlight.b, buf->cursor.line_highlight.a);
     
     SDL_RenderFillRect(app.renderer, &box);
@@ -159,10 +159,10 @@ void HighlightLineDraw(buffer *buf)
 
 void HighlightListSelectionDraw(buffer *buf, list *l)
 {
-    int xx = buf->panel.x + margin;
-    int yy = (l->row * font.height) + margin;
+    int xx = buf->panel.x + MARGIN;
+    int yy = (l->row * font.height) + MARGIN;
     
-    SDL_Rect box = {xx, yy, buf->panel.w - (2 *margin), font.height};
+    SDL_Rect box = {xx, yy, buf->panel.w - (2 *MARGIN), font.height};
     SDL_SetRenderDrawColor(app.renderer, buf->cursor.line_highlight.r, buf->cursor.line_highlight.g, buf->cursor.line_highlight.b, buf->cursor.line_highlight.a);
     SDL_RenderFillRect(app.renderer, &box);
 };
@@ -171,7 +171,7 @@ void WindowResize(app_info *application, SDL_Window *win)
 {
     SDL_GetWindowSize(win, &application->ww, &application->wh);
     
-    bufferA.status_bar.h = font.height + margin;
+    bufferA.status_bar.h = font.height + MARGIN;
     bufferA.panel.x = 1;
     bufferA.panel.y = 1;
     bufferA.panel.w = (application->ww / 2) - 1;
@@ -182,7 +182,7 @@ void WindowResize(app_info *application, SDL_Window *win)
     bufferA.status_bar.y = bufferA.panel.h;
     bufferA.status_bar.w = bufferA.panel.w;
     
-    bufferB.status_bar.h = font.height + margin;
+    bufferB.status_bar.h = font.height + MARGIN;
     bufferB.panel.x = (application->ww / 2) + 1;
     bufferB.panel.y = 1;
     bufferB.panel.w = (application->ww / 2) - 1;
@@ -202,20 +202,20 @@ void RenderCharacterAt(buffer *buf, int row, int col, int row_length, SDL_Textur
     
     if(col == row_length - 1) // draw last character in line
     {
-        SDL_Rect pos = {margin + (col * font.width) - (buf->panel.page * buf->panel.col_capacity * font.width), margin + (row * font.height), font.width, font.height};
+        SDL_Rect pos = {MARGIN + (col * font.width) - (buf->panel.page * buf->panel.col_capacity * font.width), MARGIN + (row * font.height), font.width, font.height};
         SDL_RenderCopy(app.renderer, ch, &glyph_rect, &pos);
     }
     else //draw current character & trailing characters
     {
         int chars_to_clear = row_length - col;
-        SDL_Rect clear_rect = {margin + (col * font.width) - (buf->panel.page * buf->panel.col_capacity * font.width), margin + (row * font.height), chars_to_clear * font.width, font.height};
+        SDL_Rect clear_rect = {MARGIN + (col * font.width) - (buf->panel.page * buf->panel.col_capacity * font.width), MARGIN + (row * font.height), chars_to_clear * font.width, font.height};
         SDL_RenderFillRect(app.renderer, &clear_rect);
         
         for (int i = col; i < row_length; ++i)
         {
             int cur_char = (int)buf->line_node->data[i];
             SDL_Rect glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-            SDL_Rect pos = {margin + (i * font.width) - (buf->panel.page * buf->panel.col_capacity * font.width), margin + (buf->cursor.row * font.height), font.width, font.height};
+            SDL_Rect pos = {MARGIN + (i * font.width) - (buf->panel.page * buf->panel.col_capacity * font.width), MARGIN + (buf->cursor.row * font.height), font.width, font.height};
             
             SDL_RenderCopy(app.renderer, ch, &glyph_rect, &pos);
         }
@@ -232,7 +232,7 @@ void RenderClearCharacterAt(buffer *buf, int row, int col, int row_length, SDL_T
     int chars_to_clear = row_length + 1 - col;
     SDL_Rect glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
     
-    SDL_Rect clear_rect = {margin + (col * font.width) - (buf->panel.page * buf->panel.col_capacity * font.width), margin + (row * font.height), chars_to_clear * font.width, font.height};
+    SDL_Rect clear_rect = {MARGIN + (col * font.width) - (buf->panel.page * buf->panel.col_capacity * font.width), MARGIN + (row * font.height), chars_to_clear * font.width, font.height};
     SDL_RenderFillRect(app.renderer, &clear_rect);
     
     
@@ -242,7 +242,7 @@ void RenderClearCharacterAt(buffer *buf, int row, int col, int row_length, SDL_T
         {
             int cur_char = (int)buf->line_node->data[i];
             glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-            SDL_Rect pos = {margin + (i * font.width) - (buf->panel.page * buf->panel.col_capacity * font.width), margin + (buf->cursor.row * font.height), font.width, font.height};
+            SDL_Rect pos = {MARGIN + (i * font.width) - (buf->panel.page * buf->panel.col_capacity * font.width), MARGIN + (buf->cursor.row * font.height), font.width, font.height};
             
             SDL_RenderCopy(app.renderer, ch, &glyph_rect, &pos);
         }
@@ -259,7 +259,7 @@ void RenderClearLine(buffer *buf, int row, SDL_Texture *ch, SDL_Texture *pt)
     int cur_char;
     SDL_Rect glyph_rect;
     
-    SDL_Rect clear_rect = {margin, margin + (row * font.height), buf->panel.w, (buf->line_count + 1) * font.height};
+    SDL_Rect clear_rect = {MARGIN, MARGIN + (row * font.height), buf->panel.w, (buf->line_count + 1) * font.height};
     SDL_RenderFillRect(app.renderer, &clear_rect);
     
     for (int i = row; i < buf->line_count; ++i)
@@ -269,7 +269,7 @@ void RenderClearLine(buffer *buf, int row, SDL_Texture *ch, SDL_Texture *pt)
         {
             cur_char = (int)cur_node->data[j];
             glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-            SDL_Rect pos = {margin + ((j - start) * font.width), margin + (i * font.height), font.width, font.height};
+            SDL_Rect pos = {MARGIN + ((j - start) * font.width), MARGIN + (i * font.height), font.width, font.height};
             SDL_RenderCopy(app.renderer, ch, &glyph_rect, &pos);
         }
         
@@ -315,7 +315,7 @@ void RenderLineRange(buffer *buf, int start, int count, SDL_Texture *ch, SDL_Tex
             int cur_char = (int)cur_node->data[j];
             
             glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-            pos_rect = {margin + ((j - page_offset) * font.width), margin + (i * font.height), font.width, font.height};
+            pos_rect = {MARGIN + ((j - page_offset) * font.width), MARGIN + (i * font.height), font.width, font.height};
             
             SDL_RenderCopy(app.renderer, ch, &glyph_rect, &pos_rect);
         }
@@ -370,7 +370,7 @@ void ListDraw(buffer *buf, list *l, SDL_Texture *ch, SDL_Texture *pt)
         {
             cur_char = (int)entry[j];
             SDL_Rect glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-            SDL_Rect pos = {margin + (j * font.width), margin + (i * font.height), font.width, font.height};
+            SDL_Rect pos = {MARGIN + (j * font.width), MARGIN + (i * font.height), font.width, font.height};
             SDL_RenderCopy(app.renderer, ch, &glyph_rect, &pos);
         }
     }
@@ -396,7 +396,7 @@ void RenderListRange(buffer *buf, int start, int count, SDL_Texture *ch, SDL_Tex
         {
             cur_char = (int)entry[j];
             SDL_Rect glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-            SDL_Rect pos = {margin + (j * font.width), margin + (i * font.height), font.width, font.height};
+            SDL_Rect pos = {MARGIN + (j * font.width), MARGIN + (i * font.height), font.width, font.height};
             SDL_RenderCopy(app.renderer, ch, &glyph_rect, &pos);
         }
     }

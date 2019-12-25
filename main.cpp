@@ -2,6 +2,7 @@
 #include <fstream>
 #include "globals.h"
 #include "draw.h"
+#include "clipboard.h"
 
 int main(int argc, char *argv[])
 {
