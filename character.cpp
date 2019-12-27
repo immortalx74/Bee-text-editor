@@ -13,7 +13,7 @@ void InsertCharacterAt(buffer *buf, int col)
     
     *(buf->line_node->data + buf->column) = app.e.text.text[0];
     
-    UndoStackStoreOp(buf, INSERT, buf->line, buf->column, app.e.text.text);
+    UndoStackStoreOp(buf, OP_INSERT, buf->line, buf->column, app.e.text.text);
     buf->column++;
     SyncCursorWithBuffer(buf);
 };

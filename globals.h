@@ -103,22 +103,23 @@ struct buffer
 
 enum op_type
 {
-    INSERT,
-    DELETE,
-    LINE_MERGE,
-    LINE_SPLIT
+    OP_INSERT,
+    OP_DELETE,
+    OP_LINE_MERGE,
+    OP_LINE_SPLIT
 };
 
-struct text_op
+struct undoredo_op
 {
     buffer *buf;
     op_type type;
     int row;
     int col;
+    bool locked;
     xstring *text;
 };
 
-extern text_op *undo_stack;
+extern undoredo_op *undo_stack;
 extern int undo_rec_index;
 
 

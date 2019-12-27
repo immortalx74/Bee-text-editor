@@ -20,10 +20,44 @@ www
 eeee
 rrr
 
+//undostackstoreop
+if(t == OP_INSERT)
+{
+    if(undo_rec_index >= 0)
+    {
+        int last_char_index = strlen(undo_stack[undo_rec_index].text->data) - 1;
+        int len = XstringGetLength(undo_stack[undo_rec_index].text);
+        
+        if(!undo_stack[undo_rec_index - 1].locked && col ==  len && buf->line == row && IsCharacterAlphaNumeric(text[0]) && IsCharacterAlphaNumeric(undo_stack[undo_rec_index].text->data[last_char_index]))// keep adding chars to this OP
+        {
+            XstringConcat(undo_stack[undo_rec_index].text, 1, text);
+        }
+        else// break previous OP and add a new one
+        {
+            undo_stack[undo_rec_index].locked = true;
+            
+            xstring *txt = XstringCreate(text);
+            text_op op = {buf, t, row, col, false, txt};
+            
+            undo_stack[undo_rec_index].col++;
+            undo_rec_index++;
+            undo_stack[undo_rec_index] = op;
+        }
+    }
+    else// first OP added to the stack
+    {
+        xstring *txt = XstringCreate(text);
+        text_op op = {buf, t, row, col, false, txt};
+        
+        undo_stack[undo_rec_index].col++;
+        undo_rec_index++;
+        undo_stack[undo_rec_index] = op;
+    }
+}
 
+qwerty123zxcvbnm
 
-
-qwerty
+qwerty,u
 qwertyuiop123456
 qwp12345600000000
 //clipboard

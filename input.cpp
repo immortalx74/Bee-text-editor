@@ -114,27 +114,6 @@ void GetBindedCommandsInput()
         {
             FileWriteToDisk(app.active_buffer, "example.txt");
         }
-        else if( app.e.key.keysym.sym == SDLK_c && SDL_GetModState() & KMOD_CTRL)
-        {
-            ClipBoardCopy(app.active_buffer);
-            system("cls");
-            char *temp = SDL_GetClipboardText();
-            std::cout << temp << std::endl;
-        }
-        else if( app.e.key.keysym.sym == SDLK_x && SDL_GetModState() & KMOD_CTRL)
-        {
-            ClipBoardCut(app.active_buffer);
-            //system("cls");
-            //char *temp = SDL_GetClipboardText();
-            //std::cout << temp << std::endl;
-        }
-        else if( app.e.key.keysym.sym == SDLK_v && SDL_GetModState() & KMOD_CTRL)
-        {
-            system("cls");
-            char *temp = SDL_GetClipboardText();
-            std::cout << temp << std::endl;
-            ClipBoardPaste(app.active_buffer);
-        }
         else if( app.e.key.keysym.sym == SDLK_SPACE && SDL_GetModState() & KMOD_CTRL)
         {
             //set marker
@@ -154,7 +133,7 @@ void GetBindedCommandsInput()
                 app.mode = LIST_NAV;
             }
         }
-        else if( app.e.key.keysym.sym == SDLK_KP_0 && SDL_GetModState() & KMOD_CTRL)
+        else if((app.e.key.keysym.sym == SDLK_KP_0 && SDL_GetModState() & KMOD_CTRL) || app.e.key.keysym.sym == SDLK_0 && SDL_GetModState() & KMOD_CTRL)
         {
             if(app.active_buffer == &bufferA)
             {
@@ -227,6 +206,31 @@ void GetTextEditingInput()
         else if(app.e.key.keysym.sym == SDLK_TAB)
         {
             Input_TextEd_Tab(app.active_buffer);
+        }
+        else if( app.e.key.keysym.sym == SDLK_c && SDL_GetModState() & KMOD_CTRL)
+        {
+            ClipBoardCopy(app.active_buffer);
+            system("cls");
+            char *temp = SDL_GetClipboardText();
+            std::cout << temp << std::endl;
+        }
+        else if( app.e.key.keysym.sym == SDLK_x && SDL_GetModState() & KMOD_CTRL)
+        {
+            ClipBoardCut(app.active_buffer);
+            //system("cls");
+            //char *temp = SDL_GetClipboardText();
+            //std::cout << temp << std::endl;
+        }
+        else if( app.e.key.keysym.sym == SDLK_v && SDL_GetModState() & KMOD_CTRL)
+        {
+            system("cls");
+            char *temp = SDL_GetClipboardText();
+            std::cout << temp << std::endl;
+            ClipBoardPaste(app.active_buffer);
+        }
+        else if( app.e.key.keysym.sym == SDLK_z && SDL_GetModState() & KMOD_CTRL)
+        {
+            UndoStackCommitUndo(app.active_buffer);
         }
     }
 };
