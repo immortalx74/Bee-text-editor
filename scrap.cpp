@@ -1,24 +1,24 @@
-//undo/redo
-//ctrl X
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+0123456789
 
-qwerty
-asdfgh
-zxcvbn
-123456
-qqqqq
-www
-eeee
-rrr
+oooooooooo
+1111111111
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //undostackstoreop
 if(t == OP_INSERT)

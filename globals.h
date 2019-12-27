@@ -120,9 +120,21 @@ struct undoredo_op
 };
 
 extern undoredo_op *undo_stack;
-extern int undo_rec_index;
+extern int undoredo_index;
 
+#define UNDOREDO_IDX undoredo_index = undoredo_index % UNDO_STEPS
+#define UNDOREDO_INC undoredo_index++
+#define UNDOREDO_DEC undoredo_index--
 
+inline int UNDOREDO_MINUS()
+{
+    if(undoredo_index <= 0)
+    {
+        return undoredo_index + UNDO_STEPS;
+    }
+    
+    return undoredo_index - 1;
+};
 
 struct font_data
 {

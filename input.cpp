@@ -153,6 +153,18 @@ void GetTextEditingInput()
     const SDL_Keymod modkeys = (SDL_Keymod)(KMOD_CTRL | KMOD_ALT | KMOD_GUI);
     const bool no_mod_keys{(SDL_GetModState() & modkeys) == KMOD_NONE};
     
+    bool CTRL_ONLY = app.e.key.keysym.mod & KMOD_CTRL &&
+        !(app.e.key.keysym.mod & (KMOD_ALT | KMOD_SHIFT));
+    bool SHIFT_ONLY = app.e.key.keysym.mod & KMOD_SHIFT &&
+        !(app.e.key.keysym.mod & (KMOD_CTRL | KMOD_ALT));
+    bool ALT_ONLY = app.e.key.keysym.mod & KMOD_ALT &&
+        !(app.e.key.keysym.mod & (KMOD_CTRL | KMOD_SHIFT));
+    bool CTRL_SHIFT = app.e.key.keysym.mod & KMOD_CTRL && app.e.key.keysym.mod & KMOD_SHIFT;
+    bool CTRL_ALT = app.e.key.keysym.mod & KMOD_CTRL && app.e.key.keysym.mod & KMOD_ALT;
+    bool ALT_SHIFT = app.e.key.keysym.mod & KMOD_ALT && app.e.key.keysym.mod & KMOD_SHIFT;
+    
+    
+    
     if(app.e.type == SDL_TEXTINPUT && no_mod_keys)
     {
         Input_TextEd_Text(app.active_buffer);
@@ -228,9 +240,13 @@ void GetTextEditingInput()
             std::cout << temp << std::endl;
             ClipBoardPaste(app.active_buffer);
         }
-        else if( app.e.key.keysym.sym == SDLK_z && SDL_GetModState() & KMOD_CTRL)
+        else if( app.e.key.keysym.sym == SDLK_z && CTRL_ONLY)
         {
             UndoStackCommitUndo(app.active_buffer);
+        }
+        else if(app.e.key.keysym.sym == SDLK_z && CTRL_SHIFT)
+        {
+            //
         }
     }
 };

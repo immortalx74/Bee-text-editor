@@ -4,9 +4,9 @@ void UndoStackStoreOp(buffer *buf, op_type t, int row, int col, char *text)
 {
     if(t == OP_INSERT)
     {
-        if(undo_rec_index >= 0)
+        if(UNDOREDO_IDX >= 0)
         {
-            undoredo_op last_op = undo_stack[undo_rec_index];
+            undoredo_op last_op = undo_stack[undoredo_index];
             int len = XstringGetLength(last_op.text);
             char last_char = XstringGet(last_op.text)[len - 1];
             
@@ -31,8 +31,8 @@ void UndoStackStoreOp(buffer *buf, op_type t, int row, int col, char *text)
                 }
                 xstring *txt = XstringCreate(text);
                 undoredo_op op = {buf, t, row, col, l, txt};
-                undo_rec_index++;
-                undo_stack[undo_rec_index] = op;
+                undoredo_index++;
+                undo_stack[undoredo_index] = op;
             }
         }
         else// first OP added to the stack
@@ -48,17 +48,22 @@ void UndoStackStoreOp(buffer *buf, op_type t, int row, int col, char *text)
             }
             xstring *txt = XstringCreate(text);
             undoredo_op op = {buf, t, row, col, l, txt};
-            undo_rec_index++;
-            undo_stack[undo_rec_index] = op;
+            undoredo_index++;
+            undo_stack[undoredo_index] = op;
         }
     }
     
-    std::cout << undo_stack[undo_rec_index].text->data << std::endl;
+    std::cout << undo_stack[undoredo_index].text->data << std::endl;
 };
 
 void UndoStackCommitUndo(buffer *buf)
 {
-    undoredo_op last_op = undo_stack[undo_rec_index];
+    if(undoredo_index == -1)
+    {
+        return;
+    }
+    
+    undoredo_op last_op = undo_stack[undoredo_index];
     node *nd = buf->line_node;
     
     if(last_op.type == OP_INSERT)
@@ -82,23 +87,29 @@ void UndoStackCommitUndo(buffer *buf)
             buf->line_node = nd;
         }
         
-        if(last_op.col + XstringGetLength(last_op.text) == strlen(nd->data))// string at the end of line
+        if(last_op.col + XstringGetLength(last_op.text) == strlen(nd->data))// string at end of line
         {
             memset(nd->data + last_op.col, 0, XstringGetLength(last_op.text));
+            LineShrinkMemChunks(nd);
         }
-        else
+        else// string somewhere at middle
         {
             int len = XstringGetLength(last_op.text);
             int chars_left = strlen(nd->data) - last_op.col - len;
             memmove(nd->data + last_op.col, nd->data + last_op.col + len, chars_left);
             memset(nd->data + strlen(nd->data) - len, 0, len);
+            LineShrinkMemChunks(nd);
         }
         
         buf->line = last_op.row;
         buf->column = last_op.col;
-        undo_rec_index--;
+        undoredo_index--;
         SyncCursorWithBuffer(buf);
         RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
     }
 };
 
+void UndoStackCommitRedo(buffer *buf)
+{
+    
+};

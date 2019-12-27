@@ -1,7 +1,7 @@
 #include "globals.h"
 
 undoredo_op *undo_stack = (undoredo_op*)malloc(UNDO_STEPS * sizeof(undoredo_op));
-int undo_rec_index = -1;
+int undoredo_index = -1;
 
 font_data font;
 node *headA = (node*)malloc(sizeof(node));
