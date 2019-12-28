@@ -34,7 +34,13 @@ void DeleteCharacterAt(buffer *buf, int col)
         }
         
         SyncCursorWithBuffer(buf);
+        
+        char char_to_del[1];
+        char_to_del[0] = buf->line_node->data[buf->column];
+        UndoStackStoreOp(buf, OP_DELETE, buf->line, buf->column, char_to_del);
+        
         U8_strdel(buf->line_node->data, buf->column);
+        
     }
     else // reached the start of line. merge line with previous and force a re-draw
     {

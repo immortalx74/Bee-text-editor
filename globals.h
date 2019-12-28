@@ -142,7 +142,7 @@ struct font_data
     TTF_Font *name;
     int width;
     int height;
-    int size = 13;
+    int size = 15;
     SDL_Color text_color = {143, 175, 127, 255};
     SDL_Color text_color_inv = {5, 5, 5, 255};
 };
