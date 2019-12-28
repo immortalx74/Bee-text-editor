@@ -28,6 +28,22 @@ void LineShrinkMemChunks(node *ln)
     memset(ln->data + len, 0, new_size - len);
 };
 
+void LineExpandMemChunks(node *ln, int new_len)
+{
+    int len = strlen(ln->data);
+    
+    if(new_len > len)
+    {
+        int diff = new_len - len;
+        ln->num_chunks = (new_len / LINE_MEM_CHUNK) + 1;
+        int new_size = ln->num_chunks * LINE_MEM_CHUNK;
+        ln->data = (char*)realloc(ln->data, new_size);
+        memset(ln->data + len, 0, diff);
+    }
+    
+    return;
+};
+
 // Create line and return pointer to it
 node *CreateLine(void)
 {

@@ -246,7 +246,7 @@ void GetTextEditingInput()
         }
         else if(app.e.key.keysym.sym == SDLK_z && CTRL_SHIFT)
         {
-            //
+            UndoStackCommitRedo(app.active_buffer);
         }
     }
 };
