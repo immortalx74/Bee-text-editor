@@ -23,7 +23,7 @@ void GetListNavigationInput()
         XstringConcat(app.active_buffer->lst->filter, 1, app.e.text.text);
         char *selected_element = ListGetElement(app.active_buffer->lst, app.active_buffer->lst->selected);
         
-        if(XstringGetLength(app.last_path) > 0) // haven't reached top level dir
+        if(XstringGetLength(app.active_buffer->lst->current_path) > 0) // haven't reached top level dir
         {
 #ifdef _WIN32
             if(app.e.text.text[0] == 92)//Backslash
@@ -84,10 +84,11 @@ void GetListNavigationInput()
         }
         else if( app.e.key.keysym.sym == SDLK_BACKSPACE)
         {
-            if(XstringGetLength(app.last_path) > 0) // haven't reached top level dir
+            if(XstringGetLength(app.active_buffer->lst->current_path) > 0) // haven't reached top level dir
             {
                 if(XstringGetLength(app.active_buffer->lst->filter) == 0)
                 {
+                    
                     Input_ListNav_ParentDirectory(app.active_buffer->lst);
                 }
                 else
@@ -98,8 +99,9 @@ void GetListNavigationInput()
                     FilterFileList(app.active_buffer->lst, XstringGet(app.active_buffer->lst->current_path));
                 }
             }
-            else if(XstringGetLength(app.last_path) == 0 && XstringGetLength(app.active_buffer->lst->filter) > 0)// reached top level dir
+            else if(XstringGetLength(app.active_buffer->lst->current_path) == 0 && XstringGetLength(app.active_buffer->lst->filter) > 0)// reached top level dir
             {
+                XstringSet(app.last_path, XstringGet(app.active_buffer->lst->current_path));
                 XstringTruncateTail(app.active_buffer->lst->filter, 1);
             }
         }
@@ -171,7 +173,7 @@ void GetTextEditingInput()
     }
     else if (app.e.type == SDL_KEYDOWN)
     {
-        if(app.e.key.keysym.sym == SDLK_RETURN)
+        if(app.e.key.keysym.sym == SDLK_RETURN || app.e.key.keysym.sym == SDLK_RETURN2)
         {
             Input_TextEd_Return(app.active_buffer);
         }
@@ -710,7 +712,8 @@ void Input_ListNav_ParentDirectory(list *l)
 #endif
         XstringTruncateTail(l->current_path, XstringGetLength(l->current_path) - pos);
         ListClear(l);
-        XstringSet(app.last_path, "");
+        
+        //XstringSet(app.last_path, "");
     }
 };
 

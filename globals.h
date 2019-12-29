@@ -188,7 +188,7 @@ struct app_info
         TTF_SizeText(font.name, "A", &font.width, 0);
         
         window = SDL_CreateWindow("Ed", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
-                                  1024, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE/* | SDL_WINDOW_MAXIMIZED*/);
+                                  1024, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE /*| SDL_WINDOW_MAXIMIZED*/);
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
         
         custom_blendmode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR,

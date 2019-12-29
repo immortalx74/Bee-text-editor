@@ -78,97 +78,21 @@ void UndoStackStoreOp(buffer *buf, op_type t, int row, int col, char *text)
 
 void UndoStackCommitUndo(buffer *buf)
 {
-    undoredo_index = UNDOREDOISNEGATIVE();
     if(undoredo_counter == 0)
     {
         return;
     }
     
+    undoredo_index = UNDOREDOISNEGATIVE();
     undoredo_op last_op = undo_stack[UNDOREDO_IDX];
-    node *nd = buf->line_node;
     
     if(last_op.type == OP_INSERT)
     {
-        if(buf->line != last_op.row) //move to the correct node
-        {
-            int diff = MAX(buf->line, last_op.row) - MIN(buf->line, last_op.row);
-            
-            for (int i = 0; i < diff; ++i)
-            {
-                if(buf->line < last_op.row)
-                {
-                    nd = nd->next;
-                }
-                else if(buf->line > last_op.row)
-                {
-                    nd = nd->prev;
-                }
-            }
-            
-            buf->line_node = nd;
-        }
-        
-        if(last_op.col + XstringGetLength(last_op.text) == strlen(nd->data))// string at end of line
-        {
-            memset(nd->data + last_op.col, 0, XstringGetLength(last_op.text));
-            LineShrinkMemChunks(nd);
-        }
-        else// string somewhere at middle
-        {
-            int len = XstringGetLength(last_op.text);
-            int chars_left = strlen(nd->data) - last_op.col - len;
-            memmove(nd->data + last_op.col, nd->data + last_op.col + len, chars_left);
-            memset(nd->data + strlen(nd->data) - len, 0, len);
-            LineShrinkMemChunks(nd);
-        }
-        
-        buf->line = last_op.row;
-        buf->column = last_op.col;
-        UNDOREDO_DEC;
-        SyncCursorWithBuffer(buf);
-        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
-        
-        if(undoredo_counter > 0)
-        {
-            undoredo_counter--;
-        }
-        undoredo_index = UNDOREDOISNEGATIVE();
+        UndoOpInsert(buf, last_op);
     }
     else if(last_op.type == OP_DELETE)
     {
-        if(buf->line != last_op.row) //move to the correct node
-        {
-            int diff = MAX(buf->line, last_op.row) - MIN(buf->line, last_op.row);
-            
-            for (int i = 0; i < diff; ++i)
-            {
-                if(buf->line < last_op.row)
-                {
-                    nd = nd->next;
-                }
-                else if(buf->line > last_op.row)
-                {
-                    nd = nd->prev;
-                }
-            }
-            
-            buf->line_node = nd;
-        }
-        int chars_to_move = strlen(nd->data) - last_op.col + 1;
-        memmove(nd->data + last_op.col + 1, nd->data + last_op.col, chars_to_move);
-        memset(nd->data + last_op.col, XstringGet(last_op.text)[0], 1);
-        
-        buf->line = last_op.row;
-        buf->column = last_op.col + 1;
-        UNDOREDO_DEC;
-        SyncCursorWithBuffer(buf);
-        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
-        
-        if(undoredo_counter > 0)
-        {
-            undoredo_counter--;
-        }
-        undoredo_index = UNDOREDOISNEGATIVE();
+        UndoOpDelete(buf, last_op);
     }
 };
 
@@ -180,89 +104,192 @@ void UndoStackCommitRedo(buffer *buf)
     }
     UNDOREDO_INC;
     undoredo_op last_op = undo_stack[UNDOREDO_IDX];
-    node *nd = buf->line_node;
     
     if(last_op.type == OP_INSERT)
     {
-        if(buf->line != last_op.row) //move to the correct node
-        {
-            int diff = MAX(buf->line, last_op.row) - MIN(buf->line, last_op.row);
-            
-            for (int i = 0; i < diff; ++i)
-            {
-                if(buf->line < last_op.row)
-                {
-                    nd = nd->next;
-                }
-                else if(buf->line > last_op.row)
-                {
-                    nd = nd->prev;
-                }
-            }
-            
-            buf->line_node = nd;
-        }
-        
-        // Grow line capacity if needed
-        int line_len = strlen(nd->data);
-        int op_len = XstringGetLength(last_op.text);
-        int new_len = line_len + op_len;
-        LineExpandMemChunks(nd, new_len);
-        
-        if(last_op.col  == line_len)// string at end of line
-        {
-            memcpy(nd->data + last_op.col, XstringGet(last_op.text), op_len);
-        }
-        else// string somewhere at middle
-        {
-            int char_count = line_len - last_op.col;
-            memmove(nd->data + last_op.col + op_len, nd->data + last_op.col, char_count);
-            memcpy(nd->data + last_op.col, XstringGet(last_op.text), op_len);
-        }
-        
-        buf->line = last_op.row;
-        buf->column = last_op.col + op_len;
-        SyncCursorWithBuffer(buf);
-        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
-        
-        if(undoredo_counter < UNDO_STEPS)
-        {
-            undoredo_counter++;
-        }
+        RedoOpInsert(buf, last_op);
     }
     else if(last_op.type == OP_DELETE)
     {
-        if(buf->line != last_op.row) //move to the correct node
+        RedoOpDelete(buf, last_op);
+    }
+};
+
+void UndoOpInsert(buffer *buf, undoredo_op op)
+{
+    node *nd = buf->line_node;
+    
+    if(buf->line != op.row) //move to the correct node
+    {
+        int diff = MAX(buf->line, op.row) - MIN(buf->line, op.row);
+        
+        for (int i = 0; i < diff; ++i)
         {
-            int diff = MAX(buf->line, last_op.row) - MIN(buf->line, last_op.row);
-            
-            for (int i = 0; i < diff; ++i)
+            if(buf->line < op.row)
             {
-                if(buf->line < last_op.row)
-                {
-                    nd = nd->next;
-                }
-                else if(buf->line > last_op.row)
-                {
-                    nd = nd->prev;
-                }
+                nd = nd->next;
             }
-            
-            buf->line_node = nd;
+            else if(buf->line > op.row)
+            {
+                nd = nd->prev;
+            }
         }
         
-        int op_len = XstringGetLength(last_op.text);
-        int chars_to_move = strlen(nd->data) - op_len;
-        memcpy(nd->data + last_op.col, nd->data + last_op.col + 1, chars_to_move);
+        buf->line_node = nd;
+    }
+    
+    if(op.col + XstringGetLength(op.text) == strlen(nd->data))// string at end of line
+    {
+        memset(nd->data + op.col, 0, XstringGetLength(op.text));
+        LineShrinkMemChunks(nd);
+    }
+    else// string somewhere at middle
+    {
+        int len = XstringGetLength(op.text);
+        int chars_left = strlen(nd->data) - op.col - len;
+        memmove(nd->data + op.col, nd->data + op.col + len, chars_left);
+        memset(nd->data + strlen(nd->data) - len, 0, len);
+        LineShrinkMemChunks(nd);
+    }
+    
+    buf->line = op.row;
+    buf->column = op.col;
+    UNDOREDO_DEC;
+    SyncCursorWithBuffer(buf);
+    RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+    
+    if(undoredo_counter > 0)
+    {
+        undoredo_counter--;
+    }
+    undoredo_index = UNDOREDOISNEGATIVE();
+};
+
+void UndoOpDelete(buffer *buf, undoredo_op op)
+{
+    node *nd = buf->line_node;
+    
+    if(buf->line != op.row) //move to the correct node
+    {
+        int diff = MAX(buf->line, op.row) - MIN(buf->line, op.row);
         
-        buf->line = last_op.row;
-        buf->column = last_op.col;
-        SyncCursorWithBuffer(buf);
-        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
-        
-        if(undoredo_counter < UNDO_STEPS)
+        for (int i = 0; i < diff; ++i)
         {
-            undoredo_counter++;
+            if(buf->line < op.row)
+            {
+                nd = nd->next;
+            }
+            else if(buf->line > op.row)
+            {
+                nd = nd->prev;
+            }
         }
+        
+        buf->line_node = nd;
+    }
+    int chars_to_move = strlen(nd->data) - op.col + 1;
+    memmove(nd->data + op.col + 1, nd->data + op.col, chars_to_move);
+    memset(nd->data + op.col, XstringGet(op.text)[0], 1);
+    
+    buf->line = op.row;
+    buf->column = op.col + 1;
+    UNDOREDO_DEC;
+    SyncCursorWithBuffer(buf);
+    RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+    
+    if(undoredo_counter > 0)
+    {
+        undoredo_counter--;
+    }
+    undoredo_index = UNDOREDOISNEGATIVE();
+};
+
+void RedoOpInsert(buffer *buf, undoredo_op op)
+{
+    node *nd = buf->line_node;
+    
+    if(buf->line != op.row) //move to the correct node
+    {
+        int diff = MAX(buf->line, op.row) - MIN(buf->line, op.row);
+        
+        for (int i = 0; i < diff; ++i)
+        {
+            if(buf->line < op.row)
+            {
+                nd = nd->next;
+            }
+            else if(buf->line > op.row)
+            {
+                nd = nd->prev;
+            }
+        }
+        
+        buf->line_node = nd;
+    }
+    
+    // Grow line capacity if needed
+    int line_len = strlen(nd->data);
+    int op_len = XstringGetLength(op.text);
+    int new_len = line_len + op_len;
+    LineExpandMemChunks(nd, new_len);
+    
+    if(op.col  == line_len)// string at end of line
+    {
+        memcpy(nd->data + op.col, XstringGet(op.text), op_len);
+    }
+    else// string somewhere at middle
+    {
+        int char_count = line_len - op.col;
+        memmove(nd->data + op.col + op_len, nd->data + op.col, char_count);
+        memcpy(nd->data + op.col, XstringGet(op.text), op_len);
+    }
+    
+    buf->line = op.row;
+    buf->column = op.col + op_len;
+    SyncCursorWithBuffer(buf);
+    RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+    
+    if(undoredo_counter < UNDO_STEPS)
+    {
+        undoredo_counter++;
+    }
+};
+
+
+void RedoOpDelete(buffer *buf, undoredo_op op)
+{
+    node *nd = buf->line_node;
+    
+    if(buf->line != op.row) //move to the correct node
+    {
+        int diff = MAX(buf->line, op.row) - MIN(buf->line, op.row);
+        
+        for (int i = 0; i < diff; ++i)
+        {
+            if(buf->line < op.row)
+            {
+                nd = nd->next;
+            }
+            else if(buf->line > op.row)
+            {
+                nd = nd->prev;
+            }
+        }
+        
+        buf->line_node = nd;
+    }
+    
+    int op_len = XstringGetLength(op.text);
+    int chars_to_move = strlen(nd->data) - op_len;
+    memcpy(nd->data + op.col, nd->data + op.col + 1, chars_to_move);
+    
+    buf->line = op.row;
+    buf->column = op.col;
+    SyncCursorWithBuffer(buf);
+    RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+    
+    if(undoredo_counter < UNDO_STEPS)
+    {
+        undoredo_counter++;
     }
 };
