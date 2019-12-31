@@ -271,3 +271,67 @@ int XstringIndexOfFirstOccurrance(xstring *str, char ch)
     
     return - 1;
 };
+
+void XstringTrimLeadingAndTrailingWhitespace(xstring *str)
+{
+    char ch = ' ';
+    int result;
+    
+    while(true)
+    {
+        result = XstringIndexOfLastOccurrance(str, ch);
+        
+        if(result != -1)
+        {
+            XstringTruncateTail(str, 1);
+        }
+        else
+        {
+            while(true)
+            {
+                result = XstringIndexOfFirstOccurrance(str, ch);
+                
+                if(result != -1)
+                {
+                    XstringTruncateHead(str, 1);
+                }
+                else
+                {
+                    return;
+                }
+            }
+        }
+    }
+};
+
+void XstringTrimLeadingWhitespace(xstring *str)
+{
+    
+};
+
+void XstringTrimTrailingWhitespace(xstring *str)
+{
+    
+};
+
+bool XstringContainsSubstring(xstring *str, char *substr)
+{
+    int substr_len = strlen(substr);
+    int str_len = XstringGetLength(str);
+    int start = XstringIndexOfFirstOccurrance(str, substr[0]);
+    
+    if(substr_len > str_len || start == -1 || start > str_len - substr_len)
+    {
+        return false;
+    }
+    
+    for (int i = 0; i < substr_len; ++i)
+    {
+        if(XstringGet(str)[start + i] != substr[i])
+        {
+            return false;
+        }
+    }
+    
+    return true;
+};

@@ -6,7 +6,20 @@
 
 #define LINE_MEM_CHUNK 64
 #define MARGIN 4
-#define UNDO_STEPS 5
+#define UNDO_STEPS 100
+
+#define SETTINGS_FONT_NAME "liberation-mono.ttf"
+#define SETTINGS_FONT_SIZE 14
+#define SETTINGS_START_PATH ""
+#define SETTINGS_TAB_SIZE 4
+#define SETTINGS_COLOR_BACKGROUND {21, 12, 42, 255}
+#define SETTINGS_COLOR_PANEL_OUTLINE {100, 100, 100, 255}
+#define SETTINGS_COLOR_TEXT {143, 175, 127, 255}
+#define SETTINGS_COLOR_LINE_HIGHLIGHT {40, 0, 180, 255}
+#define SETTINGS_COLOR_CURSOR {0, 255, 0, 255}
+#define SETTINGS_COLOR_MARKER {255, 0, 0, 255}
+#define SETTINGS_COLOR_BAR_BACKGROUND {140, 140, 140, 255}
+#define SETTINGS_COLOR_BAR_TEXT {10, 10, 10, 255}
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
@@ -23,6 +36,40 @@ struct xstring
 {
     char *data;
     int length;
+};
+
+struct _settings
+{
+    char *font_name;
+    int font_size;
+    char *start_path;
+    int tab_size;
+    SDL_Color color_background;
+    SDL_Color color_panel_outline;
+    SDL_Color color_text;
+    SDL_Color color_line_highlight;
+    SDL_Color color_cursor;
+    SDL_Color color_marker;
+    SDL_Color color_bar_background;
+    SDL_Color color_bar_text;
+};
+
+extern _settings settings;
+
+inline void SettingsSetDefaults()
+{
+    settings.font_name = SETTINGS_FONT_NAME;
+    settings.font_size = SETTINGS_FONT_SIZE;
+    settings.start_path = SETTINGS_START_PATH;
+    settings.tab_size = SETTINGS_TAB_SIZE;
+    settings.color_background = SETTINGS_COLOR_BACKGROUND;
+    settings.color_panel_outline = SETTINGS_COLOR_PANEL_OUTLINE;
+    settings.color_text = SETTINGS_COLOR_TEXT;
+    settings.color_line_highlight = SETTINGS_COLOR_LINE_HIGHLIGHT;
+    settings.color_cursor = SETTINGS_COLOR_CURSOR;
+    settings.color_marker = SETTINGS_COLOR_MARKER;
+    settings.color_bar_background = SETTINGS_COLOR_BAR_BACKGROUND;
+    settings.color_bar_text = SETTINGS_COLOR_BAR_TEXT;
 };
 
 struct _clipboard
@@ -60,7 +107,7 @@ struct buffer
         int col;
         int row;
         int last_hor_pos = 0;
-        SDL_Color color = {0, 255, 0, 0};
+        SDL_Color color = {0, 255, 0, 255};
         SDL_Color line_highlight = {40, 0, 180, 255};
     }cursor;
     
@@ -144,7 +191,6 @@ struct font_data
     int height;
     int size = 15;
     SDL_Color text_color = {143, 175, 127, 255};
-    SDL_Color text_color_inv = {5, 5, 5, 255};
 };
 
 extern font_data font;
@@ -187,7 +233,7 @@ struct app_info
         font.height = TTF_FontHeight(font.name);
         TTF_SizeText(font.name, "A", &font.width, 0);
         
-        window = SDL_CreateWindow("Ed", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
+        window = SDL_CreateWindow("LinearBee", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
                                   1024, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE /*| SDL_WINDOW_MAXIMIZED*/);
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
         

@@ -1,3 +1,37 @@
+//settings ideas
+font_name = liberation-mono.ttf
+font_size = 14
+start_path = app_path
+tab_size = 4 (limit to 1 - 32)
+color_background = 21, 12, 42, 255
+color_panel_outline = 100, 100, 100, 255
+color_text = 143, 175, 127, 255
+color_line_highlight = 40, 0, 180, 255
+color_cursor = 0, 255, 0, 255
+color_marker = 255, 0, 0, 255
+color_bar_background = 140, 140, 140, 255
+color_bar_text = 10, 10, 10, 255
+
+
+
+void A_WeaponReady();
+void A_Raise();
+void A_ReFire();
+void A_Light1();
+void A_Light2();
+void A_CheckReload();adShotgun2();
+void A_LoadShotgun2();
+void A_FireCGun();
+void A_FireMissile();
+void A_Saw();
+void A_FirePlasma();
+void A_BFGsound();
+void A_FireBFG();
+void A_BFGSpray();
+void A_Explode();
+
+
+
 0123456789
 
 oooooooooo

@@ -30,7 +30,7 @@ void FileReadToBuffer(buffer *buf, char *filename)
         cur_node->next = newline;
         cur_node = newline;
         buf->line_count++;
-    };
+    }
     
     //TEMP hack. Delete that extra last line
     DeleteLineAt(buf, buf->line_count - 1);
@@ -84,8 +84,52 @@ void FileWriteToDisk(buffer *buf, char *filename)
         file << cur->data;
         file << "\n";
         cur = cur->next;
-    };
+    }
     
     file.close();
 };
 
+void FileParseSettings()
+{
+    const int token_count = 12;
+    xstring *tokens[token_count];
+    tokens[0] = XstringCreate("font_name");
+    tokens[1] = XstringCreate("font_size");
+    tokens[2] = XstringCreate("start_path");
+    tokens[3] = XstringCreate("tab_size");
+    tokens[4] = XstringCreate("color_background");
+    tokens[5] = XstringCreate("color_panel_outline");
+    tokens[6] = XstringCreate("color_text");
+    tokens[7] = XstringCreate("color_line_highlight");
+    tokens[8] = XstringCreate("color_cursor");
+    tokens[9] = XstringCreate("color_marker");
+    tokens[10] = XstringCreate("color_bar_background");
+    tokens[11] = XstringCreate("color_bar_text");
+    
+    
+    std::ifstream file;
+    file.open("settings.cfg");
+    std::string str;
+    xstring *line = XstringCreate("");
+    
+    while(std::getline(file, str))
+    {
+        char *s = (char*)malloc(str.length());
+        strcpy(s, str.c_str());
+        XstringSet(line, s);
+        free(s);
+        XstringTrimLeadingAndTrailingWhitespace(line);
+        
+        xstring *identifier = XstringCreate("");
+        
+        for (int i = 0; i < token_count; ++i)
+        {
+            if(XstringContainsSubstring(line, XstringGet(tokens[i])))
+            {
+                //
+            }
+        }
+    }
+    
+    file.close();
+};
