@@ -6,6 +6,7 @@
 #include "stdarg.h"
 
 bool IsCharacterAlphaNumeric(char ch);
+bool IsCharacterNumeric(char ch);
 int GetDigitCount(int n);
 bool IsDirectory(char *name);
 bool IsSymLink(char *name);

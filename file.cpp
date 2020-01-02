@@ -117,9 +117,9 @@ void FileParseSettings()
     
     while(std::getline(file, str))
     {
-        char *s = (char*)malloc(str.length());
-        //strcpy(s, str.c_str());
+        char *s = (char*)malloc(str.length() + 1);
         memcpy(s, str.c_str(), str.size());
+        s[str.size()] = 0;
         XstringSet(line, s);
         free(s);
         XstringTrimLeadingAndTrailingWhitespace(line);
@@ -138,7 +138,7 @@ void FileParseSettings()
                     if(XstringGet(line)[0] == ' ')// At least 1 whitespace after identifier
                     {
                         XstringTrimLeadingAndTrailingWhitespace(line);
-                        XstringSet(value, XstringGet(line));
+                        XstringSet(value, line->data);
                         //handle cases depending on token index
                         SetSetting(i, value);
                     }
@@ -199,41 +199,108 @@ void SetSetting(int index, xstring *value)
         
         case 4://color_background
         {
-            //XstringTrimAllWhitespace(value);
-            //XstringTruncateHead(value, 1);
-            //XstringTruncateTail(value, 1);
-            //int r, g, b, a;
-            std::cout << value->data << std::endl;
-            std::cout << value->length;
+            XstringTrimAllWhitespace(value);
+            XstringTruncateHead(value, 1);
+            XstringTruncateTail(value, 1);
+            settings.color_background = ExtractColorFromString(value);
         }
         break;
         
-        case 5:
-        
+        case 5://color_panel_outline
+        {
+            XstringTrimAllWhitespace(value);
+            XstringTruncateHead(value, 1);
+            XstringTruncateTail(value, 1);
+            settings.color_panel_outline = ExtractColorFromString(value);
+        }
         break;
         
-        case 6:
-        
+        case 6://color_text
+        {
+            XstringTrimAllWhitespace(value);
+            XstringTruncateHead(value, 1);
+            XstringTruncateTail(value, 1);
+            settings.color_text = ExtractColorFromString(value);
+        }
         break;
         
-        case 7:
-        
+        case 7://color_line_highlight
+        {
+            XstringTrimAllWhitespace(value);
+            XstringTruncateHead(value, 1);
+            XstringTruncateTail(value, 1);
+            settings.color_line_highlight = ExtractColorFromString(value);
+        }
         break;
         
-        case 8:
-        
+        case 8://color_cursor
+        {
+            XstringTrimAllWhitespace(value);
+            XstringTruncateHead(value, 1);
+            XstringTruncateTail(value, 1);
+            settings.color_cursor = ExtractColorFromString(value);
+        }
         break;
         
-        case 9:
-        
+        case 9://color_marker
+        {
+            XstringTrimAllWhitespace(value);
+            XstringTruncateHead(value, 1);
+            XstringTruncateTail(value, 1);
+            settings.color_marker = ExtractColorFromString(value);
+        }
         break;
         
-        case 10:
-        
+        case 10://color_bar_background
+        {
+            XstringTrimAllWhitespace(value);
+            XstringTruncateHead(value, 1);
+            XstringTruncateTail(value, 1);
+            settings.color_bar_background = ExtractColorFromString(value);
+        }
         break;
         
-        case 11:
-        
+        case 11://color_bar_text
+        {
+            XstringTrimAllWhitespace(value);
+            XstringTruncateHead(value, 1);
+            XstringTruncateTail(value, 1);
+            settings.color_bar_text = ExtractColorFromString(value);
+        }
         break;
     }
+};
+
+SDL_Color ExtractColorFromString(xstring *str)
+{
+    int len = str->length;
+    int index = 0;
+    char *ch = (char*)calloc(2, 1);
+    Uint8 component[4];
+    xstring *str_comp[4] = {XstringCreate(""), XstringCreate(""), XstringCreate(""), XstringCreate("")};
+    
+    for (int i = 0; i < len; ++i)
+    {
+        ch[0] = str->data[i];
+        
+        if(IsCharacterNumeric(ch[0]))
+        {
+            XstringConcat(str_comp[index], 1, ch);
+        }
+        else if(ch[0] == ',')
+        {
+            index++;
+        }
+    }
+    
+    for (int i = 0; i < 4; ++i)
+    {
+        component[i] = atoi(str_comp[i]->data);
+        XstringDestroy(str_comp[i]);
+    }
+    
+    SDL_Color result = {component[0], component[1], component[2], component[3]};
+    free(ch);
+    
+    return result;
 };

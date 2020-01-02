@@ -9,3 +9,4 @@ void FileReadToBuffer(buffer *buf, char *filename);
 void FileWriteToDisk(buffer *buf, char *filename);
 void FileParseSettings();
 void SetSetting(int index, xstring *value);
+SDL_Color ExtractColorFromString(xstring *str);

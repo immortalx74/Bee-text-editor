@@ -22,7 +22,6 @@ int main(int argc, char *argv[])
     InsertLineAt(&bufferB, 0);
     
     // Set textures/surfaces
-    
     SDL_Surface *characters_surface = TTF_RenderText_Blended(font.name, app.ascii_sequence, font.text_color);
     characters_texture = SDL_CreateTextureFromSurface(app.renderer, characters_surface);
     
@@ -151,6 +150,8 @@ int main(int argc, char *argv[])
     }
     
     XstringDestroy(clipboard.text);
+    XstringDestroy(settings.font_name);
+    XstringDestroy(settings.start_path);
     SDL_FreeSurface(characters_surface);
     SDL_FreeSurface(bar_characters_surface);
     SDL_FreeSurface(screen_surface);

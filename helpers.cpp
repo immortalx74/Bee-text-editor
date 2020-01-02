@@ -25,6 +25,15 @@ bool IsCharacterAlphaNumeric(char ch)
     return false;
 };
 
+bool IsCharacterNumeric(char ch)
+{
+    if(ch >= 49 && ch <= 57)
+    {
+        return true;
+    }
+    return false;
+};
+
 int GetDigitCount(int n)
 {
     if(n == 0)
