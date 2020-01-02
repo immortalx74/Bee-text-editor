@@ -40,9 +40,9 @@ struct xstring
 
 struct _settings
 {
-    char *font_name;
+    xstring *font_name;
     int font_size;
-    char *start_path;
+    xstring *start_path;
     int tab_size;
     SDL_Color color_background;
     SDL_Color color_panel_outline;
@@ -56,21 +56,6 @@ struct _settings
 
 extern _settings settings;
 
-inline void SettingsSetDefaults()
-{
-    settings.font_name = SETTINGS_FONT_NAME;
-    settings.font_size = SETTINGS_FONT_SIZE;
-    settings.start_path = SETTINGS_START_PATH;
-    settings.tab_size = SETTINGS_TAB_SIZE;
-    settings.color_background = SETTINGS_COLOR_BACKGROUND;
-    settings.color_panel_outline = SETTINGS_COLOR_PANEL_OUTLINE;
-    settings.color_text = SETTINGS_COLOR_TEXT;
-    settings.color_line_highlight = SETTINGS_COLOR_LINE_HIGHLIGHT;
-    settings.color_cursor = SETTINGS_COLOR_CURSOR;
-    settings.color_marker = SETTINGS_COLOR_MARKER;
-    settings.color_bar_background = SETTINGS_COLOR_BAR_BACKGROUND;
-    settings.color_bar_text = SETTINGS_COLOR_BAR_TEXT;
-};
 
 struct _clipboard
 {
@@ -223,52 +208,6 @@ struct app_info
     _mode mode = TEXT_EDIT;
     xstring *last_path;
     SDL_BlendMode custom_blendmode;
-    
-    void Init()
-    {
-        SDL_Init(SDL_INIT_VIDEO);
-        TTF_Init();
-        
-        font.name = TTF_OpenFont("liberation-mono.ttf", font.size);
-        font.height = TTF_FontHeight(font.name);
-        TTF_SizeText(font.name, "A", &font.width, 0);
-        
-        window = SDL_CreateWindow("LinearBee", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
-                                  1024, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE /*| SDL_WINDOW_MAXIMIZED*/);
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-        
-        custom_blendmode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR,
-                                                      SDL_BLENDFACTOR_ZERO,
-                                                      SDL_BLENDOPERATION_ADD,
-                                                      SDL_BLENDFACTOR_ONE,
-                                                      SDL_BLENDFACTOR_ONE,
-                                                      SDL_BLENDOPERATION_ADD);
-        
-        // This blendmode results in black cursor with green text
-        //app.custom_blendmode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_DST_COLOR,
-        //SDL_BLENDFACTOR_SRC_ALPHA,
-        //SDL_BLENDOPERATION_ADD,
-        //SDL_BLENDFACTOR_ZERO,
-        //SDL_BLENDFACTOR_ONE,
-        //SDL_BLENDOPERATION_ADD);
-        
-        SDL_GetWindowSize(window, &ww, &wh);
-        
-        for (int i = 0; i <= 95; ++i)
-        {
-            ascii_sequence[i] = 32 + i;
-        }
-        ascii_sequence[95] = '\0';
-        
-        // Init dummy heads
-        headA->prev = NULL;
-        headA->next = NULL;
-        headB->prev = NULL;
-        headB->next = NULL;
-        
-        bufferA.head = headA;
-        bufferB.head = headB;
-    };
 };
 
 extern _clipboard clipboard;
@@ -276,3 +215,6 @@ extern app_info app;
 extern SDL_Texture *characters_texture;
 extern SDL_Texture *bar_characters_texture;
 extern SDL_Texture *screen_texture;
+
+
+void Init();

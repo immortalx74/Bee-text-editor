@@ -1,5 +1,21 @@
 #include "helpers.h"
 
+void SettingsSetDefaults()
+{
+    settings.font_name = XstringCreate(SETTINGS_FONT_NAME);
+    settings.font_size = SETTINGS_FONT_SIZE;
+    settings.start_path = XstringCreate(SETTINGS_START_PATH);
+    settings.tab_size = SETTINGS_TAB_SIZE;
+    settings.color_background = SETTINGS_COLOR_BACKGROUND;
+    settings.color_panel_outline = SETTINGS_COLOR_PANEL_OUTLINE;
+    settings.color_text = SETTINGS_COLOR_TEXT;
+    settings.color_line_highlight = SETTINGS_COLOR_LINE_HIGHLIGHT;
+    settings.color_cursor = SETTINGS_COLOR_CURSOR;
+    settings.color_marker = SETTINGS_COLOR_MARKER;
+    settings.color_bar_background = SETTINGS_COLOR_BAR_BACKGROUND;
+    settings.color_bar_text = SETTINGS_COLOR_BAR_TEXT;
+};
+
 bool IsCharacterAlphaNumeric(char ch)
 {
     if((ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch >= 48 && ch <= 57))
@@ -145,23 +161,12 @@ void XstringSet(xstring *str, char *text)
     {
         memcpy(str->data, text, str->length);
     }
-    else if(len > str->length)
+    else
     {
         str->data = (char*)realloc(str->data, len + 1);
         str->length = len;
         memcpy(str->data, text, len);
         str->data[str->length] = 0;
-    }
-    else
-    {
-        memcpy(str->data, text, len);
-        
-        for (int i = len; i < str->length; ++i)
-        {
-            str->data[i] = 0;
-        }
-        
-        str->length = len;
     }
 };
 
@@ -177,7 +182,7 @@ int XstringGetLength(xstring *str)
 
 void XstringTruncateTail(xstring *str, int count)
 {
-    if(count == 0)
+    if(count == 0 || count > str->length - 1)
     {
         return;
     }
@@ -189,7 +194,7 @@ void XstringTruncateTail(xstring *str, int count)
 
 void XstringTruncateHead(xstring *str, int count)
 {
-    if(count == 0)
+    if(count == 0 || count > str->length - 1)
     {
         return;
     }
@@ -211,7 +216,7 @@ void XstringTruncateHead(xstring *str, int count)
 void XstringConcat(xstring *str, int arg_count, ...)
 {
     va_list valist;
-    int old_len = XstringGetLength(str);
+    int old_len = str->length;
     int total_length = old_len;
     int index = 0;
     int *sizes = (int*)malloc(arg_count * sizeof(int));
@@ -272,52 +277,86 @@ int XstringIndexOfFirstOccurrance(xstring *str, char ch)
     return - 1;
 };
 
-void XstringTrimLeadingAndTrailingWhitespace(xstring *str)
+void XstringTrimLeadingWhitespace(xstring *str)
 {
     char ch = ' ';
-    int result;
+    int len = str->length;
+    
+    if(len < 2)
+    {
+        return;
+    }
     
     while(true)
     {
-        result = XstringIndexOfLastOccurrance(str, ch);
-        
-        if(result != -1)
+        if(str->data[0] == ch)
+        {
+            XstringTruncateHead(str, 1);
+        }
+        else
+        {
+            return;
+        }
+    }
+};
+
+void XstringTrimTrailingWhitespace(xstring *str)
+{
+    char ch = ' ';
+    int len = str->length;
+    
+    if(len < 2)
+    {
+        return;
+    }
+    
+    while(true)
+    {
+        if(str->data[len - 1] == ch)
         {
             XstringTruncateTail(str, 1);
         }
         else
         {
-            while(true)
-            {
-                result = XstringIndexOfFirstOccurrance(str, ch);
-                
-                if(result != -1)
-                {
-                    XstringTruncateHead(str, 1);
-                }
-                else
-                {
-                    return;
-                }
-            }
+            return;
         }
     }
 };
 
-void XstringTrimLeadingWhitespace(xstring *str)
+void XstringTrimLeadingAndTrailingWhitespace(xstring *str)
 {
-    
+    XstringTrimLeadingWhitespace(str);
+    XstringTrimTrailingWhitespace(str);
 };
 
-void XstringTrimTrailingWhitespace(xstring *str)
+void XstringTrimAllWhitespace(xstring *str)
 {
+    char ch = ' ';
+    int len = str->length;
+    int index = 0;
     
+    char *temp = (char*)calloc(str->length + 1, 1);
+    
+    
+    for (int i = 0; i < len; ++i)
+    {
+        if(str->data[i] != ' ')
+        {
+            memcpy(temp + index, str->data + i, 1);
+            index++;
+        }
+    }
+    
+    str->length = index;
+    str->data = (char*)realloc(str->data, str->length + 1);
+    memcpy(str->data, temp, str->length);
+    str->data[str->length] = 0;
 };
 
 bool XstringContainsSubstring(xstring *str, char *substr)
 {
     int substr_len = strlen(substr);
-    int str_len = XstringGetLength(str);
+    int str_len = str->length;
     int start = XstringIndexOfFirstOccurrance(str, substr[0]);
     
     if(substr_len > str_len || start == -1 || start > str_len - substr_len)
@@ -327,7 +366,7 @@ bool XstringContainsSubstring(xstring *str, char *substr)
     
     for (int i = 0; i < substr_len; ++i)
     {
-        if(XstringGet(str)[start + i] != substr[i])
+        if(str->data[start + i] != substr[i])
         {
             return false;
         }

@@ -7,7 +7,8 @@
 int main(int argc, char *argv[])
 {
     SettingsSetDefaults();
-    app.Init();
+    FileParseSettings();
+    Init();
     app.last_path = XstringCreate(SDL_GetBasePath());
     clipboard.text = XstringCreate("");
     ClipBoardGetExternal();

@@ -18,3 +18,49 @@ SDL_Texture *bar_characters_texture;
 SDL_Texture *screen_texture;
 
 _settings settings;
+
+void Init()
+{
+    SDL_Init(SDL_INIT_VIDEO);
+    TTF_Init();
+    
+    font.name = TTF_OpenFont(settings.font_name->data, font.size);
+    font.height = TTF_FontHeight(font.name);
+    TTF_SizeText(font.name, "A", &font.width, 0);
+    
+    app.window = SDL_CreateWindow("LinearBee", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
+                                  1024, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE /*| SDL_WINDOW_MAXIMIZED*/);
+    app.renderer = SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    
+    app.custom_blendmode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR,
+                                                      SDL_BLENDFACTOR_ZERO,
+                                                      SDL_BLENDOPERATION_ADD,
+                                                      SDL_BLENDFACTOR_ONE,
+                                                      SDL_BLENDFACTOR_ONE,
+                                                      SDL_BLENDOPERATION_ADD);
+    
+    // This blendmode results in black cursor with green text
+    //app.custom_blendmode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_DST_COLOR,
+    //SDL_BLENDFACTOR_SRC_ALPHA,
+    //SDL_BLENDOPERATION_ADD,
+    //SDL_BLENDFACTOR_ZERO,
+    //SDL_BLENDFACTOR_ONE,
+    //SDL_BLENDOPERATION_ADD);
+    
+    SDL_GetWindowSize(app.window, &app.ww, &app.wh);
+    
+    for (int i = 0; i <= 95; ++i)
+    {
+        app.ascii_sequence[i] = 32 + i;
+    }
+    app.ascii_sequence[95] = '\0';
+    
+    // Init dummy heads
+    headA->prev = NULL;
+    headA->next = NULL;
+    headB->prev = NULL;
+    headB->next = NULL;
+    
+    bufferA.head = headA;
+    bufferB.head = headB;
+};

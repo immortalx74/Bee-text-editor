@@ -22,7 +22,10 @@ void XstringTruncateHead(xstring *str, int count);
 void XstringConcat(xstring *str, int arg_count, ...);
 int XstringIndexOfLastOccurrance(xstring *str, char ch);
 int XstringIndexOfFirstOccurrance(xstring *str, char ch);
-void XstringTrimLeadingAndTrailingWhitespace(xstring *str);
 void XstringTrimLeadingWhitespace(xstring *str);
 void XstringTrimTrailingWhitespace(xstring *str);
+void XstringTrimLeadingAndTrailingWhitespace(xstring *str);
+void XstringTrimAllWhitespace(xstring *str);
 bool XstringContainsSubstring(xstring *str, char *substr);
+
+void SettingsSetDefaults();

@@ -112,24 +112,128 @@ void FileParseSettings()
     std::string str;
     xstring *line = XstringCreate("");
     
+    xstring *identifier = XstringCreate("");
+    xstring *value = XstringCreate("");
+    
     while(std::getline(file, str))
     {
         char *s = (char*)malloc(str.length());
-        strcpy(s, str.c_str());
+        //strcpy(s, str.c_str());
+        memcpy(s, str.c_str(), str.size());
         XstringSet(line, s);
         free(s);
         XstringTrimLeadingAndTrailingWhitespace(line);
         
-        xstring *identifier = XstringCreate("");
-        
-        for (int i = 0; i < token_count; ++i)
+        // Ignore commented lines
+        if(XstringGetLength(line) >= 2 && XstringGet(line)[0] != '/' && XstringGet(line)[1] != '/')
         {
-            if(XstringContainsSubstring(line, XstringGet(tokens[i])))
+            for (int i = 0; i < token_count; ++i)
             {
-                //
+                if(XstringContainsSubstring(line, XstringGet(tokens[i])))
+                {
+                    //Token found. Get value
+                    XstringSet(identifier, XstringGet(tokens[i]));
+                    XstringTruncateHead(line, XstringGetLength(identifier));
+                    
+                    if(XstringGet(line)[0] == ' ')// At least 1 whitespace after identifier
+                    {
+                        XstringTrimLeadingAndTrailingWhitespace(line);
+                        XstringSet(value, XstringGet(line));
+                        //handle cases depending on token index
+                        SetSetting(i, value);
+                    }
+                    else
+                    {
+                        //invalid
+                    }
+                }
             }
         }
     }
     
+    XstringDestroy(identifier);
+    XstringDestroy(value);
+    XstringDestroy(line);
+    for (int i = 0; i < token_count; ++i)
+    {
+        XstringDestroy(tokens[i]);
+    }
     file.close();
+};
+
+void SetSetting(int index, xstring *value)
+{
+    switch (index)
+    {
+        case 0://font_name
+        {
+            XstringTruncateHead(value, 1);
+            XstringTruncateTail(value, 1);
+            std::ifstream f(value->data);
+            if(f.good())
+            {
+                XstringSet(settings.font_name, value->data);
+            }
+        }
+        break;
+        
+        case 1://font_size
+        {
+            settings.font_size = atoi(value->data);
+        }
+        break;
+        
+        case 2://start_path
+        {
+            XstringTruncateHead(value, 1);
+            XstringTruncateTail(value, 1);
+            XstringSet(settings.start_path, value->data);
+        }
+        break;
+        
+        case 3://tab_size
+        {
+            settings.tab_size = atoi(value->data);
+        }
+        break;
+        
+        case 4://color_background
+        {
+            //XstringTrimAllWhitespace(value);
+            //XstringTruncateHead(value, 1);
+            //XstringTruncateTail(value, 1);
+            //int r, g, b, a;
+            std::cout << value->data << std::endl;
+            std::cout << value->length;
+        }
+        break;
+        
+        case 5:
+        
+        break;
+        
+        case 6:
+        
+        break;
+        
+        case 7:
+        
+        break;
+        
+        case 8:
+        
+        break;
+        
+        case 9:
+        
+        break;
+        
+        case 10:
+        
+        break;
+        
+        case 11:
+        
+        break;
+    }
 };

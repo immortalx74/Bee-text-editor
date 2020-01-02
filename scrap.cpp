@@ -1,3 +1,10 @@
+//NOTE: need to set length and shrink strings on
+// Trim functions!!!!!!!!!!!!!!!!!
+
+
+1234  78
+012345
+
 //settings ideas
 font_name = liberation-mono.ttf
 font_size = 14
@@ -12,7 +19,7 @@ color_marker = 255, 0, 0, 255
 color_bar_background = 140, 140, 140, 255
 color_bar_text = 10, 10, 10, 255
 
-
+1234qwerty
 
 void A_WeaponReady();
 void A_Raise();
@@ -30,7 +37,7 @@ void A_FireBFG();
 void A_BFGSpray();
 void A_Explode();
 
-
+q0wertyuio
 
 0123456789
 
