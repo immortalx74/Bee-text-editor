@@ -91,23 +91,33 @@ void FileWriteToDisk(buffer *buf, char *filename)
 
 void FileParseSettings()
 {
-    const int token_count = 12;
-    xstring *tokens[token_count];
-    tokens[0] = XstringCreate("font_name");
-    tokens[1] = XstringCreate("font_size");
-    tokens[2] = XstringCreate("start_path");
-    tokens[3] = XstringCreate("tab_size");
-    tokens[4] = XstringCreate("color_background");
-    tokens[5] = XstringCreate("color_panel_outline");
-    tokens[6] = XstringCreate("color_text");
-    tokens[7] = XstringCreate("color_line_highlight");
-    tokens[8] = XstringCreate("color_cursor");
-    tokens[9] = XstringCreate("color_marker");
-    tokens[10] = XstringCreate("color_bar_background");
-    tokens[11] = XstringCreate("color_bar_text");
+    std::ifstream file("settings.cfg");
+    if(!file.good())
+    {
+        // file not found
+        std::cout << "file not found" << std::endl;
+        return;
+    }
     
+    const int sets_count = 15;// Change when adding/removing a setting
+    xstring *settings_tokens[sets_count];
     
-    std::ifstream file;
+    settings_tokens[sets_enum::font_name] = XstringCreate("font_name");
+    settings_tokens[sets_enum::start_path] = XstringCreate("font_name");
+    settings_tokens[sets_enum::font_size] = XstringCreate("font_name");
+    settings_tokens[sets_enum::tab_size] = XstringCreate("font_name");
+    settings_tokens[sets_enum::line_mem_chunk] = XstringCreate("font_name");
+    settings_tokens[sets_enum::margin] = XstringCreate("font_name");
+    settings_tokens[sets_enum::undo_steps] = XstringCreate("font_name");
+    settings_tokens[sets_enum::color_background] = XstringCreate("font_name");
+    settings_tokens[sets_enum::color_panel_outline] = XstringCreate("font_name");
+    settings_tokens[sets_enum::color_text] = XstringCreate("font_name");
+    settings_tokens[sets_enum::color_line_highlight] = XstringCreate("font_name");
+    settings_tokens[sets_enum::color_cursor] = XstringCreate("font_name");
+    settings_tokens[sets_enum::color_marker] = XstringCreate("font_name");
+    settings_tokens[sets_enum::color_bar_background] = XstringCreate("font_name");
+    settings_tokens[sets_enum::color_bar_text] = XstringCreate("font_name");
+    
     file.open("settings.cfg");
     std::string str;
     xstring *line = XstringCreate("");
@@ -127,12 +137,12 @@ void FileParseSettings()
         // Ignore commented lines
         if(XstringGetLength(line) >= 2 && XstringGet(line)[0] != '/' && XstringGet(line)[1] != '/')
         {
-            for (int i = 0; i < token_count; ++i)
+            for (int i = 0; i < sets_count; ++i)
             {
-                if(XstringContainsSubstring(line, XstringGet(tokens[i])))
+                if(XstringContainsSubstring(line, XstringGet(settings_tokens[i])))
                 {
                     //Token found. Get value
-                    XstringSet(identifier, XstringGet(tokens[i]));
+                    XstringSet(identifier, XstringGet(settings_tokens[i]));
                     XstringTruncateHead(line, XstringGetLength(identifier));
                     
                     if(XstringGet(line)[0] == ' ')// At least 1 whitespace after identifier
@@ -154,9 +164,9 @@ void FileParseSettings()
     XstringDestroy(identifier);
     XstringDestroy(value);
     XstringDestroy(line);
-    for (int i = 0; i < token_count; ++i)
+    for (int i = 0; i < sets_count; ++i)
     {
-        XstringDestroy(tokens[i]);
+        XstringDestroy(settings_tokens[i]);
     }
     file.close();
 };
@@ -165,7 +175,7 @@ void SetSetting(int index, xstring *value)
 {
     switch (index)
     {
-        case 0://font_name
+        case sets_enum::font_name:
         {
             XstringTruncateHead(value, 1);
             XstringTruncateTail(value, 1);
@@ -177,13 +187,13 @@ void SetSetting(int index, xstring *value)
         }
         break;
         
-        case 1://font_size
+        case sets_enum::font_size:
         {
             settings.font_size = atoi(value->data);
         }
         break;
         
-        case 2://start_path
+        case sets_enum::start_path:
         {
             XstringTruncateHead(value, 1);
             XstringTruncateTail(value, 1);
@@ -191,13 +201,31 @@ void SetSetting(int index, xstring *value)
         }
         break;
         
-        case 3://tab_size
+        case sets_enum::tab_size:
         {
             settings.tab_size = atoi(value->data);
         }
         break;
         
-        case 4://color_background
+        case sets_enum::line_mem_chunk:
+        {
+            settings.line_mem_chunk = atoi(value->data);
+        }
+        break;
+        
+        case sets_enum::margin:
+        {
+            settings.margin = atoi(value->data);
+        }
+        break;
+        
+        case sets_enum::undo_steps:
+        {
+            settings.undo_steps = atoi(value->data);
+        }
+        break;
+        
+        case sets_enum::color_background:
         {
             XstringTrimAllWhitespace(value);
             XstringTruncateHead(value, 1);
@@ -206,7 +234,7 @@ void SetSetting(int index, xstring *value)
         }
         break;
         
-        case 5://color_panel_outline
+        case color_panel_outline:
         {
             XstringTrimAllWhitespace(value);
             XstringTruncateHead(value, 1);
@@ -215,7 +243,7 @@ void SetSetting(int index, xstring *value)
         }
         break;
         
-        case 6://color_text
+        case color_text:
         {
             XstringTrimAllWhitespace(value);
             XstringTruncateHead(value, 1);
@@ -224,7 +252,7 @@ void SetSetting(int index, xstring *value)
         }
         break;
         
-        case 7://color_line_highlight
+        case color_line_highlight:
         {
             XstringTrimAllWhitespace(value);
             XstringTruncateHead(value, 1);
@@ -233,7 +261,7 @@ void SetSetting(int index, xstring *value)
         }
         break;
         
-        case 8://color_cursor
+        case color_cursor:
         {
             XstringTrimAllWhitespace(value);
             XstringTruncateHead(value, 1);
@@ -242,7 +270,7 @@ void SetSetting(int index, xstring *value)
         }
         break;
         
-        case 9://color_marker
+        case color_marker:
         {
             XstringTrimAllWhitespace(value);
             XstringTruncateHead(value, 1);
@@ -251,7 +279,7 @@ void SetSetting(int index, xstring *value)
         }
         break;
         
-        case 10://color_bar_background
+        case color_bar_background:
         {
             XstringTrimAllWhitespace(value);
             XstringTruncateHead(value, 1);
@@ -260,7 +288,7 @@ void SetSetting(int index, xstring *value)
         }
         break;
         
-        case 11://color_bar_text
+        case color_bar_text:
         {
             XstringTrimAllWhitespace(value);
             XstringTruncateHead(value, 1);

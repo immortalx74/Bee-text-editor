@@ -9,9 +9,12 @@
 #define UNDO_STEPS 100
 
 #define SETTINGS_FONT_NAME "liberation-mono.ttf"
-#define SETTINGS_FONT_SIZE 14
 #define SETTINGS_START_PATH ""
+#define SETTINGS_FONT_SIZE 14
 #define SETTINGS_TAB_SIZE 4
+#define SETTINGS_LINE_MEM_CHUNK 64
+#define SETTINGS_MARGIN 4
+#define SETTINGS_UNDO_STEPS 100
 #define SETTINGS_COLOR_BACKGROUND {21, 12, 42, 255}
 #define SETTINGS_COLOR_PANEL_OUTLINE {100, 100, 100, 255}
 #define SETTINGS_COLOR_TEXT {143, 175, 127, 255}
@@ -38,12 +41,34 @@ struct xstring
     int length;
 };
 
+enum sets_enum
+{
+    font_name,
+    start_path,
+    font_size,
+    tab_size,
+    line_mem_chunk,
+    margin,
+    undo_steps,
+    color_background,
+    color_panel_outline,
+    color_text,
+    color_line_highlight,
+    color_cursor,
+    color_marker,
+    color_bar_background,
+    color_bar_text
+};
+
 struct _settings
 {
     xstring *font_name;
-    int font_size;
     xstring *start_path;
+    int font_size;
     int tab_size;
+    int line_mem_chunk;
+    int margin;
+    int undo_steps;
     SDL_Color color_background;
     SDL_Color color_panel_outline;
     SDL_Color color_text;
@@ -55,7 +80,6 @@ struct _settings
 };
 
 extern _settings settings;
-
 
 struct _clipboard
 {
