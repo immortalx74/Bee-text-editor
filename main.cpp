@@ -14,6 +14,11 @@ int main(int argc, char *argv[])
     ClipBoardGetExternal();
     WindowResize(&app, app.window);
     
+    SDL_Cursor *cursor_default;
+    cursor_default = SDL_GetDefaultCursor();
+    SDL_Cursor *cursor_resize_hor;
+    cursor_resize_hor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
+    
     //START WITH LEFT BUFFER
     app.active_buffer = &bufferA;
     
@@ -45,6 +50,8 @@ int main(int argc, char *argv[])
     SDL_SetTextureBlendMode(bufferA.status_bar.texture, SDL_BLENDMODE_BLEND);
     SDL_SetTextureBlendMode(bufferB.status_bar.texture, SDL_BLENDMODE_BLEND);
     
+    bool mb_left_pressed = false;
+    int mx , my;
     
     while(!app.quit)
     {
@@ -68,6 +75,40 @@ int main(int argc, char *argv[])
             }
             
             GetGlobalInput();
+            
+            // GET MOUSE
+            SDL_GetMouseState(&mx,&my);
+            
+            if(app.mode == TEXT_EDIT)// Switch buffer with mouse button
+            {
+                if(mx < bufferA.panel.w - 4 && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
+                {
+                    app.active_buffer = &bufferA;
+                }
+                else if(mx > bufferB.panel.x + 4 && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
+                {
+                    app.active_buffer = &bufferB;
+                }
+            }
+            
+            if(mx > bufferA.panel.w - 4 && mx < bufferB.panel.x + 4)
+            {
+                if(SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
+                {
+                    mb_left_pressed = true;
+                }
+                SDL_SetCursor(cursor_resize_hor);
+            }
+            else
+            {
+                SDL_SetCursor(cursor_default);
+            }
+            
+            if(app.e.type == SDL_MOUSEBUTTONUP)
+            {
+                SDL_SetCursor(cursor_default);
+                mb_left_pressed = false;
+            }
             
             // OTHER EVENTS
             if (app.e.type == SDL_QUIT)
@@ -100,6 +141,11 @@ int main(int argc, char *argv[])
                     SDL_SetTextureBlendMode(bufferB.status_bar.texture, SDL_BLENDMODE_BLEND);
                 }
             }
+        }
+        
+        if(mb_left_pressed)
+        {
+            PanelsResize(mx, cursor_resize_hor);
         }
         
         SDL_RenderClear(app.renderer);
@@ -149,6 +195,8 @@ int main(int argc, char *argv[])
         
         SDL_RenderPresent(app.renderer);
     }
+    
+    SDL_FreeCursor(cursor_resize_hor);
     
     XstringDestroy(clipboard.text);
     XstringDestroy(settings.font_name);

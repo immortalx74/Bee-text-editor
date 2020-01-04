@@ -403,3 +403,48 @@ void RenderListRange(buffer *buf, int start, int count, SDL_Texture *ch, SDL_Tex
     
     SDL_SetRenderTarget(app.renderer, NULL);
 };
+
+void PanelsResize(int mousex, SDL_Cursor *c)
+{
+    SDL_SetCursor(c);
+    int cur_right_x = bufferB.panel.x;
+    int diff = 0;
+    bufferB.panel.x = mousex;
+    bufferB.status_bar.x = mousex;
+    
+    if(mousex >= cur_right_x)
+    {
+        diff = mousex - cur_right_x;
+        bufferB.panel.w -= diff;
+        bufferB.status_bar.w -= diff;
+        bufferA.panel.w += diff;
+        bufferA.status_bar.w += diff;
+    }
+    else
+    {
+        diff = cur_right_x - mousex;
+        bufferB.panel.w += diff;
+        bufferB.status_bar.w += diff;
+        bufferA.panel.w -= diff;
+        bufferA.status_bar.w -= diff;
+    }
+    
+    SDL_DestroyTexture(bufferA.panel.texture);
+    SDL_DestroyTexture(bufferB.panel.texture);
+    bufferA.panel.texture= SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferA.panel.w, bufferA.panel.h);
+    bufferB.panel.texture= SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferB.panel.w, bufferB.panel.h);
+    
+    SDL_SetTextureBlendMode(bufferA.panel.texture, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureBlendMode(bufferB.panel.texture, SDL_BLENDMODE_BLEND);
+    
+    RenderClearLine(&bufferA, 0, characters_texture, bufferA.panel.texture);
+    RenderClearLine(&bufferB, 0, characters_texture, bufferB.panel.texture);
+    
+    SDL_DestroyTexture(bufferA.status_bar.texture);
+    SDL_DestroyTexture(bufferB.status_bar.texture);
+    
+    bufferA.status_bar.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferA.status_bar.w, bufferA.status_bar.h);
+    bufferB.status_bar.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferB.status_bar.w, bufferB.status_bar.h);
+    SDL_SetTextureBlendMode(bufferA.status_bar.texture, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureBlendMode(bufferB.status_bar.texture, SDL_BLENDMODE_BLEND);
+};

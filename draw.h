@@ -23,3 +23,4 @@ void ListDraw(buffer *buf, list *l, SDL_Texture *ch, SDL_Texture *pt);
 void RenderListRange(buffer *buf, int start, int count, SDL_Texture *ch, SDL_Texture *pt);
 
 void HighlightListSelectionDraw(buffer *buf, list *l);
+void PanelsResize(int mousex, SDL_Cursor *c);
