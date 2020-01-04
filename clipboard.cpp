@@ -188,10 +188,10 @@ void ClipBoardCut(buffer *buf)
                 else// Copy the chars AFTER right and merge with previous line 
                 {
                     int total_new_len = strlen(cur->prev->data) + trim_right;
-                    int prev_capacity_left = (cur->prev->num_chunks * LINE_MEM_CHUNK) - strlen(cur->prev->data);
+                    int prev_capacity_left = (cur->prev->num_chunks * settings.line_mem_chunk) - strlen(cur->prev->data);
                     if(prev_capacity_left < trim_right)
                     {
-                        LineRequestMemChunks(cur->prev, ((prev_capacity_left + trim_right) / LINE_MEM_CHUNK) + 1);
+                        LineRequestMemChunks(cur->prev, ((prev_capacity_left + trim_right) / settings.line_mem_chunk) + 1);
                     }
                     
                     memcpy(cur->prev->data + strlen(cur->prev->data), cur->data + strlen(cur->data) - trim_right, trim_right);

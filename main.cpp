@@ -22,10 +22,10 @@ int main(int argc, char *argv[])
     InsertLineAt(&bufferB, 0);
     
     // Set textures/surfaces
-    SDL_Surface *characters_surface = TTF_RenderText_Blended(font.name, app.ascii_sequence, font.text_color);
+    SDL_Surface *characters_surface = TTF_RenderText_Blended(font.handle, app.ascii_sequence, font.text_color);
     characters_texture = SDL_CreateTextureFromSurface(app.renderer, characters_surface);
     
-    SDL_Surface *bar_characters_surface = TTF_RenderText_Blended(font.name, app.ascii_sequence, bufferA.status_bar.text_color);
+    SDL_Surface *bar_characters_surface = TTF_RenderText_Blended(font.handle, app.ascii_sequence, bufferA.status_bar.text_color);
     bar_characters_texture = SDL_CreateTextureFromSurface(app.renderer, bar_characters_surface);
     
     
@@ -121,7 +121,8 @@ int main(int argc, char *argv[])
             RenderListRange(app.active_buffer, app.active_buffer->lst->scroll_offset, app.active_buffer->lst->element_count, characters_texture, app.active_buffer->panel.texture);
         }
         
-        SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 255);// background
+        //SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 255);// background
+        SDL_SetRenderDrawColor(app.renderer, settings.color_background.r, settings.color_background.g, settings.color_background.b, settings.color_background.a);// background
         
         SDL_Rect panA = {bufferA.panel.x,bufferA.panel.y,bufferA.panel.w,bufferA.panel.h};
         SDL_Rect panB = {bufferB.panel.x,bufferB.panel.y,bufferB.panel.w,bufferB.panel.h};
@@ -162,7 +163,7 @@ int main(int argc, char *argv[])
     SDL_DestroyTexture(screen_texture);
     SDL_DestroyTexture(bufferA.panel.texture);
     SDL_DestroyTexture(bufferB.panel.texture);
-    TTF_CloseFont(font.name);
+    TTF_CloseFont(font.handle);
     SDL_DestroyRenderer(app.renderer);
     SDL_DestroyWindow(app.window);
     SDL_Quit();

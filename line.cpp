@@ -4,7 +4,7 @@
 
 void LineEnsureSufficientCapacity(node *ln)
 {
-    if(strlen(ln->data) + 1 >= ln->num_chunks * LINE_MEM_CHUNK)
+    if(strlen(ln->data) + 1 >= ln->num_chunks * settings.line_mem_chunk)
     {
         LineRequestMemChunks(ln, 1);
     }
@@ -14,16 +14,16 @@ void LineRequestMemChunks(node *ln, int num)
 {
     int old_num_chunks = ln->num_chunks;
     ln->num_chunks += num;
-    int new_size = ln->num_chunks * LINE_MEM_CHUNK;
+    int new_size = ln->num_chunks * settings.line_mem_chunk;
     ln->data = (char*)realloc(ln->data, new_size);
-    memset(ln->data + (old_num_chunks * LINE_MEM_CHUNK), 0, num * LINE_MEM_CHUNK);
+    memset(ln->data + (old_num_chunks * settings.line_mem_chunk), 0, num * settings.line_mem_chunk);
 };
 
 void LineShrinkMemChunks(node *ln)
 {
     int len = strlen(ln->data);
-    ln->num_chunks = (len / LINE_MEM_CHUNK) + 1;
-    int new_size = ln->num_chunks * LINE_MEM_CHUNK;
+    ln->num_chunks = (len / settings.line_mem_chunk) + 1;
+    int new_size = ln->num_chunks * settings.line_mem_chunk;
     ln->data = (char*)realloc(ln->data, new_size);
     memset(ln->data + len, 0, new_size - len);
 };
@@ -35,8 +35,8 @@ void LineExpandMemChunks(node *ln, int new_len)
     if(new_len > len)
     {
         int diff = new_len - len;
-        ln->num_chunks = (new_len / LINE_MEM_CHUNK) + 1;
-        int new_size = ln->num_chunks * LINE_MEM_CHUNK;
+        ln->num_chunks = (new_len / settings.line_mem_chunk) + 1;
+        int new_size = ln->num_chunks * settings.line_mem_chunk;
         ln->data = (char*)realloc(ln->data, new_size);
         memset(ln->data + len, 0, diff);
     }
@@ -48,7 +48,7 @@ void LineExpandMemChunks(node *ln, int new_len)
 node *CreateLine(void)
 {
     node *newline = (node*)malloc(sizeof(node));
-    newline->data = (char*)calloc(LINE_MEM_CHUNK, 1);
+    newline->data = (char*)calloc(settings.line_mem_chunk, 1);
     newline->num_chunks = 1;
     newline->next = NULL;
     newline->prev = NULL;
@@ -82,7 +82,7 @@ void InsertLineAt(buffer *buf, int pos)
             buf->line_node->next = right_of_head;
         }
         
-        //memset(buf->line_node->data, 0, LINE_MEM_CHUNK);
+        //memset(buf->line_node->data, 0, settings.line_mem_chunk);
         
         buf->line_count++;
     }
@@ -104,7 +104,7 @@ void InsertLineAt(buffer *buf, int pos)
         buf->line_node->next = NULL;
         buf->line_count++;
         
-        //memset(buf->line_node->data, 0, LINE_MEM_CHUNK);
+        //memset(buf->line_node->data, 0, settings.line_mem_chunk);
     }
     else // Add in-between(NOTE: if pos = n, pushes existing n and all other nodes rightwards)
     {
@@ -128,7 +128,7 @@ void InsertLineAt(buffer *buf, int pos)
         
         buf->line_count++;
         
-        //memset(buf->line_node->data, 0, LINE_MEM_CHUNK);
+        //memset(buf->line_node->data, 0, settings.line_mem_chunk);
     }
 };
 

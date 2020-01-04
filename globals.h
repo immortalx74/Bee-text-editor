@@ -4,26 +4,6 @@
 #include <string.h>
 #include <iostream>
 
-#define LINE_MEM_CHUNK 64
-#define MARGIN 4
-#define UNDO_STEPS 100
-
-#define SETTINGS_FONT_NAME "liberation-mono.ttf"
-#define SETTINGS_START_PATH ""
-#define SETTINGS_FONT_SIZE 14
-#define SETTINGS_TAB_SIZE 4
-#define SETTINGS_LINE_MEM_CHUNK 64
-#define SETTINGS_MARGIN 4
-#define SETTINGS_UNDO_STEPS 100
-#define SETTINGS_COLOR_BACKGROUND {21, 12, 42, 255}
-#define SETTINGS_COLOR_PANEL_OUTLINE {100, 100, 100, 255}
-#define SETTINGS_COLOR_TEXT {143, 175, 127, 255}
-#define SETTINGS_COLOR_LINE_HIGHLIGHT {40, 0, 180, 255}
-#define SETTINGS_COLOR_CURSOR {0, 255, 0, 255}
-#define SETTINGS_COLOR_MARKER {255, 0, 0, 255}
-#define SETTINGS_COLOR_BAR_BACKGROUND {140, 140, 140, 255}
-#define SETTINGS_COLOR_BAR_TEXT {10, 10, 10, 255}
-
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
@@ -180,7 +160,7 @@ extern undoredo_op *undo_stack;
 extern int undoredo_index;
 extern int undoredo_counter;
 
-#define UNDOREDO_IDX (undoredo_index = (undoredo_index % UNDO_STEPS))
+#define UNDOREDO_IDX (undoredo_index = (undoredo_index % settings.undo_steps))
 #define UNDOREDO_INC undoredo_index++
 #define UNDOREDO_DEC undoredo_index--
 
@@ -188,17 +168,18 @@ inline int UNDOREDOISNEGATIVE()
 {
     if(undoredo_index < 0)
     {
-        return undoredo_index + UNDO_STEPS;
+        return undoredo_index + settings.undo_steps;
     }
     return undoredo_index;
 };
 
 struct font_data
 {
-    TTF_Font *name;
+    TTF_Font *handle;
+    xstring *name;
     int width;
     int height;
-    int size = 15;
+    int size;
     SDL_Color text_color = {143, 175, 127, 255};
 };
 

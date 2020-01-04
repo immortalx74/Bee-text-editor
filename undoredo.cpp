@@ -34,7 +34,7 @@ void UndoStackStoreOp(buffer *buf, op_type t, int row, int col, char *text)
                 UNDOREDO_INC;
                 undo_stack[UNDOREDO_IDX] = op;
                 
-                if(undoredo_counter < UNDO_STEPS)
+                if(undoredo_counter < settings.undo_steps)
                 {
                     undoredo_counter++;
                 }
@@ -56,7 +56,7 @@ void UndoStackStoreOp(buffer *buf, op_type t, int row, int col, char *text)
             UNDOREDO_INC;
             undo_stack[UNDOREDO_IDX] = op;
             
-            if(undoredo_counter < UNDO_STEPS)
+            if(undoredo_counter < settings.undo_steps)
             {
                 undoredo_counter++;
             }
@@ -69,7 +69,7 @@ void UndoStackStoreOp(buffer *buf, op_type t, int row, int col, char *text)
         UNDOREDO_INC;
         undo_stack[UNDOREDO_IDX] = op;
         
-        if(undoredo_counter < UNDO_STEPS)
+        if(undoredo_counter < settings.undo_steps)
         {
             undoredo_counter++;
         }
@@ -98,7 +98,7 @@ void UndoStackCommitUndo(buffer *buf)
 
 void UndoStackCommitRedo(buffer *buf)
 {
-    if(undoredo_counter == UNDO_STEPS)
+    if(undoredo_counter == settings.undo_steps)
     {
         return;
     }
@@ -249,7 +249,7 @@ void RedoOpInsert(buffer *buf, undoredo_op op)
     SyncCursorWithBuffer(buf);
     RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
     
-    if(undoredo_counter < UNDO_STEPS)
+    if(undoredo_counter < settings.undo_steps)
     {
         undoredo_counter++;
     }
@@ -288,7 +288,7 @@ void RedoOpDelete(buffer *buf, undoredo_op op)
     SyncCursorWithBuffer(buf);
     RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
     
-    if(undoredo_counter < UNDO_STEPS)
+    if(undoredo_counter < settings.undo_steps)
     {
         undoredo_counter++;
     }

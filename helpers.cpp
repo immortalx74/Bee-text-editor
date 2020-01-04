@@ -2,18 +2,44 @@
 
 void SettingsSetDefaults()
 {
-    settings.font_name = XstringCreate(SETTINGS_FONT_NAME);
-    settings.font_size = SETTINGS_FONT_SIZE;
-    settings.start_path = XstringCreate(SETTINGS_START_PATH);
-    settings.tab_size = SETTINGS_TAB_SIZE;
-    settings.color_background = SETTINGS_COLOR_BACKGROUND;
-    settings.color_panel_outline = SETTINGS_COLOR_PANEL_OUTLINE;
-    settings.color_text = SETTINGS_COLOR_TEXT;
-    settings.color_line_highlight = SETTINGS_COLOR_LINE_HIGHLIGHT;
-    settings.color_cursor = SETTINGS_COLOR_CURSOR;
-    settings.color_marker = SETTINGS_COLOR_MARKER;
-    settings.color_bar_background = SETTINGS_COLOR_BAR_BACKGROUND;
-    settings.color_bar_text = SETTINGS_COLOR_BAR_TEXT;
+    settings.font_name = XstringCreate("liberation-mono.ttf");
+    settings.start_path = XstringCreate("abcde");
+    settings.margin = 4;
+    settings.line_mem_chunk = 64;
+    settings.undo_steps = 100;
+    settings.font_size = 14;
+    settings.tab_size = 4;
+    settings.color_background = {21, 12, 42, 255};
+    settings.color_panel_outline = {100, 100, 100, 255};
+    settings.color_text = {143, 175, 127, 255};
+    settings.color_line_highlight = {40, 0, 180, 255};
+    settings.color_cursor = {0, 255, 0, 255};
+    settings.color_marker = {255, 0, 0, 255};
+    settings.color_bar_background = {140, 140, 140, 255};
+    settings.color_bar_text = {10, 10, 10, 255};
+    
+    font.name = XstringCreate("liberation-mono.ttf");
+    
+    SettingsApply();
+};
+
+void SettingsApply()
+{
+    XstringSet(font.name, settings.font_name->data);
+    // start path/app.lastpath  here??
+    
+    font.size = settings.font_size;
+    bufferA.panel.color = settings.color_panel_outline;
+    bufferB.panel.color = settings.color_panel_outline;
+    font.text_color = settings.color_text;
+    bufferA.cursor.line_highlight = settings.color_line_highlight;
+    bufferB.cursor.line_highlight = settings.color_line_highlight;
+    bufferA.marker.color = settings.color_marker;
+    bufferB.marker.color = settings.color_marker;
+    bufferA.status_bar.color = settings.color_bar_background;
+    bufferB.status_bar.color = settings.color_bar_background;
+    bufferA.status_bar.text_color = settings.color_bar_text;
+    bufferB.status_bar.text_color = settings.color_bar_text;
 };
 
 bool IsCharacterAlphaNumeric(char ch)
@@ -27,7 +53,7 @@ bool IsCharacterAlphaNumeric(char ch)
 
 bool IsCharacterNumeric(char ch)
 {
-    if(ch >= 49 && ch <= 57)
+    if(ch >= 48 && ch <= 57)
     {
         return true;
     }

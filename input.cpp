@@ -308,9 +308,9 @@ void Input_TextEd_Return(buffer *buf)
         int index = 0;
         int len = strlen(buf->line_node->prev->data);
         
-        if(len - buf->column > LINE_MEM_CHUNK)
+        if(len - buf->column > settings.line_mem_chunk)
         {
-            int chunks_to_ask = ((len - buf->column - LINE_MEM_CHUNK) / LINE_MEM_CHUNK) + 1;
+            int chunks_to_ask = ((len - buf->column - settings.line_mem_chunk) / settings.line_mem_chunk) + 1;
             LineRequestMemChunks(buf->line_node, chunks_to_ask);
         }
         
@@ -523,9 +523,9 @@ void Input_TextEd_Down(buffer *buf)
 
 void Input_TextEd_Tab(buffer *buf)
 {
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < settings.tab_size; ++i)
     {
-        U8_strinsert(buf->line_node->data, buf->column, " ", LINE_MEM_CHUNK);
+        U8_strinsert(buf->line_node->data, buf->column, " ", settings.line_mem_chunk);
         buf->column++;
         SyncCursorWithBuffer(buf);
         RenderCharacterAt(buf, buf->cursor.row, buf->cursor.col - 1, strlen(buf->line_node->data), characters_texture, buf->panel.texture);

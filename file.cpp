@@ -7,15 +7,15 @@ void FileReadToBuffer(buffer *buf, char *filename)
     std::ifstream file;
     file.open(filename);
     std::string str;
-    str.reserve(LINE_MEM_CHUNK);
+    str.reserve(settings.line_mem_chunk);
     
     node *cur_node = KillBuffer(buf);
     
     while (std::getline(file, str))
     {
-        if(str.length() / LINE_MEM_CHUNK > 0)
+        if(str.length() / settings.line_mem_chunk > 0)
         {
-            int num = (str.length() / LINE_MEM_CHUNK) + 1;
+            int num = (str.length() / settings.line_mem_chunk) + 1;
             LineRequestMemChunks(cur_node, num);
         }
         
@@ -23,7 +23,7 @@ void FileReadToBuffer(buffer *buf, char *filename)
         buf->column = strlen(cur_node->data);
         
         node *newline = (node*)malloc(sizeof(node));
-        newline->data = (char*)calloc(LINE_MEM_CHUNK, 1);
+        newline->data = (char*)calloc(settings.line_mem_chunk, 1);
         newline->num_chunks = 1;
         newline->prev = cur_node;
         newline->next = NULL;
@@ -91,37 +91,39 @@ void FileWriteToDisk(buffer *buf, char *filename)
 
 void FileParseSettings()
 {
-    std::ifstream file("settings.cfg");
-    if(!file.good())
-    {
-        // file not found
-        std::cout << "file not found" << std::endl;
-        return;
-    }
+    std::ifstream file;
+    
+    //std::ifstream test("settings.cfg");
+    //if(!test.good())
+    //{
+    //file not found
+    //std::cout << "file not found" << std::endl;
+    //return;
+    //}
     
     const int sets_count = 15;// Change when adding/removing a setting
     xstring *settings_tokens[sets_count];
     
     settings_tokens[sets_enum::font_name] = XstringCreate("font_name");
-    settings_tokens[sets_enum::start_path] = XstringCreate("font_name");
-    settings_tokens[sets_enum::font_size] = XstringCreate("font_name");
-    settings_tokens[sets_enum::tab_size] = XstringCreate("font_name");
-    settings_tokens[sets_enum::line_mem_chunk] = XstringCreate("font_name");
-    settings_tokens[sets_enum::margin] = XstringCreate("font_name");
-    settings_tokens[sets_enum::undo_steps] = XstringCreate("font_name");
-    settings_tokens[sets_enum::color_background] = XstringCreate("font_name");
-    settings_tokens[sets_enum::color_panel_outline] = XstringCreate("font_name");
-    settings_tokens[sets_enum::color_text] = XstringCreate("font_name");
-    settings_tokens[sets_enum::color_line_highlight] = XstringCreate("font_name");
-    settings_tokens[sets_enum::color_cursor] = XstringCreate("font_name");
-    settings_tokens[sets_enum::color_marker] = XstringCreate("font_name");
-    settings_tokens[sets_enum::color_bar_background] = XstringCreate("font_name");
-    settings_tokens[sets_enum::color_bar_text] = XstringCreate("font_name");
+    settings_tokens[sets_enum::start_path] = XstringCreate("start_path");
+    settings_tokens[sets_enum::font_size] = XstringCreate("font_size");
+    settings_tokens[sets_enum::tab_size] = XstringCreate("tab_size");
+    settings_tokens[sets_enum::line_mem_chunk] = XstringCreate("line_mem_chunk");
+    settings_tokens[sets_enum::margin] = XstringCreate("margin");
+    settings_tokens[sets_enum::undo_steps] = XstringCreate("undo_steps");
+    settings_tokens[sets_enum::color_background] = XstringCreate("color_background");
+    settings_tokens[sets_enum::color_panel_outline] = XstringCreate("color_panel_outline");
+    settings_tokens[sets_enum::color_text] = XstringCreate("color_text");
+    settings_tokens[sets_enum::color_line_highlight] = XstringCreate("color_line_highlight");
+    settings_tokens[sets_enum::color_cursor] = XstringCreate("color_cursor");
+    settings_tokens[sets_enum::color_marker] = XstringCreate("color_marker");
+    settings_tokens[sets_enum::color_bar_background] = XstringCreate("color_bar_background");
+    settings_tokens[sets_enum::color_bar_text] = XstringCreate("color_bar_text");
     
     file.open("settings.cfg");
     std::string str;
-    xstring *line = XstringCreate("");
     
+    xstring *line = XstringCreate("");
     xstring *identifier = XstringCreate("");
     xstring *value = XstringCreate("");
     
@@ -169,6 +171,8 @@ void FileParseSettings()
         XstringDestroy(settings_tokens[i]);
     }
     file.close();
+    
+    SettingsApply();
 };
 
 void SetSetting(int index, xstring *value)
@@ -179,16 +183,13 @@ void SetSetting(int index, xstring *value)
         {
             XstringTruncateHead(value, 1);
             XstringTruncateTail(value, 1);
-            std::ifstream f(value->data);
-            if(f.good())
-            {
-                XstringSet(settings.font_name, value->data);
-            }
+            XstringSet(settings.font_name, value->data);
         }
         break;
         
         case sets_enum::font_size:
         {
+            XstringTrimAllWhitespace(value);
             settings.font_size = atoi(value->data);
         }
         break;
@@ -234,7 +235,7 @@ void SetSetting(int index, xstring *value)
         }
         break;
         
-        case color_panel_outline:
+        case sets_enum::color_panel_outline:
         {
             XstringTrimAllWhitespace(value);
             XstringTruncateHead(value, 1);
@@ -243,7 +244,7 @@ void SetSetting(int index, xstring *value)
         }
         break;
         
-        case color_text:
+        case sets_enum::color_text:
         {
             XstringTrimAllWhitespace(value);
             XstringTruncateHead(value, 1);
@@ -252,7 +253,7 @@ void SetSetting(int index, xstring *value)
         }
         break;
         
-        case color_line_highlight:
+        case sets_enum::color_line_highlight:
         {
             XstringTrimAllWhitespace(value);
             XstringTruncateHead(value, 1);
@@ -261,7 +262,7 @@ void SetSetting(int index, xstring *value)
         }
         break;
         
-        case color_cursor:
+        case sets_enum::color_cursor:
         {
             XstringTrimAllWhitespace(value);
             XstringTruncateHead(value, 1);
@@ -270,7 +271,7 @@ void SetSetting(int index, xstring *value)
         }
         break;
         
-        case color_marker:
+        case sets_enum::color_marker:
         {
             XstringTrimAllWhitespace(value);
             XstringTruncateHead(value, 1);
@@ -279,7 +280,7 @@ void SetSetting(int index, xstring *value)
         }
         break;
         
-        case color_bar_background:
+        case sets_enum::color_bar_background:
         {
             XstringTrimAllWhitespace(value);
             XstringTruncateHead(value, 1);
@@ -288,7 +289,7 @@ void SetSetting(int index, xstring *value)
         }
         break;
         
-        case color_bar_text:
+        case sets_enum::color_bar_text:
         {
             XstringTrimAllWhitespace(value);
             XstringTruncateHead(value, 1);

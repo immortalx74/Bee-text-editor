@@ -1,6 +1,6 @@
 #include "globals.h"
 
-undoredo_op *undo_stack = (undoredo_op*)malloc(UNDO_STEPS * sizeof(undoredo_op));
+undoredo_op *undo_stack = (undoredo_op*)malloc(settings.undo_steps * sizeof(undoredo_op));
 int undoredo_index = -1;
 int undoredo_counter = 0;
 
@@ -23,10 +23,9 @@ void Init()
 {
     SDL_Init(SDL_INIT_VIDEO);
     TTF_Init();
-    
-    font.name = TTF_OpenFont(settings.font_name->data, font.size);
-    font.height = TTF_FontHeight(font.name);
-    TTF_SizeText(font.name, "A", &font.width, 0);
+    font.handle = TTF_OpenFont(font.name->data, font.size);
+    font.height = TTF_FontHeight(font.handle);
+    TTF_SizeText(font.handle, "0", &font.width, &font.height);
     
     app.window = SDL_CreateWindow("LinearBee", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
                                   1024, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE /*| SDL_WINDOW_MAXIMIZED*/);

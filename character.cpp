@@ -64,12 +64,12 @@ void DeleteCharacterAt(buffer *buf, int col)
             {
                 int pos = strlen(buf->line_node->prev->data);
                 
-                int prev_capacity_left = (buf->line_node->prev->num_chunks * LINE_MEM_CHUNK) - strlen(buf->line_node->prev->data);
+                int prev_capacity_left = (buf->line_node->prev->num_chunks * settings.line_mem_chunk) - strlen(buf->line_node->prev->data);
                 int cur_char_count = strlen(buf->line_node->data);
                 
                 if(cur_char_count > prev_capacity_left)
                 {
-                    int chunks_to_ask = ((cur_char_count - prev_capacity_left) / LINE_MEM_CHUNK) + 1;
+                    int chunks_to_ask = ((cur_char_count - prev_capacity_left) / settings.line_mem_chunk) + 1;
                     LineRequestMemChunks(buf->line_node->prev, chunks_to_ask);
                 }
                 

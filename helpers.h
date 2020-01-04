@@ -30,3 +30,4 @@ void XstringTrimAllWhitespace(xstring *str);
 bool XstringContainsSubstring(xstring *str, char *substr);
 
 void SettingsSetDefaults();
+void SettingsApply();
