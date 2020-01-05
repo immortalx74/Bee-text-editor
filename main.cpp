@@ -83,11 +83,19 @@ int main(int argc, char *argv[])
             {
                 if(mx < bufferA.panel.w - 4 && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
                 {
-                    app.active_buffer = &bufferA;
+                    if(!mb_left_pressed)
+                    {
+                        app.active_buffer = &bufferA;
+                        CursorSetToMouse(&bufferA, mx, my);
+                    }
                 }
                 else if(mx > bufferB.panel.x + 4 && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
                 {
-                    app.active_buffer = &bufferB;
+                    if(!mb_left_pressed)
+                    {
+                        app.active_buffer = &bufferB;
+                        CursorSetToMouse(&bufferB, mx, my);
+                    }
                 }
             }
             
@@ -139,6 +147,9 @@ int main(int argc, char *argv[])
                     bufferB.status_bar.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferB.status_bar.w, bufferB.status_bar.h);
                     SDL_SetTextureBlendMode(bufferA.status_bar.texture, SDL_BLENDMODE_BLEND);
                     SDL_SetTextureBlendMode(bufferB.status_bar.texture, SDL_BLENDMODE_BLEND);
+                    
+                    RenderLineRange(&bufferA, bufferA.panel.scroll_offset_ver, bufferA.panel.row_capacity, characters_texture, bufferA.panel.texture);
+                    RenderLineRange(&bufferB, bufferB.panel.scroll_offset_ver, bufferB.panel.row_capacity, characters_texture, bufferB.panel.texture);
                 }
             }
         }

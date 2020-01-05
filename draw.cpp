@@ -429,6 +429,9 @@ void PanelsResize(int mousex, SDL_Cursor *c)
         bufferA.status_bar.w -= diff;
     }
     
+    bufferA.panel.col_capacity = bufferA.panel.w / font.width;
+    bufferB.panel.col_capacity = bufferB.panel.w / font.width;
+    
     SDL_DestroyTexture(bufferA.panel.texture);
     SDL_DestroyTexture(bufferB.panel.texture);
     bufferA.panel.texture= SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferA.panel.w, bufferA.panel.h);
@@ -447,4 +450,55 @@ void PanelsResize(int mousex, SDL_Cursor *c)
     bufferB.status_bar.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferB.status_bar.w, bufferB.status_bar.h);
     SDL_SetTextureBlendMode(bufferA.status_bar.texture, SDL_BLENDMODE_BLEND);
     SDL_SetTextureBlendMode(bufferB.status_bar.texture, SDL_BLENDMODE_BLEND);
+    
+    RenderLineRange(&bufferA, bufferA.panel.scroll_offset_ver, bufferA.panel.row_capacity, characters_texture, bufferA.panel.texture);
+    RenderLineRange(&bufferB, bufferB.panel.scroll_offset_ver, bufferB.panel.row_capacity, characters_texture, bufferB.panel.texture);
+};
+
+void CursorSetToMouse(buffer *buf, int mousex, int mousey)
+{
+    int len = strlen(buf->line_node->data);
+    int target_col, line_diff;
+    int row_under_pointer = (mousey - settings.margin) / font.height;
+    int col_under_pointer = (mousex - settings.margin - buf->panel.x) / font.width;
+    
+    if(row_under_pointer > buf->panel.row_capacity - 1)
+    {
+        return;
+    }
+    
+    // Move to correct node
+    if(row_under_pointer > buf->cursor.row && buf->line_node->next != NULL)
+    {
+        line_diff = row_under_pointer - buf->cursor.row;
+        for (int i = 0; i < line_diff; ++i)
+        {
+            buf->line_node = buf->line_node->next;
+            buf->line++;
+        }
+    }
+    else if(row_under_pointer < buf->cursor.row)
+    {
+        line_diff = buf->cursor.row - row_under_pointer;
+        for (int i = 0; i < line_diff; ++i)
+        {
+            buf->line_node = buf->line_node->prev;
+            buf->line--;
+        }
+    }
+    
+    if(strlen(buf->line_node->data) < col_under_pointer)
+    {
+        buf->column = strlen(buf->line_node->data);
+    }
+    else
+    {
+        buf->column = col_under_pointer;
+    }
+    
+    buf->cursor.last_hor_pos = buf->column;
+    SyncCursorWithBuffer(buf);
+    buf->marker.row = buf->line;
+    buf->marker.col = buf->cursor.col;
+    
 };

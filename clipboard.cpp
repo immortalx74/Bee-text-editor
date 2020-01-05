@@ -204,7 +204,6 @@ void ClipBoardCut(buffer *buf)
         XstringTruncateTail(clipboard.text, trim_right);
         buf->column = trim_left;
         SyncCursorWithBuffer(buf);
-        std::cout << clipboard.text->data << std::endl;
     }
     else if(buf->line == buf->marker.row)//single line
     {
@@ -238,7 +237,6 @@ void ClipBoardCut(buffer *buf)
             XstringSet(clipboard.text, singlechar);
             free(singlechar);
         }
-        std::cout << clipboard.text->data << std::endl;
     }
     
     SDL_SetClipboardText(XstringGet(clipboard.text));

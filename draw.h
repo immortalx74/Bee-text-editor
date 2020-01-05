@@ -24,3 +24,4 @@ void RenderListRange(buffer *buf, int start, int count, SDL_Texture *ch, SDL_Tex
 
 void HighlightListSelectionDraw(buffer *buf, list *l);
 void PanelsResize(int mousex, SDL_Cursor *c);
+void CursorSetToMouse(buffer *buf, int mousex, int mousey);

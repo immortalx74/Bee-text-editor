@@ -27,8 +27,8 @@ void Init()
     font.height = TTF_FontHeight(font.handle);
     TTF_SizeText(font.handle, "0", &font.width, &font.height);
     
-    app.window = SDL_CreateWindow("LinearBee", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
-                                  1024, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE /*| SDL_WINDOW_MAXIMIZED*/);
+    app.window = SDL_CreateWindow("ed", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
+                                  1024, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED);
     app.renderer = SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     
     app.custom_blendmode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR,
