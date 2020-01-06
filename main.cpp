@@ -51,15 +51,22 @@ int main(int argc, char *argv[])
     SDL_SetTextureBlendMode(bufferB.status_bar.texture, SDL_BLENDMODE_BLEND);
     
     bool mb_left_pressed = false;
+    static bool focus_lost = false;
     int mx , my;
     
     while(!app.quit)
     {
-        int flags = SDL_GetWindowFlags(app.window );
+        int flags = SDL_GetWindowFlags(app.window);
         if(flags & SDL_WINDOW_MINIMIZED)
         {
             SDL_Delay(16);
         }
+        
+        if(focus_lost)
+        {
+            SDL_Delay(16);
+        }
+        
         
         while (SDL_PollEvent(&app.e))
         {
@@ -125,6 +132,14 @@ int main(int argc, char *argv[])
             }
             else if(app.e.type == SDL_WINDOWEVENT)
             {
+                if(app.e.window.event == SDL_WINDOWEVENT_LEAVE)
+                {
+                    focus_lost = true;
+                }
+                else if(app.e.window.event == SDL_WINDOWEVENT_ENTER)
+                {
+                    focus_lost = false;
+                }
                 if(app.e.window.event == SDL_WINDOWEVENT_RESIZED)
                 {
                     WindowResize(&app, app.window);
