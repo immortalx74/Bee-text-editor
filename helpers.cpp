@@ -2,8 +2,11 @@
 
 void SettingsSetDefaults()
 {
+    app.last_path = XstringCreate("");
+    XstringSet(app.last_path, SDL_GetBasePath());
+    
     settings.font_name = XstringCreate("liberation-mono.ttf");
-    settings.start_path = XstringCreate("abcde");
+    settings.start_path = XstringCreate("");
     settings.margin = 4;
     settings.line_mem_chunk = 64;
     settings.undo_steps = 100;
@@ -20,13 +23,35 @@ void SettingsSetDefaults()
     
     font.name = XstringCreate("liberation-mono.ttf");
     
+    settings.kb_command_file_open = {SDLK_o, KMOD_CTRL, KMOD_NONE};
+    settings.kb_command_file_save = {SDLK_s, KMOD_CTRL, KMOD_NONE};
+    settings.kb_command_marker_set = {SDLK_SPACE, KMOD_CTRL, KMOD_ALT};
+    settings.kb_command_buffer_kill = {SDLK_k, KMOD_CTRL, KMOD_ALT};
+    settings.kb_command_buffer_toggle_active = {SDLK_0, KMOD_CTRL, KMOD_ALT};
+    
     SettingsApply();
 };
 
 void SettingsApply()
 {
     XstringSet(font.name, settings.font_name->data);
-    // start path/app.lastpath  here??
+    
+    if(XstringGetLength(settings.start_path) > 0)
+    {
+#ifdef _WIN32
+        if(XstringGet(settings.start_path)[XstringGetLength(settings.start_path) - 1] != '\\')
+        {
+            XstringConcat(settings.start_path, 1, "\\");
+        }
+#endif
+#ifdef __linux__
+        if(XstringGet(settings.start_path)[XstringGetLength(settings.start_path) - 1] != '/')
+        {
+            XstringConcat(settings.start_path, 1, "\\");
+        }
+#endif
+        XstringSet(app.last_path, settings.start_path->data);
+    }
     
     font.size = settings.font_size;
     bufferA.panel.color = settings.color_panel_outline;

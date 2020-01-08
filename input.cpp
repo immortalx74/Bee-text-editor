@@ -7,13 +7,7 @@
 
 void GetGlobalInput()
 {
-    if (app.e.type == SDL_KEYDOWN)
-    {
-        //if (app.e.key.keysym.sym == SDLK_ESCAPE)
-        //{
-        //app.quit = true;
-        //}
-    }
+    //nothing here for the time being
 };
 
 void GetListNavigationInput()
@@ -88,11 +82,14 @@ void GetListNavigationInput()
             {
                 if(XstringGetLength(app.active_buffer->lst->filter) == 0)
                 {
-                    
                     Input_ListNav_ParentDirectory(app.active_buffer->lst);
                 }
                 else
                 {
+                    if(XstringGetLength(app.active_buffer->lst->filter) == 1)
+                    {
+                        XstringSet(app.active_buffer->lst->filter, "");
+                    }
                     XstringTruncateTail(app.active_buffer->lst->filter, 1);
                     
                     ListClear(app.active_buffer->lst);
@@ -151,7 +148,6 @@ void GetBindedCommandsInput()
 
 void GetTextEditingInput()
 {
-    //const SDL_Keymod modkeys = (SDL_Keymod)(KMOD_CTRL | KMOD_SHIFT | KMOD_ALT | KMOD_GUI);
     const SDL_Keymod modkeys = (SDL_Keymod)(KMOD_CTRL | KMOD_ALT | KMOD_GUI);
     const bool no_mod_keys{(SDL_GetModState() & modkeys) == KMOD_NONE};
     

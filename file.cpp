@@ -101,7 +101,7 @@ void FileParseSettings()
     //return;
     //}
     
-    const int sets_count = 15;// Change when adding/removing a setting
+    const int sets_count = 20;// Change when adding/removing a setting
     xstring *settings_tokens[sets_count];
     
     settings_tokens[sets_enum::font_name] = XstringCreate("font_name");
@@ -119,6 +119,12 @@ void FileParseSettings()
     settings_tokens[sets_enum::color_marker] = XstringCreate("color_marker");
     settings_tokens[sets_enum::color_bar_background] = XstringCreate("color_bar_background");
     settings_tokens[sets_enum::color_bar_text] = XstringCreate("color_bar_text");
+    
+    settings_tokens[sets_enum::command_file_open] = XstringCreate("command_file_open");
+    settings_tokens[sets_enum::command_file_save] = XstringCreate("command_file_save");
+    settings_tokens[sets_enum::command_marker_set] = XstringCreate("command_marker_set");
+    settings_tokens[sets_enum::command_buffer_kill] = XstringCreate("command_buffer_kill");
+    settings_tokens[sets_enum::command_buffer_toggle_active] = XstringCreate("command_buffer_toggle_active");
     
     file.open("settings.cfg");
     std::string str;
@@ -198,7 +204,14 @@ void SetSetting(int index, xstring *value)
         {
             XstringTruncateHead(value, 1);
             XstringTruncateTail(value, 1);
-            XstringSet(settings.start_path, value->data);
+            if(value->length == 1)
+            {
+                XstringSet(settings.start_path, "");
+            }
+            else
+            {
+                XstringSet(settings.start_path, value->data);
+            }
         }
         break;
         
@@ -297,6 +310,51 @@ void SetSetting(int index, xstring *value)
             settings.color_bar_text = ExtractColorFromString(value);
         }
         break;
+        
+        case sets_enum::command_file_open:
+        {
+            XstringTrimAllWhitespace(value);
+            XstringTruncateHead(value, 1);
+            XstringTruncateTail(value, 1);
+            settings.kb_command_file_open = ExtractKeyBindingFromString(value);
+        }
+        break;
+        
+        case sets_enum::command_file_save:
+        {
+            XstringTrimAllWhitespace(value);
+            XstringTruncateHead(value, 1);
+            XstringTruncateTail(value, 1);
+            settings.kb_command_file_save = ExtractKeyBindingFromString(value);
+        }
+        break;
+        
+        case sets_enum::command_marker_set:
+        {
+            XstringTrimAllWhitespace(value);
+            XstringTruncateHead(value, 1);
+            XstringTruncateTail(value, 1);
+            settings.kb_command_marker_set = ExtractKeyBindingFromString(value);
+        }
+        break;
+        
+        case sets_enum::command_buffer_kill:
+        {
+            XstringTrimAllWhitespace(value);
+            XstringTruncateHead(value, 1);
+            XstringTruncateTail(value, 1);
+            settings.kb_command_buffer_kill = ExtractKeyBindingFromString(value);
+        }
+        break;
+        
+        case sets_enum::command_buffer_toggle_active:
+        {
+            XstringTrimAllWhitespace(value);
+            XstringTruncateHead(value, 1);
+            XstringTruncateTail(value, 1);
+            settings.kb_command_buffer_toggle_active = ExtractKeyBindingFromString(value);
+        }
+        break;
     }
 };
 
@@ -332,4 +390,102 @@ SDL_Color ExtractColorFromString(xstring *str)
     free(ch);
     
     return result;
+};
+
+key_binding ExtractKeyBindingFromString(xstring *str)
+{
+    int len = str->length;
+    int index = 0;
+    char *ch = (char*)calloc(2, 1);
+    xstring *str_keys[3] = {XstringCreate(""), XstringCreate(""), XstringCreate("")};
+    key_binding kb;
+    
+    for (int i = 0; i < len; ++i)
+    {
+        ch[0] = str->data[i];
+        if(ch[0] == ',')
+        {
+            // special case to exclude ',' character as a key-binding
+            if(i < len -1 && str->data[i + 1] != '"')
+            {
+                index++;
+            }
+        }
+        else
+        {
+            XstringConcat(str_keys[index], 1, ch);
+        }
+    }
+    
+    XstringTruncateTail(str_keys[0], 1);
+    XstringTruncateHead(str_keys[0], 1);
+    
+    SDL_Keycode kc = SDL_GetKeyFromName(str_keys[0]->data);
+    kb.key = kc;
+    
+    int result_mod = GetKeymodFromString(str_keys[1]);
+    
+    if(result_mod != -1)
+    {
+        kb.mod1 = result_mod;
+    }
+    
+    result_mod = GetKeymodFromString(str_keys[2]);
+    if(result_mod != -1)
+    {
+        kb.mod2 = result_mod;
+    }
+    
+    for (int i = 0; i < 3; ++i)
+    {
+        XstringDestroy(str_keys[i]);
+    }
+    
+    return kb;
+};
+
+int GetKeymodFromString(xstring * str)
+{
+    if(XstringContainsSubstring(str, "KMOD_NONE"))
+    {
+        return KMOD_NONE;
+    }
+    else if(XstringContainsSubstring(str, "KMOD_LSHIFT"))
+    {
+        return KMOD_LSHIFT;
+    }
+    else if(XstringContainsSubstring(str, "KMOD_RSHIFT"))
+    {
+        return KMOD_RSHIFT;
+    }
+    else if(XstringContainsSubstring(str, "KMOD_LCTRL"))
+    {
+        return KMOD_LCTRL;
+    }
+    else if(XstringContainsSubstring(str, "KMOD_RCTRL"))
+    {
+        return KMOD_RCTRL;
+    }
+    else if(XstringContainsSubstring(str, "KMOD_LALT"))
+    {
+        return KMOD_LALT;
+    }
+    else if(XstringContainsSubstring(str, "KMOD_RALT"))
+    {
+        return KMOD_RALT;
+    }
+    else if(XstringContainsSubstring(str, "KMOD_CTRL"))
+    {
+        return KMOD_CTRL;
+    }
+    else if(XstringContainsSubstring(str, "KMOD_SHIFT"))
+    {
+        return KMOD_SHIFT;
+    }
+    else if(XstringContainsSubstring(str, "KMOD_ALT"))
+    {
+        return KMOD_ALT;
+    }
+    
+    return -1;
 };

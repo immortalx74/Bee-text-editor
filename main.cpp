@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     SettingsSetDefaults();
     FileParseSettings();
     Init();
-    app.last_path = XstringCreate(SDL_GetBasePath());
+    
     clipboard.text = XstringCreate("");
     ClipBoardGetExternal();
     WindowResize(&app, app.window);
@@ -64,11 +64,17 @@ int main(int argc, char *argv[])
         
         if(focus_lost)
         {
-            SDL_Delay(16);
+            if(SDL_WaitEvent(&app.e))
+            {
+                if(app.e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
+                {
+                    focus_lost = false;
+                }
+            }
         }
         
         
-        while (SDL_PollEvent(&app.e))
+        while(SDL_PollEvent(&app.e))
         {
             // INPUT EVENTS
             if(app.mode == TEXT_EDIT)
@@ -132,11 +138,11 @@ int main(int argc, char *argv[])
             }
             else if(app.e.type == SDL_WINDOWEVENT)
             {
-                if(app.e.window.event == SDL_WINDOWEVENT_LEAVE)
+                if(app.e.window.event == SDL_WINDOWEVENT_FOCUS_LOST)
                 {
                     focus_lost = true;
                 }
-                else if(app.e.window.event == SDL_WINDOWEVENT_ENTER)
+                else if(app.e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
                 {
                     focus_lost = false;
                 }
@@ -182,7 +188,6 @@ int main(int argc, char *argv[])
         BarDraw(&bufferA);
         BarDraw(&bufferB);
         
-        
         if(app.mode == TEXT_EDIT)
         {
             HighlightLineDraw(app.active_buffer);
@@ -193,7 +198,6 @@ int main(int argc, char *argv[])
             RenderListRange(app.active_buffer, app.active_buffer->lst->scroll_offset, app.active_buffer->lst->element_count, characters_texture, app.active_buffer->panel.texture);
         }
         
-        //SDL_SetRenderDrawColor(app.renderer, 21, 12, 42, 255);// background
         SDL_SetRenderDrawColor(app.renderer, settings.color_background.r, settings.color_background.g, settings.color_background.b, settings.color_background.a);// background
         
         SDL_Rect panA = {bufferA.panel.x,bufferA.panel.y,bufferA.panel.w,bufferA.panel.h};

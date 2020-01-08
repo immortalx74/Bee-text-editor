@@ -23,6 +23,13 @@ struct xstring
     int length;
 };
 
+struct key_binding
+{
+    SDL_Keycode key;
+    int mod1;
+    int mod2;
+};
+
 enum sets_enum
 {
     font_name,
@@ -39,7 +46,13 @@ enum sets_enum
     color_cursor,
     color_marker,
     color_bar_background,
-    color_bar_text
+    color_bar_text,
+    
+    command_file_open,
+    command_file_save,
+    command_marker_set,
+    command_buffer_kill,
+    command_buffer_toggle_active
 };
 
 struct _settings
@@ -59,6 +72,12 @@ struct _settings
     SDL_Color color_marker;
     SDL_Color color_bar_background;
     SDL_Color color_bar_text;
+    
+    key_binding kb_command_file_open;
+    key_binding kb_command_file_save;
+    key_binding kb_command_marker_set;
+    key_binding kb_command_buffer_kill;
+    key_binding kb_command_buffer_toggle_active;
 };
 
 extern _settings settings;

@@ -344,6 +344,11 @@ void SwitchHorizontalPage(buffer *buf)
 
 bool MarkerIsWithinDrawingBounds(buffer *buf)
 {
+    if(buf->marker.col == 0 && buf->panel.col_capacity == 0)
+    {
+        return false;
+    }
+    
     if (buf->marker.col / buf->panel.col_capacity == buf->panel.page && buf->marker.row >= buf->panel.scroll_offset_ver && buf->marker.row < buf->panel.scroll_offset_ver + buf->panel.row_capacity)
     {
         return true;
