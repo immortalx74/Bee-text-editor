@@ -57,6 +57,8 @@ void SettingsApply()
     bufferA.panel.color = settings.color_panel_outline;
     bufferB.panel.color = settings.color_panel_outline;
     font.text_color = settings.color_text;
+    bufferA.cursor.color = settings.color_cursor;
+    bufferB.cursor.color = settings.color_cursor;
     bufferA.cursor.line_highlight = settings.color_line_highlight;
     bufferB.cursor.line_highlight = settings.color_line_highlight;
     bufferA.marker.color = settings.color_marker;
@@ -433,4 +435,27 @@ bool XstringContainsSubstring(xstring *str, char *substr)
     }
     
     return true;
+};
+
+bool CommandKeyBinding(key_binding kb)
+{
+    if(app.e.key.keysym.sym == kb.key)
+    {
+        if(kb.mod2 == KMOD_NONE)
+        {
+            if(SDL_GetModState() & kb.mod1)
+            {
+                return true;
+            }
+        }
+        else
+        {
+            if(SDL_GetModState() & kb.mod1 && SDL_GetModState() & kb.mod2)
+            {
+                return true;
+            }
+        }
+    }
+    
+    return false;
 };

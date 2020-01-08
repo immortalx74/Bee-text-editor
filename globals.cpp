@@ -30,13 +30,13 @@ void Init()
     app.window = SDL_CreateWindow("ed", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
                                   1024, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE /*| SDL_WINDOW_MAXIMIZED*/);
     app.renderer = SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    
-    app.custom_blendmode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR,
-                                                      SDL_BLENDFACTOR_ZERO,
-                                                      SDL_BLENDOPERATION_ADD,
-                                                      SDL_BLENDFACTOR_ONE,
-                                                      SDL_BLENDFACTOR_ONE,
-                                                      SDL_BLENDOPERATION_ADD);
+    // original. works somewhat OK
+    //app.custom_blendmode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR,
+    //SDL_BLENDFACTOR_ZERO,
+    //SDL_BLENDOPERATION_ADD,
+    //SDL_BLENDFACTOR_ONE,
+    //SDL_BLENDFACTOR_ONE,
+    //SDL_BLENDOPERATION_ADD);
     
     // This blendmode results in black cursor with green text
     //app.custom_blendmode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_DST_COLOR,
@@ -45,6 +45,22 @@ void Init()
     //SDL_BLENDFACTOR_ZERO,
     //SDL_BLENDFACTOR_ONE,
     //SDL_BLENDOPERATION_ADD);
+    
+    //That one seems the best
+    //app.custom_blendmode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR,
+    //SDL_BLENDFACTOR_ONE_MINUS_SRC_COLOR,
+    //SDL_BLENDOPERATION_ADD,
+    //SDL_BLENDFACTOR_ONE,
+    //SDL_BLENDFACTOR_ONE,
+    //SDL_BLENDOPERATION_ADD);
+    
+    //Even better?
+    app.custom_blendmode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR,
+                                                      SDL_BLENDFACTOR_ZERO,
+                                                      SDL_BLENDOPERATION_ADD,
+                                                      SDL_BLENDFACTOR_ONE,
+                                                      SDL_BLENDFACTOR_ZERO,
+                                                      SDL_BLENDOPERATION_ADD);
     
     SDL_GetWindowSize(app.window, &app.ww, &app.wh);
     

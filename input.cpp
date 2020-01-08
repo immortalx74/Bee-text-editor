@@ -109,21 +109,20 @@ void GetBindedCommandsInput()
 {
     if (app.e.type == SDL_KEYDOWN)
     {
-        if( app.e.key.keysym.sym == SDLK_s && SDL_GetModState() & KMOD_CTRL)
+        if(CommandKeyBinding(settings.kb_command_file_save))
         {
             FileWriteToDisk(app.active_buffer, "example.txt");
         }
-        else if( app.e.key.keysym.sym == SDLK_SPACE && SDL_GetModState() & KMOD_CTRL)
+        else if(CommandKeyBinding(settings.kb_command_marker_set))
         {
-            //set marker
             app.active_buffer->marker.row = app.active_buffer->line;
             app.active_buffer->marker.col = app.active_buffer->column;
         }
-        else if( app.e.key.keysym.sym == SDLK_k && SDL_GetModState() & KMOD_CTRL)
+        else if(CommandKeyBinding(settings.kb_command_buffer_kill))
         {
             app.active_buffer->line_node = KillBuffer(app.active_buffer);
         }
-        else if( app.e.key.keysym.sym == SDLK_o && SDL_GetModState() & KMOD_CTRL)
+        else if(CommandKeyBinding(settings.kb_command_file_open))
         {
             if(app.active_buffer->lst == NULL)
             {
@@ -132,13 +131,12 @@ void GetBindedCommandsInput()
                 app.mode = LIST_NAV;
             }
         }
-        else if((app.e.key.keysym.sym == SDLK_KP_0 && SDL_GetModState() & KMOD_CTRL) || app.e.key.keysym.sym == SDLK_0 && SDL_GetModState() & KMOD_CTRL)
+        else if(CommandKeyBinding(settings.kb_command_buffer_toggle_active))
         {
             if(app.active_buffer == &bufferA)
             {
                 app.active_buffer = &bufferB;
-            }
-            else
+            }else
             {
                 app.active_buffer = &bufferA;
             }

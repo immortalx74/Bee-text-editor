@@ -73,7 +73,6 @@ int main(int argc, char *argv[])
             }
         }
         
-        
         while(SDL_PollEvent(&app.e))
         {
             // INPUT EVENTS

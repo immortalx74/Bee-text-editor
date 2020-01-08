@@ -4,8 +4,13 @@
 
 void CursorDraw(buffer *buf)
 {
-    // NOTE xx now takes page into account
     int xx = ((buf->cursor.col - buf->panel.page * buf->panel.col_capacity) * font.width) + settings.margin + buf->panel.x;
+    
+    if(buf == &bufferA && xx + font.width > buf->panel.w)
+    {
+        return;
+    }
+    
     int yy = (buf->cursor.row * font.height) + settings.margin;
     
     SDL_Rect box = {xx, yy, font.width, font.height};
@@ -23,7 +28,6 @@ void CursorDraw(buffer *buf)
 void MarkerDraw(buffer *buf)
 {
     int xx = (buf->marker.col - (buf->panel.page * buf->panel.col_capacity)) * font.width + settings.margin + buf->panel.x;
-    //int yy = (buf->marker.row * font.height) + settings.margin;
     int yy = (buf->marker.row - buf->panel.scroll_offset_ver) * font.height + settings.margin;
     
     SDL_Rect box = {xx, yy, font.width, font.height};
@@ -148,11 +152,24 @@ void HighlightLineDraw(buffer *buf)
 {
     int xx = buf->panel.x + settings.margin;
     int yy = (buf->cursor.row * font.height) + settings.margin;
-    
-    SDL_Rect box = {xx, yy, buf->panel.w - (2 *settings.margin), font.height};
     SDL_SetRenderDrawColor(app.renderer, buf->cursor.line_highlight.r, buf->cursor.line_highlight.g, buf->cursor.line_highlight.b, buf->cursor.line_highlight.a);
     
-    SDL_RenderFillRect(app.renderer, &box);
+    int cursor_x = ((buf->cursor.col - buf->panel.page * buf->panel.col_capacity) * font.width);
+    SDL_Rect box;
+    
+    if(cursor_x + font.width + settings.margin + buf->panel.x > buf->panel.w)
+    {
+        box = {xx, yy, buf->panel.w - settings.margin, font.height};
+        SDL_RenderFillRect(app.renderer, &box);
+    }
+    else
+    {
+        box = {xx, yy, cursor_x, font.height};
+        SDL_RenderFillRect(app.renderer, &box);
+        int width_remaining = buf->panel.w - cursor_x - font.width - settings.margin - 1;
+        box = {cursor_x + font.width + settings.margin + 1, yy, width_remaining, font.height};
+        SDL_RenderFillRect(app.renderer, &box);
+    }
     
     SDL_SetRenderDrawColor(app.renderer, settings.color_background.r, settings.color_background.g, settings.color_background.b, settings.color_background.a);// background
 };
@@ -177,7 +194,7 @@ void WindowResize(app_info *application, SDL_Window *win)
     bufferA.panel.w = (application->ww / 2) - 1;
     bufferA.panel.h = application->wh - bufferA.status_bar.h - 1;
     bufferA.panel.row_capacity = bufferA.panel.h / font.height;
-    bufferA.panel.col_capacity = bufferA.panel.w / font.width;
+    bufferA.panel.col_capacity = (bufferA.panel.w - settings.margin) / font.width;
     bufferA.status_bar.x = bufferA.panel.x;
     bufferA.status_bar.y = bufferA.panel.h;
     bufferA.status_bar.w = bufferA.panel.w;
@@ -188,7 +205,7 @@ void WindowResize(app_info *application, SDL_Window *win)
     bufferB.panel.w = (application->ww / 2) - 1;
     bufferB.panel.h = application->wh - bufferB.status_bar.h - 1;
     bufferB.panel.row_capacity = bufferB.panel.h / font.height;
-    bufferB.panel.col_capacity = bufferB.panel.w / font.width;
+    bufferB.panel.col_capacity = (bufferB.panel.w - settings.margin) / font.width;
     bufferB.status_bar.x = bufferB.panel.x;
     bufferB.status_bar.y = bufferB.panel.h;
     bufferB.status_bar.w = bufferB.panel.w;
@@ -434,8 +451,8 @@ void PanelsResize(int mousex, SDL_Cursor *c)
         bufferA.status_bar.w -= diff;
     }
     
-    bufferA.panel.col_capacity = bufferA.panel.w / font.width;
-    bufferB.panel.col_capacity = bufferB.panel.w / font.width;
+    bufferA.panel.col_capacity = (bufferA.panel.w - settings.margin) / font.width;
+    bufferB.panel.col_capacity = (bufferB.panel.w - settings.margin) / font.width;
     
     SDL_DestroyTexture(bufferA.panel.texture);
     SDL_DestroyTexture(bufferB.panel.texture);

@@ -31,3 +31,4 @@ bool XstringContainsSubstring(xstring *str, char *substr);
 
 void SettingsSetDefaults();
 void SettingsApply();
+bool CommandKeyBinding(key_binding kb);
