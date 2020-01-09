@@ -23,7 +23,7 @@ void GetListNavigationInput()
             if(app.e.text.text[0] == 92)//Backslash
 #endif
 #ifdef __linux__
-                if(app.e.text.text[0] == 47)//Backslash
+                if(app.e.text.text[0] == 47)//Slash
 #endif
             {
                 if(IsValidPathFilter(XstringGet(app.active_buffer->lst->current_path), XstringGet(app.active_buffer->lst->filter)))
@@ -48,7 +48,7 @@ void GetListNavigationInput()
             if(app.e.text.text[0] == 92)//Backslash
 #endif
 #ifdef __linux__
-                if(app.e.text.text[0] == 47)//Backslash
+                if(app.e.text.text[0] == 47)//Slash
 #endif
             {
                 XstringSet(app.last_path, XstringGet(app.active_buffer->lst->filter));
@@ -98,6 +98,7 @@ void GetListNavigationInput()
             }
             else if(XstringGetLength(app.active_buffer->lst->current_path) == 0 && XstringGetLength(app.active_buffer->lst->filter) > 0)// reached top level dir
             {
+                std::cout << "here" << std::endl;
                 XstringSet(app.last_path, XstringGet(app.active_buffer->lst->current_path));
                 XstringTruncateTail(app.active_buffer->lst->filter, 1);
             }
@@ -697,17 +698,17 @@ void Input_ListNav_ParentDirectory(list *l)
     }
     else
     {
-        XstringTruncateTail(l->current_path, 1);
+        //XstringTruncateTail(l->current_path, 1);
+        XstringSet(l->current_path, "");
 #ifdef _WIN32
-        int pos = XstringIndexOfLastOccurrance(l->current_path, '\\') + 1;
+        //int pos = XstringIndexOfLastOccurrance(l->current_path, '\\') + 1;
 #endif
 #ifdef __linux__
-        int pos = XstringIndexOfLastOccurrance(l->current_path, '/') + 1;
+        //int pos = XstringIndexOfLastOccurrance(l->current_path, '/') + 1;
 #endif
-        XstringTruncateTail(l->current_path, XstringGetLength(l->current_path) - pos);
+        //XstringTruncateTail(l->current_path, XstringGetLength(l->current_path) - pos);
         ListClear(l);
         
-        //XstringSet(app.last_path, "");
     }
 };
 
