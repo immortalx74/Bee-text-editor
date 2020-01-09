@@ -98,7 +98,6 @@ void GetListNavigationInput()
             }
             else if(XstringGetLength(app.active_buffer->lst->current_path) == 0 && XstringGetLength(app.active_buffer->lst->filter) > 0)// reached top level dir
             {
-                std::cout << "here" << std::endl;
                 XstringSet(app.last_path, XstringGet(app.active_buffer->lst->current_path));
                 XstringTruncateTail(app.active_buffer->lst->filter, 1);
             }
@@ -127,7 +126,7 @@ void GetBindedCommandsInput()
         {
             if(app.active_buffer->lst == NULL)
             {
-                app.active_buffer->lst = ListCreate("Open:", 400, app.active_buffer->panel.col_capacity - 5);
+                app.active_buffer->lst = ListCreate("Open:", 128, 260);
                 PopulateFileList(app.active_buffer->lst, XstringGet(app.last_path));
                 app.mode = LIST_NAV;
             }

@@ -109,7 +109,7 @@ struct buffer
     int line_count;
     int column;
     int line;
-    char filename[128] = "*no file*";
+    xstring *filename;
     list *lst = NULL;
     
     struct _cursor

@@ -64,10 +64,10 @@ void BarDraw(buffer *buf)
         SDL_Rect glyph_rect;
         SDL_Rect pos;
         
-        int len_fn = strlen(buf->filename);
+        int len_fn = strlen(buf->filename->data);
         for (int i = 0; i < len_fn; ++i)
         {
-            cur_char = (int)buf->filename[i];
+            cur_char = (int)buf->filename->data[i];
             glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
             pos = {settings.margin + (i * font.width), settings.margin, font.width, font.height};
             SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
@@ -128,11 +128,6 @@ void BarDraw(buffer *buf)
             
             if(len_filter > 0)
             {
-                //cur_char = '\\';
-                //glyph_rect = {(cur_char - 32) * font.width, 0, font.width, font.height};
-                //pos = {(len_title * font.width) + (len_cp * font.width) + settings.margin , settings.margin, font.width, font.height};
-                //SDL_RenderCopy(app.renderer, bar_characters_texture, &glyph_rect, &pos);
-                
                 for (int i = 0; i < len_filter; ++i)
                 {
                     cur_char = (int)XstringGet(buf->lst->filter)[i];

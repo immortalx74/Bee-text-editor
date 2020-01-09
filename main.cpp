@@ -6,6 +6,9 @@
 
 int main(int argc, char *argv[])
 {
+    bufferA.filename = XstringCreate("*no file*");
+    bufferB.filename = XstringCreate("*no file*");
+    
     SettingsSetDefaults();
     FileParseSettings();
     Init();
@@ -227,6 +230,8 @@ int main(int argc, char *argv[])
     
     SDL_FreeCursor(cursor_resize_hor);
     
+    XstringDestroy(bufferA.filename);
+    XstringDestroy(bufferB.filename);
     XstringDestroy(clipboard.text);
     XstringDestroy(settings.font_name);
     XstringDestroy(settings.start_path);

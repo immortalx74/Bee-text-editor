@@ -238,19 +238,7 @@ node *KillBuffer(buffer *buf)
     buf->panel.scroll_offset_ver = 0;
     buf->panel.page = 0;
     
-    //TEMP set filename
-    int len = strlen(buf->filename);
-    for (int i = 0; i < len; ++i)
-    {
-        buf->filename[i] = 0;
-    }
-    
-    char empty_filename[] = "*no file*";
-    len = strlen(empty_filename);
-    for (int i = 0; i < len; ++i)
-    {
-        buf->filename[i] = empty_filename[i];
-    }
+    XstringSet(buf->filename, "*no file*");
     
     RenderLineRange(buf, 0, 1, characters_texture, buf->panel.texture);
     

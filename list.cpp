@@ -45,7 +45,7 @@ void ListClear(list *l)
 
 void ListResize(list *l, int new_cap)
 {
-    (char*)realloc(l->data, new_cap * l->element_size);
+    l->data = (char*)realloc(l->data, new_cap * l->element_size);
     l->capacity = new_cap;
 };
 
@@ -91,6 +91,11 @@ void PopulateFileList(list *l, char *path)
                 current[len] = '/';
 #endif
                 current[len + 1] = '\0';
+            }
+            
+            if(l->element_count + 1 >= l->capacity)
+            {
+                ListResize(l, l->capacity * 2);
             }
             
             ListSetElement(l, count, current);

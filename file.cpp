@@ -49,19 +49,7 @@ void FileReadToBuffer(buffer *buf, char *filename)
     buf->panel.page = 0;
     buf->line_node = cur_node;
     
-    
-    //TEMP set filename
-    int len = strlen(buf->filename);
-    for (int i = 0; i < len; ++i)
-    {
-        buf->filename[i] = 0;
-    }
-    
-    len = strlen(filename);
-    for (int i = 0; i < len; ++i)
-    {
-        buf->filename[i] = filename[i];
-    }
+    XstringSet(buf->filename, filename);
     
     // Render content
     RenderLineRange(buf, 0, buf->line_count, characters_texture, buf->panel.texture);
