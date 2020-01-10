@@ -119,6 +119,7 @@ struct buffer
         int last_hor_pos = 0;
         SDL_Color color = {0, 255, 0, 255};
         SDL_Color line_highlight = {40, 0, 180, 255};
+        bool visible = true;
     }cursor;
     
     struct _marker

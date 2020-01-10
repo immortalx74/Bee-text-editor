@@ -19,6 +19,13 @@ color_marker = 255, 0, 0, 255
 color_bar_background = 140, 140, 140, 255
 color_bar_text = 10, 10, 10, 255
 
+
+500
+100 w400
+100 500
+
+
+
 1234qwerty
 
 void A_WeaponReady();

@@ -8,7 +8,12 @@ void CursorDraw(buffer *buf)
     
     if(buf == &bufferA && xx + font.width > buf->panel.w)
     {
+        buf->cursor.visible = false;
         return;
+    }
+    else
+    {
+        buf->cursor.visible = true;
     }
     
     int yy = (buf->cursor.row * font.height) + settings.margin;
@@ -149,22 +154,31 @@ void HighlightLineDraw(buffer *buf)
     int yy = (buf->cursor.row * font.height) + settings.margin;
     SDL_SetRenderDrawColor(app.renderer, buf->cursor.line_highlight.r, buf->cursor.line_highlight.g, buf->cursor.line_highlight.b, buf->cursor.line_highlight.a);
     
-    int cursor_x = ((buf->cursor.col - buf->panel.page * buf->panel.col_capacity) * font.width);
     SDL_Rect box;
+    int cursor_x = ((buf->cursor.col - buf->panel.page * buf->panel.col_capacity) * font.width);
     
-    if(cursor_x + font.width + settings.margin + buf->panel.x > buf->panel.w)
+    int start_left = buf->panel.x + settings.margin;
+    int width_total = buf->panel.w - settings.margin - 1;
+    int width_right = width_total - cursor_x;
+    int width_left = width_total - width_right;
+    int start_right = start_left + cursor_x + font.width;;
+    
+    if(!buf->cursor.visible)
     {
-        box = {xx, yy, buf->panel.w - settings.margin, font.height};
-        SDL_RenderFillRect(app.renderer, &box);
+        width_left = buf->panel.w - start_left;
     }
     else
     {
-        box = {xx, yy, cursor_x, font.height};
-        SDL_RenderFillRect(app.renderer, &box);
-        int width_remaining = buf->panel.w - cursor_x - font.width - settings.margin - 1;
-        box = {cursor_x + font.width + settings.margin + 1, yy, width_remaining, font.height};
+        box = {start_right, yy, width_right - font.width, font.height};
         SDL_RenderFillRect(app.renderer, &box);
     }
+    
+    box = {start_left, yy, width_left, font.height};
+    SDL_RenderFillRect(app.renderer, &box);
+    
+    
+    
+    
     
     SDL_SetRenderDrawColor(app.renderer, settings.color_background.r, settings.color_background.g, settings.color_background.b, settings.color_background.a);// background
 };
