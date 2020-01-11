@@ -504,8 +504,11 @@ void CursorSetToMouse(buffer *buf, int mousex, int mousey)
         line_diff = row_under_pointer - buf->cursor.row;
         for (int i = 0; i < line_diff; ++i)
         {
-            buf->line_node = buf->line_node->next;
-            buf->line++;
+            if(buf->line_node->next != NULL)
+            {
+                buf->line_node = buf->line_node->next;
+                buf->line++;
+            }
         }
     }
     else if(row_under_pointer < buf->cursor.row)
