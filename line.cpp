@@ -1,6 +1,5 @@
 #include "line.h"
 #include <iostream>
-#include "draw.h"
 
 void LineEnsureSufficientCapacity(node *ln)
 {
@@ -45,7 +44,7 @@ void LineExpandMemChunks(node *ln, int new_len)
 };
 
 // Create line and return pointer to it
-node *CreateLine(void)
+node *LineCreate(void)
 {
     node *newline = (node*)malloc(sizeof(node));
     newline->data = (char*)calloc(settings.line_mem_chunk, 1);
@@ -57,7 +56,7 @@ node *CreateLine(void)
 };
 
 // Insert line at position. Return NULL on error or node pointer on success
-void InsertLineAt(buffer *buf, int pos)
+void LineInsert(buffer *buf, int pos)
 {
     if(pos < 0 || pos > buf->line_count)
     {
@@ -67,7 +66,7 @@ void InsertLineAt(buffer *buf, int pos)
     else if(pos == 0) // node at start of list
     {
         node *right = buf->head->next;
-        buf->line_node = CreateLine();
+        buf->line_node = LineCreate();
         
         if(right == NULL) // No nodes yet
         {
@@ -87,7 +86,7 @@ void InsertLineAt(buffer *buf, int pos)
     else if(pos == buf->line_count && buf->line_count >= 1) // add as last node
     {
         int count = 0;
-        buf->line_node = CreateLine();
+        buf->line_node = LineCreate();
         node *ptr = buf->head;
         
         while(count < pos)
@@ -105,7 +104,7 @@ void InsertLineAt(buffer *buf, int pos)
     else // Add in-between(NOTE: if pos = n, pushes existing n and all other nodes rightwards)
     {
         int count = 0;
-        buf->line_node = CreateLine();
+        buf->line_node = LineCreate();
         node *ptr = buf->head;
         
         while(count <= pos)
@@ -126,7 +125,7 @@ void InsertLineAt(buffer *buf, int pos)
     }
 };
 
-void DeleteLineAt(buffer *buf, int pos)
+void LineDelete(buffer *buf, int pos)
 {
     node *head_current = buf->head;
     
@@ -218,7 +217,7 @@ node *KillBuffer(buffer *buf)
     
     buf->head->prev = NULL;
     buf->head->next = NULL;
-    InsertLineAt(buf, 0);
+    LineInsert(buf, 0);
     n = buf->line_node; 
     
     buf->line = 0;

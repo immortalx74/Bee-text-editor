@@ -174,7 +174,7 @@ void ClipBoardCut(buffer *buf)
                 else if(i > 0)
                 {
                     cur = cur->next;
-                    DeleteLineAt(buf, buf->line + i);
+                    LineDelete(buf, buf->line + i);
                 }
             }
             else if(i == line_diff)
@@ -183,7 +183,7 @@ void ClipBoardCut(buffer *buf)
                 
                 if(trim_right == 0)// delete entire last line
                 {
-                    DeleteLineAt(buf, buf->line + 1);
+                    LineDelete(buf, buf->line + 1);
                 }
                 else// Copy the chars AFTER right and merge with previous line 
                 {
@@ -195,7 +195,7 @@ void ClipBoardCut(buffer *buf)
                     }
                     
                     memcpy(cur->prev->data + strlen(cur->prev->data), cur->data + strlen(cur->data) - trim_right, trim_right);
-                    DeleteLineAt(buf, buf->line + i);
+                    LineDelete(buf, buf->line + i);
                 }
             }
         }

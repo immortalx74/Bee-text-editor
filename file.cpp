@@ -1,6 +1,5 @@
 #include "file.h"
 #include <iostream>
-#include "draw.h"
 
 void FileReadToBuffer(buffer *buf, char *filename)
 {
@@ -33,7 +32,7 @@ void FileReadToBuffer(buffer *buf, char *filename)
     }
     
     //TEMP hack. Delete that extra last line
-    DeleteLineAt(buf, buf->line_count - 1);
+    LineDelete(buf, buf->line_count - 1);
     
     file.close();
     

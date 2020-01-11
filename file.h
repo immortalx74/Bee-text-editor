@@ -4,6 +4,7 @@
 #include "globals.h"
 #include "line.h"
 #include "input.h"
+#include "render.h"
 
 void FileReadToBuffer(buffer *buf, char *filename);
 void FileWriteToDisk(buffer *buf, char *filename);

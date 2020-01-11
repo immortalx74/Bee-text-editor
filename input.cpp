@@ -1,16 +1,12 @@
 #include "input.h"
-#include "line.h"
-#include "character.h"
-#include "draw.h"
-#include "clipboard.h"
 #include <iostream>
 
-void GetGlobalInput()
+void ProcessInput_Global()
 {
     //nothing here for the time being
 };
 
-void GetListNavigationInput()
+void ProcessInput_ListNavigation()
 {
     if(app.e.type == SDL_TEXTINPUT)
     {
@@ -33,13 +29,13 @@ void GetListNavigationInput()
                 else
                 {
                     ListClear(app.active_buffer->lst);
-                    FilterFileList(app.active_buffer->lst, XstringGet(app.active_buffer->lst->current_path));
+                    ListApplyFilter(app.active_buffer->lst, XstringGet(app.active_buffer->lst->current_path));
                 }
             }
             else
             {
                 ListClear(app.active_buffer->lst);
-                FilterFileList(app.active_buffer->lst, XstringGet(app.active_buffer->lst->current_path));
+                ListApplyFilter(app.active_buffer->lst, XstringGet(app.active_buffer->lst->current_path));
             }
         }
         else// reached top level dir
@@ -93,7 +89,7 @@ void GetListNavigationInput()
                     XstringTruncateTail(app.active_buffer->lst->filter, 1);
                     
                     ListClear(app.active_buffer->lst);
-                    FilterFileList(app.active_buffer->lst, XstringGet(app.active_buffer->lst->current_path));
+                    ListApplyFilter(app.active_buffer->lst, XstringGet(app.active_buffer->lst->current_path));
                 }
             }
             else if(XstringGetLength(app.active_buffer->lst->current_path) == 0 && XstringGetLength(app.active_buffer->lst->filter) > 0)// reached top level dir
@@ -105,7 +101,7 @@ void GetListNavigationInput()
     }
 };
 
-void GetBindedCommandsInput()
+void ProcessInput_Commands()
 {
     if (app.e.type == SDL_KEYDOWN)
     {
@@ -127,7 +123,7 @@ void GetBindedCommandsInput()
             if(app.active_buffer->lst == NULL)
             {
                 app.active_buffer->lst = ListCreate("Open:", 128, 260);
-                PopulateFileList(app.active_buffer->lst, XstringGet(app.last_path));
+                ListPopulate(app.active_buffer->lst, XstringGet(app.last_path));
                 app.mode = LIST_NAV;
             }
         }
@@ -144,7 +140,7 @@ void GetBindedCommandsInput()
     }
 };
 
-void GetTextEditingInput()
+void ProcessInput_TextEditing()
 {
     const SDL_Keymod modkeys = (SDL_Keymod)(KMOD_CTRL | KMOD_ALT | KMOD_GUI);
     const bool no_mod_keys{(SDL_GetModState() & modkeys) == KMOD_NONE};
@@ -258,8 +254,8 @@ void Input_TextEd_Text(buffer *buf)
         }
     }
     
-    InsertCharacterAt(buf, buf->column);
-    RenderCharacterAt(buf, buf->cursor.row, buf->cursor.col - 1, strlen(buf->line_node->data), characters_texture, buf->panel.texture);
+    CharacterInsert(buf, buf->column);
+    RenderCharacter(buf, buf->cursor.row, buf->cursor.col - 1, strlen(buf->line_node->data), characters_texture, buf->panel.texture);
     buf->cursor.last_hor_pos = buf->cursor.col;
     
     SwitchHorizontalPage(buf);
@@ -278,7 +274,7 @@ void Input_TextEd_Return(buffer *buf)
         buf->column = 0;
         buf->line++;
         SyncCursorWithBuffer(buf);
-        InsertLineAt(buf, buf->line);
+        LineInsert(buf, buf->line);
         
         if (buf->line <  buf->line_count - 1)
         {
@@ -297,7 +293,7 @@ void Input_TextEd_Return(buffer *buf)
             buf->marker.col -= buf->column;
         }
         
-        InsertLineAt(buf, buf->line + 1);
+        LineInsert(buf, buf->line + 1);
         
         int index = 0;
         int len = strlen(buf->line_node->prev->data);
@@ -340,8 +336,8 @@ void Input_TextEd_Return(buffer *buf)
 
 void Input_TextEd_Backspace(buffer *buf)
 {
-    DeleteCharacterAt(buf, buf->column);
-    RenderClearCharacterAt(buf, buf->cursor.row, buf->cursor.col, strlen(buf->line_node->data),characters_texture, buf->panel.texture);
+    CharacterDelete(buf, buf->column);
+    RenderClearCharacter(buf, buf->cursor.row, buf->cursor.col, strlen(buf->line_node->data),characters_texture, buf->panel.texture);
     buf->cursor.last_hor_pos = buf->cursor.col;
     
     //test scroll
@@ -366,8 +362,8 @@ void Input_TextEd_Delete(buffer *buf)
     {
         buf->column++;
         SyncCursorWithBuffer(buf);
-        DeleteCharacterAt(buf, buf->column);
-        RenderClearCharacterAt(buf, buf->cursor.row, buf->cursor.col, strlen(buf->line_node->data),characters_texture, buf->panel.texture);
+        CharacterDelete(buf, buf->column);
+        RenderClearCharacter(buf, buf->cursor.row, buf->cursor.col, strlen(buf->line_node->data),characters_texture, buf->panel.texture);
     }
     else if(buf->line < buf->line_count - 1)
     {
@@ -375,8 +371,8 @@ void Input_TextEd_Delete(buffer *buf)
         buf->column = 0;
         SyncCursorWithBuffer(buf);
         buf->line_node = buf->line_node->next;
-        DeleteCharacterAt(buf, buf->column);
-        RenderClearCharacterAt(buf, buf->cursor.row, buf->cursor.col, strlen(buf->line_node->data),characters_texture, buf->panel.texture);
+        CharacterDelete(buf, buf->column);
+        RenderClearCharacter(buf, buf->cursor.row, buf->cursor.col, strlen(buf->line_node->data),characters_texture, buf->panel.texture);
     }
     buf->cursor.last_hor_pos = buf->cursor.col;
     
@@ -529,7 +525,7 @@ void Input_TextEd_Tab(buffer *buf)
         *(buf->line_node->data + buf->column) = ' ';
         buf->column++;
         SyncCursorWithBuffer(buf);
-        RenderCharacterAt(buf, buf->cursor.row, buf->cursor.col - 1, strlen(buf->line_node->data), characters_texture, buf->panel.texture);
+        RenderCharacter(buf, buf->cursor.row, buf->cursor.col - 1, strlen(buf->line_node->data), characters_texture, buf->panel.texture);
         buf->cursor.last_hor_pos = buf->cursor.col;
     }
 };
@@ -700,7 +696,7 @@ void Input_ListNav_ParentDirectory(list *l)
         XstringTruncateTail(l->current_path, XstringGetLength(l->current_path) - pos);
         
         ListClear(l);
-        PopulateFileList(l, XstringGet(l->current_path));
+        ListPopulate(l, XstringGet(l->current_path));
     }
     else
     {

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "globals.h"
-#include "draw.h"
+#include "render.h"
 #include "clipboard.h"
 
 int main(int argc, char *argv[])
@@ -26,8 +26,8 @@ int main(int argc, char *argv[])
     app.active_buffer = &bufferA;
     
     // Add a line to both buffers
-    InsertLineAt(&bufferA, 0);
-    InsertLineAt(&bufferB, 0);
+    LineInsert(&bufferA, 0);
+    LineInsert(&bufferB, 0);
     
     // Set textures/surfaces
     SDL_Surface *characters_surface = TTF_RenderText_Blended(font.handle, app.ascii_sequence, font.text_color);
@@ -81,15 +81,15 @@ int main(int argc, char *argv[])
             // INPUT EVENTS
             if(app.mode == TEXT_EDIT)
             {
-                GetTextEditingInput();
-                GetBindedCommandsInput();
+                ProcessInput_TextEditing();
+                ProcessInput_Commands();
             }
             else if (app.mode == LIST_NAV)
             {
-                GetListNavigationInput();
+                ProcessInput_ListNavigation();
             }
             
-            GetGlobalInput();
+            ProcessInput_Global();
             
             // GET MOUSE
             SDL_GetMouseState(&mx,&my);
@@ -151,28 +151,6 @@ int main(int argc, char *argv[])
                 if(app.e.window.event == SDL_WINDOWEVENT_RESIZED)
                 {
                     WindowResize(&app, app.window);
-                    
-                    SDL_DestroyTexture(bufferA.panel.texture);
-                    SDL_DestroyTexture(bufferB.panel.texture);
-                    bufferA.panel.texture= SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferA.panel.w, bufferA.panel.h);
-                    bufferB.panel.texture= SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferB.panel.w, bufferB.panel.h);
-                    
-                    SDL_SetTextureBlendMode(bufferA.panel.texture, SDL_BLENDMODE_BLEND);
-                    SDL_SetTextureBlendMode(bufferB.panel.texture, SDL_BLENDMODE_BLEND);
-                    
-                    RenderClearLine(&bufferA, 0, characters_texture, bufferA.panel.texture);
-                    RenderClearLine(&bufferB, 0, characters_texture, bufferB.panel.texture);
-                    
-                    SDL_DestroyTexture(bufferA.status_bar.texture);
-                    SDL_DestroyTexture(bufferB.status_bar.texture);
-                    
-                    bufferA.status_bar.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferA.status_bar.w, bufferA.status_bar.h);
-                    bufferB.status_bar.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferB.status_bar.w, bufferB.status_bar.h);
-                    SDL_SetTextureBlendMode(bufferA.status_bar.texture, SDL_BLENDMODE_BLEND);
-                    SDL_SetTextureBlendMode(bufferB.status_bar.texture, SDL_BLENDMODE_BLEND);
-                    
-                    RenderLineRange(&bufferA, bufferA.panel.scroll_offset_ver, bufferA.panel.row_capacity, characters_texture, bufferA.panel.texture);
-                    RenderLineRange(&bufferB, bufferB.panel.scroll_offset_ver, bufferB.panel.row_capacity, characters_texture, bufferB.panel.texture);
                 }
             }
         }
@@ -184,19 +162,19 @@ int main(int argc, char *argv[])
         
         SDL_RenderClear(app.renderer);
         
-        PanelDraw(&bufferA);
-        PanelDraw(&bufferB);
+        RenderPanel(&bufferA);
+        RenderPanel(&bufferB);
         
-        BarDraw(&bufferA);
-        BarDraw(&bufferB);
+        RenderStatusBar(&bufferA);
+        RenderStatusBar(&bufferB);
         
         if(app.mode == TEXT_EDIT)
         {
-            HighlightLineDraw(app.active_buffer);
+            RenderLineHighlight(app.active_buffer);
         }
         else if(app.mode == LIST_NAV)
         {
-            HighlightListSelectionDraw(app.active_buffer, app.active_buffer->lst);
+            RenderListElementHighlight(app.active_buffer, app.active_buffer->lst);
             RenderListRange(app.active_buffer, app.active_buffer->lst->scroll_offset, app.active_buffer->lst->element_count, characters_texture, app.active_buffer->panel.texture);
         }
         
@@ -210,12 +188,12 @@ int main(int argc, char *argv[])
         
         if(app.mode == TEXT_EDIT)
         {
-            CursorDraw(&bufferA);
-            CursorDraw(&bufferB);
+            RenderCursor(&bufferA);
+            RenderCursor(&bufferB);
             
             if(MarkerIsWithinDrawingBounds(app.active_buffer))
             {
-                MarkerDraw(app.active_buffer);
+                RenderMarker(app.active_buffer);
             }
         }
         

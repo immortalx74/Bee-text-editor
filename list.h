@@ -1,7 +1,7 @@
 #pragma once
 #include "globals.h"
 #include "file.h"
-#include "draw.h"
+#include "render.h"
 #include "tinydir.h"
 #include <string>
 
@@ -14,5 +14,5 @@ char *ListGetElement(list *l, int index);
 void ListSwitchToSelectedDirectory(list *l, char *sel_dir);
 void ListLoadSelectedFile(list *l, char *sel_file);
 
-void PopulateFileList(list *l, char *path);
-void FilterFileList(list *l, char *path);
+void ListPopulate(list *l, char *path);
+void ListApplyFilter(list *l, char *path);

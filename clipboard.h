@@ -2,7 +2,7 @@
 #include "globals.h"
 #include "helpers.h"
 #include "line.h"
-#include "draw.h"
+#include "render.h"
 
 void ClipBoardCopy(buffer *buf);
 void ClipBoardCut(buffer *buf);

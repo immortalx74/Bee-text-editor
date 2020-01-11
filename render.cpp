@@ -1,8 +1,7 @@
-#include "draw.h"
-#include "character.h"
+#include "render.h"
 #include <iostream>
 
-void CursorDraw(buffer *buf)
+void RenderCursor(buffer *buf)
 {
     int xx = ((buf->cursor.col - buf->panel.page * buf->panel.col_capacity) * font.width) + settings.margin + buf->panel.x;
     
@@ -30,7 +29,7 @@ void CursorDraw(buffer *buf)
     SDL_SetRenderDrawColor(app.renderer, settings.color_background.r, settings.color_background.g, settings.color_background.b, settings.color_background.a);// background
 };
 
-void MarkerDraw(buffer *buf)
+void RenderMarker(buffer *buf)
 {
     int xx = (buf->marker.col - (buf->panel.page * buf->panel.col_capacity)) * font.width + settings.margin + buf->panel.x;
     int yy = (buf->marker.row - buf->panel.scroll_offset_ver) * font.height + settings.margin;
@@ -44,14 +43,14 @@ void MarkerDraw(buffer *buf)
     SDL_SetRenderDrawColor(app.renderer, settings.color_background.r, settings.color_background.g, settings.color_background.b, settings.color_background.a);// background
 };
 
-void PanelDraw(buffer *buf)
+void RenderPanel(buffer *buf)
 {
     SDL_Rect box = {buf->panel.x, buf->panel.y, buf->panel.w, buf->panel.h};
     SDL_SetRenderDrawColor(app.renderer, buf->panel.color.r, buf->panel.color.g, buf->panel.color.b, buf->panel.color.a);
     SDL_RenderDrawRect(app.renderer, &box);
 };
 
-void BarDraw(buffer *buf)
+void RenderStatusBar(buffer *buf)
 {
     if(app.mode == TEXT_EDIT)
     {
@@ -148,7 +147,7 @@ void BarDraw(buffer *buf)
     }
 };
 
-void HighlightLineDraw(buffer *buf)
+void RenderLineHighlight(buffer *buf)
 {
     int xx = buf->panel.x + settings.margin;
     int yy = (buf->cursor.row * font.height) + settings.margin;
@@ -183,7 +182,7 @@ void HighlightLineDraw(buffer *buf)
     SDL_SetRenderDrawColor(app.renderer, settings.color_background.r, settings.color_background.g, settings.color_background.b, settings.color_background.a);// background
 };
 
-void HighlightListSelectionDraw(buffer *buf, list *l)
+void RenderListElementHighlight(buffer *buf, list *l)
 {
     int xx = buf->panel.x + settings.margin;
     int yy = (l->row * font.height) + settings.margin;
@@ -218,9 +217,32 @@ void WindowResize(app_info *application, SDL_Window *win)
     bufferB.status_bar.x = bufferB.panel.x;
     bufferB.status_bar.y = bufferB.panel.h;
     bufferB.status_bar.w = bufferB.panel.w;
+    
+    SDL_DestroyTexture(bufferA.panel.texture);
+    SDL_DestroyTexture(bufferB.panel.texture);
+    bufferA.panel.texture= SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferA.panel.w, bufferA.panel.h);
+    bufferB.panel.texture= SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferB.panel.w, bufferB.panel.h);
+    
+    SDL_SetTextureBlendMode(bufferA.panel.texture, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureBlendMode(bufferB.panel.texture, SDL_BLENDMODE_BLEND);
+    
+    RenderClearLine(&bufferA, 0, characters_texture, bufferA.panel.texture);
+    RenderClearLine(&bufferB, 0, characters_texture, bufferB.panel.texture);
+    
+    SDL_DestroyTexture(bufferA.status_bar.texture);
+    SDL_DestroyTexture(bufferB.status_bar.texture);
+    
+    bufferA.status_bar.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferA.status_bar.w, bufferA.status_bar.h);
+    bufferB.status_bar.texture = SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, bufferB.status_bar.w, bufferB.status_bar.h);
+    SDL_SetTextureBlendMode(bufferA.status_bar.texture, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureBlendMode(bufferB.status_bar.texture, SDL_BLENDMODE_BLEND);
+    
+    RenderLineRange(&bufferA, bufferA.panel.scroll_offset_ver, bufferA.panel.row_capacity, characters_texture, bufferA.panel.texture);
+    RenderLineRange(&bufferB, bufferB.panel.scroll_offset_ver, bufferB.panel.row_capacity, characters_texture, bufferB.panel.texture);
+    
 };
 
-void RenderCharacterAt(buffer *buf, int row, int col, int row_length, SDL_Texture *ch, SDL_Texture *pt)
+void RenderCharacter(buffer *buf, int row, int col, int row_length, SDL_Texture *ch, SDL_Texture *pt)
 {
     SDL_SetRenderTarget(app.renderer, pt);
     int cur_char = (int)app.e.text.text[0];
@@ -250,7 +272,7 @@ void RenderCharacterAt(buffer *buf, int row, int col, int row_length, SDL_Textur
     SDL_SetRenderTarget(app.renderer, NULL);
 };
 
-void RenderClearCharacterAt(buffer *buf, int row, int col, int row_length, SDL_Texture *ch, SDL_Texture *pt)
+void RenderClearCharacter(buffer *buf, int row, int col, int row_length, SDL_Texture *ch, SDL_Texture *pt)
 {
     SDL_SetRenderTarget(app.renderer, pt);
     SDL_SetRenderDrawColor(app.renderer, settings.color_background.r, settings.color_background.g, settings.color_background.b, 0);// background
@@ -383,7 +405,7 @@ bool MarkerIsWithinDrawingBounds(buffer *buf)
     return false;
 };
 
-void ListDraw(buffer *buf, list *l, SDL_Texture *ch, SDL_Texture *pt)
+void RenderList(buffer *buf, list *l, SDL_Texture *ch, SDL_Texture *pt)
 {
     SDL_SetRenderTarget(app.renderer, pt);
     SDL_SetRenderDrawColor(app.renderer, settings.color_background.r, settings.color_background.g, settings.color_background.b, 0);// background

@@ -1,7 +1,7 @@
 #include "character.h"
 #include <iostream>
 
-void InsertCharacterAt(buffer *buf, int col)
+void CharacterInsert(buffer *buf, int col)
 {
     LineEnsureSufficientCapacity(buf->line_node);
     
@@ -18,7 +18,7 @@ void InsertCharacterAt(buffer *buf, int col)
     SyncCursorWithBuffer(buf);
 };
 
-void DeleteCharacterAt(buffer *buf, int col)
+void CharacterDelete(buffer *buf, int col)
 {
     if(buf->column > 0)
     {
@@ -87,7 +87,7 @@ void DeleteCharacterAt(buffer *buf, int col)
                 }
             }
             
-            DeleteLineAt(buf, buf->line);
+            LineDelete(buf, buf->line);
             buf->line_node = buf->line_node->prev;
             buf->line--;
             SyncCursorWithBuffer(buf);

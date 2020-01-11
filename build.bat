@@ -2,7 +2,7 @@
 
 set path=E:\dev\ed;%path%
 
-set SOURCES=main.cpp character.cpp draw.cpp line.cpp globals.cpp input.cpp file.cpp helpers.cpp list.cpp clipboard.cpp undoredo.cpp
+set SOURCES=main.cpp character.cpp render.cpp line.cpp globals.cpp input.cpp file.cpp helpers.cpp list.cpp clipboard.cpp undoredo.cpp
 set LINK=opengl32.lib winmm.lib gdi32.lib lib\SDL2.lib lib\SDL2main.lib lib\SDL2_ttf.lib
 
 REM DEBUG

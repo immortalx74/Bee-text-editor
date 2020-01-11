@@ -63,7 +63,7 @@ char *ListGetElement(list *l, int index)
     return elem;
 };
 
-void PopulateFileList(list *l, char *path)
+void ListPopulate(list *l, char *path)
 {
     tinydir_dir dir;
     tinydir_open(&dir, path);
@@ -110,7 +110,7 @@ void PopulateFileList(list *l, char *path)
     tinydir_close(&dir);
 };
 
-void FilterFileList(list *l, char *path)
+void ListApplyFilter(list *l, char *path)
 {
     tinydir_dir dir;
     tinydir_open(&dir, path);
@@ -159,7 +159,7 @@ void ListSwitchToSelectedDirectory(list *l, char *sel_dir)
     XstringConcat(l->current_path, 1, sel_dir);
     ListClear(l);
     XstringSet(l->filter, "");
-    PopulateFileList(l, XstringGet(l->current_path));
+    ListPopulate(l, XstringGet(l->current_path));
 };
 
 void ListLoadSelectedFile(list *l, char *sel_file)

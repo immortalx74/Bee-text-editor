@@ -1,6 +1,10 @@
 #pragma once
 #include "globals.h"
 #include "file.h"
+#include "line.h"
+#include "character.h"
+#include "render.h"
+#include "clipboard.h"
 
 void Input_TextEd_Text(buffer *buf);
 void Input_TextEd_Return(buffer *buf);
@@ -22,7 +26,7 @@ void Input_ListNav_Select(list *l);
 void Input_ListNav_ParentDirectory(list *l);
 void Input_ListNav_Abort(list *l);
 
-void GetTextEditingInput();
-void GetBindedCommandsInput();
-void GetListNavigationInput();
-void GetGlobalInput();
+void ProcessInput_TextEditing();
+void ProcessInput_Commands();
+void ProcessInput_ListNavigation();
+void ProcessInput_Global();
