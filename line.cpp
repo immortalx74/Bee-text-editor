@@ -82,8 +82,6 @@ void InsertLineAt(buffer *buf, int pos)
             buf->line_node->next = right_of_head;
         }
         
-        //memset(buf->line_node->data, 0, settings.line_mem_chunk);
-        
         buf->line_count++;
     }
     else if(pos == buf->line_count && buf->line_count >= 1) // add as last node
@@ -103,8 +101,6 @@ void InsertLineAt(buffer *buf, int pos)
         ptr->next = buf->line_node;
         buf->line_node->next = NULL;
         buf->line_count++;
-        
-        //memset(buf->line_node->data, 0, settings.line_mem_chunk);
     }
     else // Add in-between(NOTE: if pos = n, pushes existing n and all other nodes rightwards)
     {
@@ -127,8 +123,6 @@ void InsertLineAt(buffer *buf, int pos)
         buf->line_node->next = right;
         
         buf->line_count++;
-        
-        //memset(buf->line_node->data, 0, settings.line_mem_chunk);
     }
 };
 

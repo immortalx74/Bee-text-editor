@@ -519,7 +519,14 @@ void Input_TextEd_Tab(buffer *buf)
 {
     for (int i = 0; i < settings.tab_size; ++i)
     {
-        U8_strinsert(buf->line_node->data, buf->column, " ", settings.line_mem_chunk);
+        LineEnsureSufficientCapacity(buf->line_node);
+        if(buf->column < strlen(buf->line_node->data))
+        {
+            int char_count = strlen(buf->line_node->data) - buf->column;
+            memmove(buf->line_node->data + buf->column + 1, buf->line_node->data + buf->column, char_count);
+        }
+        
+        *(buf->line_node->data + buf->column) = ' ';
         buf->column++;
         SyncCursorWithBuffer(buf);
         RenderCharacterAt(buf, buf->cursor.row, buf->cursor.col - 1, strlen(buf->line_node->data), characters_texture, buf->panel.texture);
