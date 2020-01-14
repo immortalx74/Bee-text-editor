@@ -1,5 +1,4 @@
 #include "character.h"
-#include <iostream>
 
 void CharacterInsert(buffer *buf, int col)
 {

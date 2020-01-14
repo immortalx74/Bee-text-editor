@@ -30,3 +30,6 @@ void ProcessInput_TextEditing();
 void ProcessInput_Commands();
 void ProcessInput_ListNavigation();
 void ProcessInput_Global();
+
+void Input_Scroll(buffer *buf);
+void CursorAnchorToBounds(buffer *buf);

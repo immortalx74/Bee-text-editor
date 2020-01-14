@@ -1,7 +1,7 @@
 //NOTE: need to set length and shrink strings on
 // Trim functions!!!!!!!!!!!!!!!!!
-
-
+2
+3
 1234  78
 012345
 
@@ -25,6 +25,13 @@ color_bar_text = 10, 10, 10, 255
 100 500
 
 
+
+
+1 0
+2 1
+3 2
+4 3
+5 4
 
 
 

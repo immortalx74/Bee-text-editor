@@ -1,5 +1,4 @@
 #include "list.h"
-#include <iostream>
 
 list *ListCreate(char title_text[], int cap, int el_size)
 {

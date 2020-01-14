@@ -1,5 +1,4 @@
 #include "render.h"
-#include <iostream>
 
 void RenderCursor(buffer *buf)
 {

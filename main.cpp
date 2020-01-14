@@ -1,4 +1,3 @@
-#include <iostream>
 #include <fstream>
 #include "globals.h"
 #include "render.h"
@@ -102,6 +101,7 @@ int main(int argc, char *argv[])
                     {
                         app.active_buffer = &bufferA;
                         CursorSetToMouse(&bufferA, mx, my);
+                        std::cout << app.active_buffer->panel.row_capacity << "-" << app.active_buffer->cursor.row << std::endl;
                     }
                 }
                 else if(mx > bufferB.panel.x + 4 && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
@@ -153,6 +153,11 @@ int main(int argc, char *argv[])
                     WindowResize(&app, app.window);
                 }
             }
+            else if(app.e.type == SDL_MOUSEWHEEL)//TEST:MOUSE SCROLLING
+            {
+                Input_Scroll(app.active_buffer);
+            }
+            
         }
         
         if(mb_left_pressed)

@@ -1,5 +1,4 @@
 #include "file.h"
-#include <iostream>
 
 void FileReadToBuffer(buffer *buf, char *filename)
 {

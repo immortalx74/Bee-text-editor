@@ -1,5 +1,4 @@
 #include "input.h"
-#include <iostream>
 
 void ProcessInput_Global()
 {
@@ -723,4 +722,94 @@ void Input_ListNav_Abort(list *l)
         app.mode = TEXT_EDIT;
         RenderLineRange(app.active_buffer, app.active_buffer->panel.scroll_offset_ver, app.active_buffer->panel.row_capacity, characters_texture, app.active_buffer->panel.texture);
     }
+};
+
+void Input_Scroll(buffer *buf)
+{
+    if(buf->line_count <= buf->panel.row_capacity)
+    {
+        return;
+    }
+    
+    if(app.e.wheel.y > 0) // scroll up
+    {
+        int wheel_y = app.e.wheel.y;
+        int diff = 0;
+        
+        if(buf->cursor.row >= buf->panel.row_capacity - 1)
+        {
+            diff = 1;
+        }
+        
+        if(wheel_y > 1)
+        {
+            if(buf->cursor.row >= buf->panel.row_capacity - 1)
+            {
+                diff = wheel_y;
+            }
+            else
+            {
+                int rows_left = buf->panel.row_capacity - buf->cursor.row-1;
+                
+                if(wheel_y > rows_left)
+                {
+                    diff = wheel_y - rows_left;
+                }
+            }
+        }
+        
+        for (int i = 0; i < diff; ++i)
+        {
+            if(buf->line_node->prev != buf->head)
+            {
+                buf->line_node = buf->line_node->prev;
+                buf->line--;
+            }
+        }
+        
+        if(buf->panel.scroll_offset_ver > 0)
+        {
+            buf->panel.scroll_offset_ver -= wheel_y;
+            SyncCursorWithBuffer(buf);
+            RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+        }
+    }
+    else if(app.e.wheel.y < 0) // scroll down
+    {
+        int wheel_y = (app.e.wheel.y * -1);
+        int diff = 0;
+        
+        if(wheel_y > buf->cursor.row)
+        {
+            diff = wheel_y - buf->cursor.row;
+        }
+        
+        for (int i = 0; i < diff; ++i)
+        {
+            buf->line_node = buf->line_node->next;
+            buf->line++;
+        }
+        
+        buf->panel.scroll_offset_ver += wheel_y;
+        SyncCursorWithBuffer(buf);
+        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+    }
+    
+    if(app.e.wheel.x > 0) // scroll right
+    {
+        buf->panel.page++;
+        SyncCursorWithBuffer(buf);
+        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+    }
+    else if(app.e.wheel.x < 0) // scroll left
+    {
+        buf->panel.page--;
+        SyncCursorWithBuffer(buf);
+        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+    }
+};
+
+void CursorAnchorToBounds(buffer *buf)
+{
+    
 };

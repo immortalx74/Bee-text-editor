@@ -1,5 +1,4 @@
 #include "line.h"
-#include <iostream>
 
 void LineEnsureSufficientCapacity(node *ln)
 {

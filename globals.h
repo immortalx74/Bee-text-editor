@@ -140,7 +140,6 @@ struct buffer
         int row_capacity;
         int col_capacity;
         int page = 0;
-        int scroll_offset_hor;
         int scroll_offset_ver;
         SDL_Texture *texture;
         SDL_Color color = {100, 100, 100, 255};
@@ -213,6 +212,13 @@ extern node *headB;
 extern buffer bufferA;
 extern buffer bufferB;
 
+enum direction
+{
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
+};
 
 enum _mode
 {

@@ -2,7 +2,6 @@
 #include "globals.h"
 #include "tinydir.h"
 #include <string.h>
-#include <iostream>
 #include "stdarg.h"
 
 bool IsCharacterAlphaNumeric(char ch);
