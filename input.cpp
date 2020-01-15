@@ -755,24 +755,31 @@ void Input_Scroll(buffer *buf)
                 {
                     diff = wheel_y - rows_left;
                 }
+                
+                if(diff > buf->panel.scroll_offset_ver)
+                {
+                    diff = buf->panel.scroll_offset_ver;
+                }
             }
         }
         
         for (int i = 0; i < diff; ++i)
         {
-            if(buf->line_node->prev != buf->head)
-            {
-                buf->line_node = buf->line_node->prev;
-                buf->line--;
-            }
+            buf->line_node = buf->line_node->prev;
+            buf->line--;
         }
         
-        if(buf->panel.scroll_offset_ver > 0)
+        if(wheel_y < buf->panel.scroll_offset_ver)
         {
             buf->panel.scroll_offset_ver -= wheel_y;
-            SyncCursorWithBuffer(buf);
-            RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
         }
+        else
+        {
+            buf->panel.scroll_offset_ver = 0;
+        }
+        
+        SyncCursorWithBuffer(buf);
+        RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
     }
     else if(app.e.wheel.y < 0) // scroll down
     {
@@ -784,13 +791,22 @@ void Input_Scroll(buffer *buf)
             diff = wheel_y - buf->cursor.row;
         }
         
-        for (int i = 0; i < diff; ++i)
+        buf->panel.scroll_offset_ver += wheel_y;
+        
+        if(buf->panel.scroll_offset_ver > buf->line_count - buf->panel.row_capacity)
         {
-            buf->line_node = buf->line_node->next;
-            buf->line++;
+            buf->panel.scroll_offset_ver = buf->line_count - buf->panel.row_capacity;
         }
         
-        buf->panel.scroll_offset_ver += wheel_y;
+        for (int i = 0; i < diff; ++i)
+        {
+            if(buf->line_node->next != NULL)
+            {
+                buf->line_node = buf->line_node->next;
+                buf->line++;
+            }
+        }
+        
         SyncCursorWithBuffer(buf);
         RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
     }
