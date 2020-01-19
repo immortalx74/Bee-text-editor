@@ -236,6 +236,23 @@ void ClipBoardCut(buffer *buf)
         XstringDestroy(merged);
         buf->line = start_line;
         buf->column = start_col;
+        
+        // Ensure scroll offset not exceeded because of the deleted lines
+        int max_scroll_offset_ver;
+        
+        if(buf->line_count > buf->panel.row_capacity)
+        {
+            max_scroll_offset_ver = buf->line_count - buf->panel.row_capacity;
+        }
+        else
+        {
+            max_scroll_offset_ver = 0;
+        }
+        
+        if(buf->panel.scroll_offset_ver > max_scroll_offset_ver)
+        {
+            buf->panel.scroll_offset_ver = max_scroll_offset_ver;
+        }
     }
     else//single line
     {
