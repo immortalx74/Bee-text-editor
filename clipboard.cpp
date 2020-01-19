@@ -101,6 +101,7 @@ void ClipBoardCopy(buffer *buf)
     }
     
     SDL_SetClipboardText(XstringGet(clipboard.text));
+    clipboard.has_content = true;
 };
 
 void ClipBoardCut(buffer *buf)
@@ -293,6 +294,7 @@ void ClipBoardCut(buffer *buf)
     }
     
     SDL_SetClipboardText(XstringGet(clipboard.text));
+    clipboard.has_content = true;
     
     buf->marker.row = buf->line;
     buf->marker.col = buf->column;
@@ -311,21 +313,22 @@ void ClipBoardPaste(buffer *buf)
         
         for (int i = 0; i < len; ++i)
         {
-            if(XstringGet(clipboard.text)[i] != '\r' && XstringGet(clipboard.text)[i] != '\n')
+            if(clipboard.text->data[i] != '\r' && clipboard.text->data[i] != '\n')
             {
                 LineEnsureSufficientCapacity(buf->line_node);
+                int len = strlen(buf->line_node->data);
                 
-                if(buf->column < strlen(buf->line_node->data))
+                if(buf->column < len)
                 {
-                    int char_count = strlen(buf->line_node->data) - buf->column;
+                    int char_count = len - buf->column;
                     memmove(buf->line_node->data + buf->column + 1, buf->line_node->data + buf->column, char_count);
                 }
                 
-                *(buf->line_node->data + buf->column) = XstringGet(clipboard.text)[i];
+                *(buf->line_node->data + buf->column) = clipboard.text->data[i];
                 buf->column++;
             }
             
-            if (XstringGet(clipboard.text)[i] == '\n')//windows & linux??
+            if (clipboard.text->data[i] == '\n')//windows & linux??
             {
                 Input_TextEd_Return(buf);
             }
@@ -336,6 +339,10 @@ void ClipBoardPaste(buffer *buf)
         SyncCursorWithBuffer(buf);
         
         RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+    }
+    else
+    {
+        std::cout << "nope?" << std::endl;
     }
 };
 
