@@ -4,135 +4,43 @@ void ClipBoardCopy(buffer *buf)
 {
     if(buf->column == buf->marker.col && buf->line == buf->marker.row)
     {
-        if(strlen(buf->line_node->data + buf->column) == 0)
-        {
-            return;
-        }
+        return;
     }
     
     int start_line = MIN(buf->line, buf->marker.row);
     int end_line = MAX(buf->line, buf->marker.row);
     int line_diff = end_line - start_line;
+    int start_col, end_col;
     
-    XstringDestroy(clipboard.text);
-    clipboard.text = XstringCreate("");
-    
-    int trim_left, trim_right;
-    
-    if (start_line == buf->line)
+    if(buf->line != buf->marker.row)
     {
-        trim_left = buf->column;
-        node *temp = buf->line_node;
-        
-        for (int i = 0; i < line_diff; ++i)
+        if(start_line == buf->line)
         {
-            temp = temp->next;
+            start_col = buf->column;
+            end_col = buf->marker.col;
         }
-        
-        trim_right = strlen(temp->data) - buf->marker.col;
+        else
+        {
+            start_col = buf->marker.col;
+            end_col = buf->column;
+        }
     }
     else
     {
-        trim_left = buf->marker.col;
-        trim_right = strlen(buf->line_node->data) - buf->column;
-    }
-    
-    if(buf->line != buf->marker.row)//multi line
-    {
-        node *cur = buf->line_node;
-        
-        if(buf->line > buf->marker.row)
+        if(buf->column > buf->marker.col)
         {
-            // Firstly move up to the node where the marker is at
-            for (int i = 0; i < line_diff; ++i)
-            {
-                cur = cur->prev;
-            }
+            start_col = buf->marker.col;
+            end_col = buf->column;
         }
-        
-        for (int i = 0; i <= line_diff; ++i)
+        else if(buf->column < buf->marker.col)
         {
-            if(i == line_diff)
-            {
-                XstringConcat(clipboard.text, 1, cur->data);
-            }
-            else
-            {
-#ifdef _WIN32
-                XstringConcat(clipboard.text, 2, cur->data, "\r\n");
-#endif
-#ifdef __linux__
-                XstringConcat(clipboard.text, 2, cur->data, "\n");
-#endif
-            }
-            
-            cur = cur->next;
-        }
-        
-        XstringTruncateHead(clipboard.text, trim_left);
-        XstringTruncateTail(clipboard.text, trim_right);
-    }
-    else if(buf->line == buf->marker.row)//single line
-    {
-        if(buf->column != buf->marker.col)
-        {
-            node *cur = buf->line_node;
-            XstringSet(clipboard.text, cur->data);
-            
-            int col_left = MIN(buf->column, buf->marker.col);
-            int col_right = MAX(buf->column, buf->marker.col);
-            col_right= strlen(cur->data) - col_right;
-            XstringTruncateHead(clipboard.text, col_left);
-            XstringTruncateTail(clipboard.text, col_right);
-        }
-        else//copy single character
-        {
-            char *singlechar = (char*)calloc(2, 1);
-            memcpy(singlechar, buf->line_node->data + buf->column, 1);
-            XstringSet(clipboard.text, singlechar);
-            free(singlechar);
+            start_col = buf->column;
+            end_col = buf->marker.col;
         }
     }
-    
-    SDL_SetClipboardText(XstringGet(clipboard.text));
-};
-
-void ClipBoardCut(buffer *buf)
-{
-    if(buf->column == buf->marker.col && buf->line == buf->marker.row)
-    {
-        if(strlen(buf->line_node->data + buf->column) == 0)
-        {
-            return;
-        }
-    }
-    
-    int start_line = MIN(buf->line, buf->marker.row);
-    int end_line = MAX(buf->line, buf->marker.row);
-    int line_diff = end_line - start_line;
     
     XstringDestroy(clipboard.text);
     clipboard.text = XstringCreate("");
-    
-    int trim_left, trim_right;
-    
-    if (start_line == buf->line)
-    {
-        trim_left = buf->column;
-        node *temp = buf->line_node;
-        
-        for (int i = 0; i < line_diff; ++i)
-        {
-            temp = temp->next;
-        }
-        
-        trim_right = strlen(temp->data) - buf->marker.col;
-    }
-    else
-    {
-        trim_left = buf->marker.col;
-        trim_right = strlen(buf->line_node->data) - buf->column;
-    }
     
     if(buf->line != buf->marker.row)//multi line
     {
@@ -144,99 +52,227 @@ void ClipBoardCut(buffer *buf)
             for (int i = 0; i < line_diff; ++i)
             {
                 cur = cur->prev;
-                buf->line--;
             }
-            buf->line_node = cur;
-            
         }
         
         for (int i = 0; i <= line_diff; ++i)
         {
-            if(i < line_diff)
+            int s = 0;
+            int e = strlen(cur->data);
+            
+            if(i == 0)
             {
-#ifdef _WIN32
-                XstringConcat(clipboard.text, 2, cur->data, "\r\n");
-#endif
-#ifdef __linux__
-                XstringConcat(clipboard.text, 2, cur->data, "\n");
-#endif
-                if(i == 0 && trim_left > 0)// don't delete entire line, just the chars AFTER left
-                {
-                    int chars_to_zero = strlen(cur->data) - trim_left;
-                    memset(cur->data + trim_left, 0, chars_to_zero);
-                    cur = cur->next;
-                }
-                else if(i == 0 && trim_left == 0)// still don't delete line. Just delete all chars
-                {
-                    memset(cur->data, 0, strlen(cur->data));
-                    cur = cur->next;
-                }
-                else if(i > 0)
-                {
-                    cur = cur->next;
-                    LineDelete(buf, buf->line + i);
-                }
+                s = start_col;
             }
-            else if(i == line_diff)
+            if(i == line_diff)
             {
-                XstringConcat(clipboard.text, 1, cur->data);
-                
-                if(trim_right == 0)// delete entire last line
-                {
-                    LineDelete(buf, buf->line + 1);
-                }
-                else// Copy the chars AFTER right and merge with previous line 
-                {
-                    int total_new_len = strlen(cur->prev->data) + trim_right;
-                    int prev_capacity_left = (cur->prev->num_chunks * settings.line_mem_chunk) - strlen(cur->prev->data);
-                    if(prev_capacity_left < trim_right)
-                    {
-                        LineRequestMemChunks(cur->prev, ((prev_capacity_left + trim_right) / settings.line_mem_chunk) + 1);
-                    }
-                    
-                    memcpy(cur->prev->data + strlen(cur->prev->data), cur->data + strlen(cur->data) - trim_right, trim_right);
-                    LineDelete(buf, buf->line + i);
-                }
+                e = end_col;
             }
+            
+            char *ch = (char*)calloc(2,1);
+            
+            for (int j = s; j < e; ++j)
+            {
+                ch[0] = cur->data[j];
+                XstringConcat(clipboard.text, 1, ch);
+            }
+            
+            free(ch);
+            
+            if(i != line_diff)
+            {
+                XstringConcat(clipboard.text, 1, "\r\n");
+            }
+            
+            cur = cur->next;
+        }
+    }
+    else//single line
+    {
+        char *ch = (char*)calloc(2,1);
+        
+        for (int i = start_col; i < end_col; ++i)
+        {
+            ch[0] = buf->line_node->data[i];
+            XstringConcat(clipboard.text, 1, ch);
         }
         
-        XstringTruncateHead(clipboard.text, trim_left);
-        XstringTruncateTail(clipboard.text, trim_right);
-        buf->column = trim_left;
-        SyncCursorWithBuffer(buf);
+        free(ch);
     }
-    else if(buf->line == buf->marker.row)//single line
+    
+    SDL_SetClipboardText(XstringGet(clipboard.text));
+};
+
+void ClipBoardCut(buffer *buf)
+{
+    if(buf->column == buf->marker.col && buf->line == buf->marker.row)
     {
-        if(buf->column != buf->marker.col)
+        return;
+    }
+    
+    int start_line = MIN(buf->line, buf->marker.row);
+    int end_line = MAX(buf->line, buf->marker.row);
+    int line_diff = end_line - start_line;
+    int start_col, end_col;
+    
+    if(buf->line != buf->marker.row)
+    {
+        if(start_line == buf->line)
         {
-            node *cur = buf->line_node;
-            XstringSet(clipboard.text, cur->data);
-            
-            int col_left = MIN(buf->column, buf->marker.col);
-            int col_right = MAX(buf->column, buf->marker.col);
-            
-            int chars_to_zero = col_right - col_left;
-            int col_right_before = col_right;
-            
-            col_right = strlen(cur->data) - col_right;
-            XstringTruncateHead(clipboard.text, col_left);
-            XstringTruncateTail(clipboard.text, col_right);
-            
-            
-            int len = strlen(cur->data);
-            memmove(cur->data + col_left, cur->data + col_right_before, len - col_right_before);
-            memset(cur->data + len - chars_to_zero, 0, chars_to_zero);
-            
-            buf->column = col_left;
-            SyncCursorWithBuffer(buf);
+            start_col = buf->column;
+            end_col = buf->marker.col;
         }
-        else//copy single character
+        else
         {
-            char *singlechar = (char*)calloc(2, 1);
-            memcpy(singlechar, buf->line_node->data + buf->column, 1);
-            XstringSet(clipboard.text, singlechar);
-            free(singlechar);
+            start_col = buf->marker.col;
+            end_col = buf->column;
         }
+    }
+    else
+    {
+        if(buf->column > buf->marker.col)
+        {
+            start_col = buf->marker.col;
+            end_col = buf->column;
+        }
+        else if(buf->column < buf->marker.col)
+        {
+            start_col = buf->column;
+            end_col = buf->marker.col;
+        }
+    }
+    
+    XstringDestroy(clipboard.text);
+    clipboard.text = XstringCreate("");
+    
+    if(buf->line != buf->marker.row)//multi line
+    {
+        xstring *merged = XstringCreate("");
+        node *cur = buf->line_node;
+        node *ref = cur;
+        
+        if(buf->line > buf->marker.row)
+        {
+            // Firstly move to the node where the marker is at
+            for (int i = 0; i < line_diff; ++i)
+            {
+                cur = cur->prev;
+            }
+            
+            ref = cur;
+        }
+        
+        for (int i = 0; i <= line_diff; ++i)
+        {
+            int s = 0;
+            int e = strlen(cur->data);
+            
+            if(i == 0)
+            {
+                s = start_col;
+                
+                // Copy left of start line to merged
+                char *ch = (char*)calloc(2,1);
+                
+                for (int i = 0; i < start_col; ++i)
+                {
+                    ch[0] = cur->data[i];
+                    XstringConcat(merged, 1, ch);
+                }
+                
+                free(ch);
+            }
+            if(i == line_diff)
+            {
+                e = end_col;
+                
+                // Copy right of end line to merged
+                int len = strlen(cur->data);
+                char *ch = (char*)calloc(2,1);
+                
+                for (int i = e; i < len; ++i)
+                {
+                    ch[0] = cur->data[i];
+                    XstringConcat(merged, 1, ch);
+                }
+                
+                free(ch);
+            }
+            
+            char *ch = (char*)calloc(2,1);
+            
+            for (int j = s; j < e; ++j)
+            {
+                ch[0] = cur->data[j];
+                XstringConcat(clipboard.text, 1, ch);
+            }
+            
+            free(ch);
+            
+            if(i != line_diff)
+            {
+                XstringConcat(clipboard.text, 1, "\r\n");
+            }
+            
+            cur = cur->next;
+        }
+        
+        // Delete lines
+        for (int i = end_line; i >= start_line ; --i)
+        {
+            LineDelete(buf, i);
+        }
+        
+        // Insert merged line
+        LineInsert(buf, start_line);
+        int chunks = (merged->length / settings.line_mem_chunk) + 1;
+        
+        if(buf->line_node->num_chunks < chunks)
+        {
+            LineRequestMemChunks(buf->line_node, chunks);
+        }
+        
+        memcpy(buf->line_node->data, merged->data, merged->length);
+        XstringDestroy(merged);
+        buf->line = start_line;
+        buf->column = start_col;
+    }
+    else//single line
+    {
+        int len = strlen(buf->line_node->data);
+        xstring *merged = XstringCreate("");
+        
+        for (int i = 0; i < len; ++i)
+        {
+            char *ch = (char*)calloc(2,1);
+            
+            if(i >= start_col && i < end_col)
+            {
+                ch[0] = buf->line_node->data[i];
+                XstringConcat(clipboard.text, 1, ch);
+            }
+            
+            else if(start_col > 0 || end_col < len)//Copy leftovers(if any)
+            {
+                ch[0] = buf->line_node->data[i];
+                XstringConcat(merged, 1, ch);
+            }
+            
+            free(ch);
+            buf->line_node->data[i] = 0;
+        }
+        
+        int merged_len = merged->length;
+        
+        for (int i = 0; i < merged_len; ++i)
+        {
+            buf->line_node->data[i] = merged->data[i];
+        }
+        
+        XstringDestroy(merged);
+        LineShrinkMemChunks(buf->line_node);
+        buf->column = start_col;
+        buf->marker.col = start_col;
     }
     
     SDL_SetClipboardText(XstringGet(clipboard.text));

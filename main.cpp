@@ -101,7 +101,6 @@ int main(int argc, char *argv[])
                     {
                         app.active_buffer = &bufferA;
                         CursorSetToMouse(&bufferA, mx, my);
-                        std::cout << app.active_buffer->panel.row_capacity << "-" << app.active_buffer->cursor.row << std::endl;
                     }
                 }
                 else if(mx > bufferB.panel.x + 4 && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))

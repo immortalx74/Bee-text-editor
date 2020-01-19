@@ -54,7 +54,6 @@ node *LineCreate(void)
     return newline;
 };
 
-// Insert line at position. Return NULL on error or node pointer on success
 void LineInsert(buffer *buf, int pos)
 {
     if(pos < 0 || pos > buf->line_count)
@@ -100,7 +99,7 @@ void LineInsert(buffer *buf, int pos)
         buf->line_node->next = NULL;
         buf->line_count++;
     }
-    else // Add in-between(NOTE: if pos = n, pushes existing n and all other nodes rightwards)
+    else // Add in-between(NOTE: if pos = n, pushes existing n and all other nodes downwards)
     {
         int count = 0;
         buf->line_node = LineCreate();

@@ -213,22 +213,15 @@ void ProcessInput_TextEditing()
         else if( app.e.key.keysym.sym == SDLK_c && SDL_GetModState() & KMOD_CTRL)
         {
             ClipBoardCopy(app.active_buffer);
-            system("cls");
             char *temp = SDL_GetClipboardText();
-            std::cout << temp << std::endl;
         }
         else if( app.e.key.keysym.sym == SDLK_x && SDL_GetModState() & KMOD_CTRL)
         {
             ClipBoardCut(app.active_buffer);
-            //system("cls");
-            //char *temp = SDL_GetClipboardText();
-            //std::cout << temp << std::endl;
         }
         else if( app.e.key.keysym.sym == SDLK_v && SDL_GetModState() & KMOD_CTRL)
         {
-            system("cls");
             char *temp = SDL_GetClipboardText();
-            std::cout << temp << std::endl;
             ClipBoardPaste(app.active_buffer);
         }
         else if( app.e.key.keysym.sym == SDLK_z && CTRL_ONLY)
