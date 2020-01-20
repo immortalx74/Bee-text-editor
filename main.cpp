@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     static bool focus_lost = false;
     int mx , my;
     
-    unsigned int lastTime = 0, currentTime;
+    unsigned int lastTime = 0, currentTime = 0;
     
     while(!app.quit)
     {
@@ -194,20 +194,25 @@ int main(int argc, char *argv[])
         
         if(app.mode == TEXT_EDIT)
         {
-            currentTime = SDL_GetTicks();
-            //if (currentTime > lastTime + 300)
-            //{
-            //RenderCursor(app.active_buffer);
-            //
-            //if(currentTime > lastTime + 600)
-            //{
-            //RenderCursor(app.active_buffer);
-            //lastTime = currentTime;
-            //}
-            //}
-            
-            RenderCursor(&bufferA);
-            RenderCursor(&bufferB);
+            if(settings.cursor_blink)
+            {
+                currentTime = SDL_GetTicks();
+                if (currentTime > lastTime + settings.cursor_blink_rate)
+                {
+                    RenderCursor(app.active_buffer);
+                    app.active_buffer->cursor.flash_on = true;
+                    
+                    if(currentTime > lastTime + (2 * settings.cursor_blink_rate))
+                    {
+                        app.active_buffer->cursor.flash_on = false;
+                        lastTime = currentTime;
+                    }
+                }
+            }
+            else
+            {
+                RenderCursor(app.active_buffer);
+            }
             
             if(MarkerIsWithinDrawingBounds(app.active_buffer))
             {

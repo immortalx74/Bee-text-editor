@@ -10,6 +10,8 @@ void SettingsSetDefaults()
     settings.margin = 4;
     settings.line_mem_chunk = 64;
     settings.undo_steps = 100;
+    settings.cursor_blink = false;
+    settings.cursor_blink_rate = 300;
     settings.font_size = 14;
     settings.tab_size = 4;
     settings.color_background = {21, 12, 42, 255};

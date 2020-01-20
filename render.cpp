@@ -172,12 +172,23 @@ void RenderLineHighlight(buffer *buf)
         SDL_RenderFillRect(app.renderer, &box);
     }
     
-    box = {start_left, yy, width_left, font.height};
+    if(buf->cursor.flash_on)
+    {
+        box = {start_left, yy, width_left, font.height};
+    }
+    else
+    {
+        if(!buf->cursor.visible)
+        {
+            box = {start_left, yy, width_left, font.height};
+        }
+        else
+        {
+            box = {start_left, yy, width_left + font.width, font.height};
+        }
+    }
+    
     SDL_RenderFillRect(app.renderer, &box);
-    
-    
-    
-    
     
     SDL_SetRenderDrawColor(app.renderer, settings.color_background.r, settings.color_background.g, settings.color_background.b, settings.color_background.a);// background
 };

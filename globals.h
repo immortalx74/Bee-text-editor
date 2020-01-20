@@ -39,6 +39,8 @@ enum sets_enum
     line_mem_chunk,
     margin,
     undo_steps,
+    cursor_blink,
+    cursor_blink_rate,
     color_background,
     color_panel_outline,
     color_text,
@@ -64,6 +66,8 @@ struct _settings
     int line_mem_chunk;
     int margin;
     int undo_steps;
+    bool cursor_blink;
+    int cursor_blink_rate;
     SDL_Color color_background;
     SDL_Color color_panel_outline;
     SDL_Color color_text;
@@ -120,6 +124,7 @@ struct buffer
         SDL_Color color = {0, 255, 0, 255};
         SDL_Color line_highlight = {40, 0, 180, 255};
         bool visible = true;
+        bool flash_on = true;
     }cursor;
     
     struct _marker

@@ -87,7 +87,7 @@ void FileParseSettings()
     //return;
     //}
     
-    const int sets_count = 20;// Change when adding/removing a setting
+    const int sets_count = 22;// Change when adding/removing a setting
     xstring *settings_tokens[sets_count];
     
     settings_tokens[sets_enum::font_name] = XstringCreate("font_name");
@@ -97,6 +97,8 @@ void FileParseSettings()
     settings_tokens[sets_enum::line_mem_chunk] = XstringCreate("line_mem_chunk");
     settings_tokens[sets_enum::margin] = XstringCreate("margin");
     settings_tokens[sets_enum::undo_steps] = XstringCreate("undo_steps");
+    settings_tokens[sets_enum::cursor_blink] = XstringCreate("cursor_blink");
+    settings_tokens[sets_enum::cursor_blink_rate] = XstringCreate("cursor_blink_rate");
     settings_tokens[sets_enum::color_background] = XstringCreate("color_background");
     settings_tokens[sets_enum::color_panel_outline] = XstringCreate("color_panel_outline");
     settings_tokens[sets_enum::color_text] = XstringCreate("color_text");
@@ -135,20 +137,24 @@ void FileParseSettings()
             {
                 if(XstringContainsSubstring(line, XstringGet(settings_tokens[i])))
                 {
-                    //Token found. Get value
-                    XstringSet(identifier, XstringGet(settings_tokens[i]));
-                    XstringTruncateHead(line, XstringGetLength(identifier));
-                    
-                    if(XstringGet(line)[0] == ' ')// At least 1 whitespace after identifier
+                    int len = settings_tokens[i]->length;
+                    if(line->data[len] == ' ')
                     {
-                        XstringTrimLeadingAndTrailingWhitespace(line);
-                        XstringSet(value, line->data);
-                        //handle cases depending on token index
-                        SetSetting(i, value);
-                    }
-                    else
-                    {
-                        //invalid
+                        //Token found. Get value
+                        XstringSet(identifier, XstringGet(settings_tokens[i]));
+                        XstringTruncateHead(line, XstringGetLength(identifier));
+                        
+                        if(XstringGet(line)[0] == ' ')// At least 1 whitespace after identifier
+                        {
+                            XstringTrimLeadingAndTrailingWhitespace(line);
+                            XstringSet(value, line->data);
+                            //handle cases depending on token index
+                            SetSetting(i, value);
+                        }
+                        else
+                        {
+                            //invalid
+                        }
                     }
                 }
             }
@@ -222,6 +228,18 @@ void SetSetting(int index, xstring *value)
         case sets_enum::undo_steps:
         {
             settings.undo_steps = atoi(value->data);
+        }
+        break;
+        
+        case sets_enum::cursor_blink:
+        {
+            settings.cursor_blink = atoi(value->data);
+        }
+        break;
+        
+        case sets_enum::cursor_blink_rate:
+        {
+            settings.cursor_blink_rate = atoi(value->data);
         }
         break;
         
