@@ -124,8 +124,12 @@ qwerty,u
 qwertyuiop123456
 qwp12345600000000
 
+#ifdef _WIN32
 
+#endif
+#ifdef __linux__
 
+#endif
 
 
 //CLIPBOARD

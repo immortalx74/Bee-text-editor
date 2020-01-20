@@ -56,6 +56,8 @@ int main(int argc, char *argv[])
     static bool focus_lost = false;
     int mx , my;
     
+    unsigned int lastTime = 0, currentTime;
+    
     while(!app.quit)
     {
         int flags = SDL_GetWindowFlags(app.window);
@@ -192,6 +194,18 @@ int main(int argc, char *argv[])
         
         if(app.mode == TEXT_EDIT)
         {
+            currentTime = SDL_GetTicks();
+            //if (currentTime > lastTime + 300)
+            //{
+            //RenderCursor(app.active_buffer);
+            //
+            //if(currentTime > lastTime + 600)
+            //{
+            //RenderCursor(app.active_buffer);
+            //lastTime = currentTime;
+            //}
+            //}
+            
             RenderCursor(&bufferA);
             RenderCursor(&bufferB);
             

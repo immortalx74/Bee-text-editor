@@ -226,11 +226,11 @@ void ProcessInput_TextEditing()
         }
         else if( app.e.key.keysym.sym == SDLK_z && CTRL_ONLY)
         {
-            UndoStackCommitUndo(app.active_buffer);
+            //UndoStackCommitUndo(app.active_buffer);
         }
         else if(app.e.key.keysym.sym == SDLK_z && CTRL_SHIFT)
         {
-            UndoStackCommitRedo(app.active_buffer);
+            //UndoStackCommitRedo(app.active_buffer);
         }
     }
 };

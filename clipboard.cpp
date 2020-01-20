@@ -81,7 +81,12 @@ void ClipBoardCopy(buffer *buf)
             
             if(i != line_diff)
             {
+#ifdef _WIN32
                 XstringConcat(clipboard.text, 1, "\r\n");
+#endif
+#ifdef __linux__
+                XstringConcat(clipboard.text, 1, "\n");
+#endif
             }
             
             cur = cur->next;
@@ -212,7 +217,12 @@ void ClipBoardCut(buffer *buf)
             
             if(i != line_diff)
             {
+#ifdef _WIN32
                 XstringConcat(clipboard.text, 1, "\r\n");
+#endif
+#ifdef __linux__
+                XstringConcat(clipboard.text, 1, "\n");
+#endif
             }
             
             cur = cur->next;
@@ -340,10 +350,6 @@ void ClipBoardPaste(buffer *buf)
         
         RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
     }
-    else
-    {
-        std::cout << "nope?" << std::endl;
-    }
 };
 
 void ClipBoardGetExternal()
@@ -359,4 +365,3 @@ void ClipBoardGetExternal()
         clipboard.has_content = false;
     }
 };
-

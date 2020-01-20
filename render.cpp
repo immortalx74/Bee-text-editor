@@ -20,6 +20,7 @@ void RenderCursor(buffer *buf)
     
     SDL_SetRenderDrawColor(app.renderer, buf->cursor.color.r, buf->cursor.color.g, buf->cursor.color.b, buf->cursor.color.a);
     
+    
     SDL_SetRenderDrawBlendMode(app.renderer, app.custom_blendmode);
     
     SDL_RenderFillRect(app.renderer, &box);
