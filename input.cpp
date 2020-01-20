@@ -256,6 +256,23 @@ void Input_TextEd_Text(buffer *buf)
 
 void Input_TextEd_Return(buffer *buf)
 {
+    //Store current identation level
+    int len = strlen(buf->line_node->data);
+    int identation_level = 0;
+    char ch = ' ';
+    
+    if(len > 0)
+    {
+        while(buf->line_node->data[identation_level] == ch)
+        {
+            if(identation_level < len)
+            {
+                identation_level++;
+            }
+        }
+    }
+    
+    
     if (buf->column == strlen(buf->line_node->data))//cursor at end of line
     {
         if(buf->marker.row > buf->line)
@@ -267,6 +284,13 @@ void Input_TextEd_Return(buffer *buf)
         buf->line++;
         SyncCursorWithBuffer(buf);
         LineInsert(buf, buf->line);
+        
+        if(identation_level > 0)
+        {
+            memset(buf->line_node->data, ch, identation_level);
+            buf->column = identation_level;
+            buf->cursor.col = identation_level;
+        }
         
         if (buf->line <  buf->line_count - 1)
         {
@@ -287,14 +311,20 @@ void Input_TextEd_Return(buffer *buf)
         
         LineInsert(buf, buf->line + 1);
         
-        int index = 0;
         int len = strlen(buf->line_node->prev->data);
         
-        if(len - buf->column > settings.line_mem_chunk)
+        if(len - buf->column + identation_level > settings.line_mem_chunk)
         {
-            int chunks_to_ask = ((len - buf->column - settings.line_mem_chunk) / settings.line_mem_chunk) + 1;
+            int chunks_to_ask = ((len - buf->column -  + identation_level - settings.line_mem_chunk) / settings.line_mem_chunk) + 1;
             LineRequestMemChunks(buf->line_node, chunks_to_ask);
         }
+        
+        if(identation_level > 0)
+        {
+            memset(buf->line_node->data, ch, identation_level);
+        }
+        
+        int index = 0 + identation_level;
         
         for (int i = buf->column; i < len; ++i)
         {
@@ -308,7 +338,7 @@ void Input_TextEd_Return(buffer *buf)
         RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
         
         buf->line++;
-        buf->column = 0;
+        buf->column = identation_level;
         SyncCursorWithBuffer(buf);
     }
     
