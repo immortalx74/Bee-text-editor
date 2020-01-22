@@ -340,7 +340,23 @@ void ClipBoardPaste(buffer *buf)
             
             if (clipboard.text->data[i] == '\n')//windows & linux??
             {
-                Input_TextEd_Return(buf);
+                //Input_TextEd_Return(buf);
+                buf->column = 0;
+                buf->line++;
+                SyncCursorWithBuffer(buf);
+                LineInsert(buf, buf->line);
+                
+                buf->cursor.last_hor_pos = buf->cursor.col;
+                
+                //scroll
+                if(buf->line_count > buf->panel.row_capacity && buf->cursor.row >= buf->panel.row_capacity)
+                {
+                    buf->panel.scroll_offset_ver++;
+                    RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+                    SyncCursorWithBuffer(buf);
+                }
+                
+                SwitchHorizontalPage(buf);
             }
         }
         

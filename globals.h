@@ -41,6 +41,7 @@ enum sets_enum
     undo_steps,
     cursor_blink,
     cursor_blink_rate,
+    draw_line_highlight,
     color_background,
     color_panel_outline,
     color_text,
@@ -68,6 +69,7 @@ struct _settings
     int undo_steps;
     bool cursor_blink;
     int cursor_blink_rate;
+    bool draw_line_highlight;
     SDL_Color color_background;
     SDL_Color color_panel_outline;
     SDL_Color color_text;
@@ -124,7 +126,7 @@ struct buffer
         SDL_Color color = {0, 255, 0, 255};
         SDL_Color line_highlight = {40, 0, 180, 255};
         bool visible = true;
-        bool flash_on = true;
+        bool blink_state_on = true;
     }cursor;
     
     struct _marker
@@ -248,6 +250,21 @@ struct app_info
     SDL_BlendMode custom_blendmode;
 };
 
+struct _timer
+{
+    int interval = 1000;
+    unsigned int start_time = 0;
+    unsigned int now = 0;
+    bool running = false;
+    
+    void reset()
+    {
+        running = true;
+        start_time = SDL_GetTicks();
+    };
+};
+
+extern _timer timer;
 extern _clipboard clipboard;
 extern app_info app;
 extern SDL_Texture *characters_texture;

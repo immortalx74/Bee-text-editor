@@ -21,6 +21,8 @@ int main(int argc, char *argv[])
     SDL_Cursor *cursor_resize_hor;
     cursor_resize_hor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
     
+    
+    timer.interval = settings.cursor_blink_rate;
     //START WITH LEFT BUFFER
     app.active_buffer = &bufferA;
     
@@ -57,6 +59,7 @@ int main(int argc, char *argv[])
     int mx , my;
     
     unsigned int lastTime = 0, currentTime = 0;
+    timer.reset();
     
     while(!app.quit)
     {
@@ -174,7 +177,7 @@ int main(int argc, char *argv[])
         RenderStatusBar(&bufferA);
         RenderStatusBar(&bufferB);
         
-        if(app.mode == TEXT_EDIT)
+        if(settings.draw_line_highlight && app.mode == TEXT_EDIT)
         {
             RenderLineHighlight(app.active_buffer);
         }
@@ -192,26 +195,24 @@ int main(int argc, char *argv[])
         SDL_RenderCopy(app.renderer, bufferA.panel.texture, NULL, &panA);
         SDL_RenderCopy(app.renderer, bufferB.panel.texture, NULL, &panB);
         
+        
+        
         if(app.mode == TEXT_EDIT)
         {
-            if(settings.cursor_blink)
+            if(timer.running)
             {
-                currentTime = SDL_GetTicks();
-                if (currentTime > lastTime + settings.cursor_blink_rate)
+                timer.now = SDL_GetTicks();
+                
+                if(timer.now < timer.start_time + timer.interval)
                 {
+                    app.active_buffer->cursor.blink_state_on = false;
                     RenderCursor(app.active_buffer);
-                    app.active_buffer->cursor.flash_on = true;
-                    
-                    if(currentTime > lastTime + (2 * settings.cursor_blink_rate))
-                    {
-                        app.active_buffer->cursor.flash_on = false;
-                        lastTime = currentTime;
-                    }
                 }
-            }
-            else
-            {
-                RenderCursor(app.active_buffer);
+                else if(timer.now > timer.start_time + (2 *timer.interval))
+                {
+                    app.active_buffer->cursor.blink_state_on = true;
+                    timer.reset();
+                }
             }
             
             if(MarkerIsWithinDrawingBounds(app.active_buffer))

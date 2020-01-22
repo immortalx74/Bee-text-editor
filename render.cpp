@@ -172,7 +172,7 @@ void RenderLineHighlight(buffer *buf)
         SDL_RenderFillRect(app.renderer, &box);
     }
     
-    if(buf->cursor.flash_on)
+    if(buf->cursor.blink_state_on)
     {
         box = {start_left, yy, width_left, font.height};
     }

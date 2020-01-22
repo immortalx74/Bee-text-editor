@@ -1,5 +1,6 @@
 #include "globals.h"
 
+_timer timer;
 undoredo_op *undo_stack = (undoredo_op*)malloc(settings.undo_steps * sizeof(undoredo_op));
 int undoredo_index = -1;
 int undoredo_counter = 0;

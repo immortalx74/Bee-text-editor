@@ -87,7 +87,7 @@ void FileParseSettings()
     //return;
     //}
     
-    const int sets_count = 22;// Change when adding/removing a setting
+    const int sets_count = 23;// Change when adding/removing a setting
     xstring *settings_tokens[sets_count];
     
     settings_tokens[sets_enum::font_name] = XstringCreate("font_name");
@@ -99,6 +99,7 @@ void FileParseSettings()
     settings_tokens[sets_enum::undo_steps] = XstringCreate("undo_steps");
     settings_tokens[sets_enum::cursor_blink] = XstringCreate("cursor_blink");
     settings_tokens[sets_enum::cursor_blink_rate] = XstringCreate("cursor_blink_rate");
+    settings_tokens[sets_enum::draw_line_highlight] = XstringCreate("draw_line_highlight");
     settings_tokens[sets_enum::color_background] = XstringCreate("color_background");
     settings_tokens[sets_enum::color_panel_outline] = XstringCreate("color_panel_outline");
     settings_tokens[sets_enum::color_text] = XstringCreate("color_text");
@@ -240,6 +241,12 @@ void SetSetting(int index, xstring *value)
         case sets_enum::cursor_blink_rate:
         {
             settings.cursor_blink_rate = atoi(value->data);
+        }
+        break;
+        
+        case sets_enum::draw_line_highlight:
+        {
+            settings.draw_line_highlight = atoi(value->data);
         }
         break;
         

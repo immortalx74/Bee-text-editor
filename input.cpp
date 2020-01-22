@@ -154,14 +154,14 @@ void ProcessInput_TextEditing()
     bool CTRL_ALT = app.e.key.keysym.mod & KMOD_CTRL && app.e.key.keysym.mod & KMOD_ALT;
     bool ALT_SHIFT = app.e.key.keysym.mod & KMOD_ALT && app.e.key.keysym.mod & KMOD_SHIFT;
     
-    
-    
     if(app.e.type == SDL_TEXTINPUT && no_mod_keys)
     {
         Input_TextEd_Text(app.active_buffer);
     }
     else if (app.e.type == SDL_KEYDOWN)
     {
+        timer.reset();
+        
         if(app.e.key.keysym.sym == SDLK_RETURN || app.e.key.keysym.sym == SDLK_RETURN2)
         {
             Input_TextEd_Return(app.active_buffer);
@@ -299,6 +299,11 @@ void Input_TextEd_Return(buffer *buf)
     }
     else// cursor at start or middle of line
     {
+        if(buf->column < identation_level)
+        {
+            identation_level = buf->column;
+        }
+        
         if(buf->marker.row > buf->line)
         {
             buf->marker.row++;
