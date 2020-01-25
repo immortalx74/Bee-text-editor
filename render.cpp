@@ -248,9 +248,25 @@ void WindowResize(app_info *application, SDL_Window *win)
     SDL_SetTextureBlendMode(bufferA.status_bar.texture, SDL_BLENDMODE_BLEND);
     SDL_SetTextureBlendMode(bufferB.status_bar.texture, SDL_BLENDMODE_BLEND);
     
-    RenderLineRange(&bufferA, bufferA.panel.scroll_offset_ver, bufferA.panel.row_capacity, characters_texture, bufferA.panel.texture);
-    RenderLineRange(&bufferB, bufferB.panel.scroll_offset_ver, bufferB.panel.row_capacity, characters_texture, bufferB.panel.texture);
+    //
+    int startA = bufferA.panel.scroll_offset_ver;
+    int startB = bufferB.panel.scroll_offset_ver;
+    int endA = bufferA.panel.row_capacity;
+    int endB = bufferB.panel.row_capacity;
     
+    if(bufferA.line_count <= bufferA.panel.row_capacity)
+    {
+        startA = 0;
+        endA = bufferA.line_count - 1;
+    }
+    if(bufferB.line_count <= bufferB.panel.row_capacity)
+    {
+        startB = 0;
+        endB = bufferB.line_count - 1;
+    }
+    
+    RenderLineRange(&bufferA, startA, endA, characters_texture, bufferA.panel.texture);
+    RenderLineRange(&bufferB, startB, endB, characters_texture, bufferB.panel.texture);
 };
 
 void RenderCharacter(buffer *buf, int row, int col, int row_length, SDL_Texture *ch, SDL_Texture *pt)

@@ -2,6 +2,7 @@
 #include "globals.h"
 #include "render.h"
 #include "clipboard.h"
+//#include <windows.h>
 
 int main(int argc, char *argv[])
 {

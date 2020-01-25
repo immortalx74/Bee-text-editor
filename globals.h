@@ -3,7 +3,7 @@
 #include "SDL_ttf.h"
 #include <string.h>
 #include <iostream>
-
+#include "resource.h"
 
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))

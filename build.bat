@@ -15,6 +15,6 @@ REM set SKIP_WARNINGS=/wd"4838"
 set BUILD_DIR=/Fdbuild\ /Fobuild\
 set EXE=build/ed.exe
 
-start /wait /B cl %CFLAGS% %BUILD_DIR% /Fe%EXE% /Iinclude %SOURCES% /link %LINK% /SUBSYSTEM:CONSOLE
+start /wait /B cl %CFLAGS% %BUILD_DIR% /Fe%EXE% /Iinclude %SOURCES% /link %LINK% app.res /SUBSYSTEM:CONSOLE
 
 IF %ERRORLEVEL% EQU 0 start /wait %EXE%
