@@ -1,3 +1,2 @@
-#include "resource.h"
 IDI_ICON1 ICON "bee.ico"
 LANGUAGE 0,0
