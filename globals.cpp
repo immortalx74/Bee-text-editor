@@ -1,9 +1,6 @@
 #include "globals.h"
 
 _timer timer;
-undoredo_op *undo_stack = (undoredo_op*)malloc(settings.undo_steps * sizeof(undoredo_op));
-int undoredo_index = -1;
-int undoredo_counter = 0;
 
 font_data font;
 node *headA = (node*)malloc(sizeof(node));
@@ -13,6 +10,7 @@ buffer bufferA;
 buffer bufferB;
 
 _clipboard clipboard;
+
 app_info app;
 SDL_Texture *characters_texture;
 SDL_Texture *bar_characters_texture;
@@ -28,7 +26,7 @@ void Init()
     font.height = TTF_FontHeight(font.handle);
     TTF_SizeText(font.handle, "0", &font.width, &font.height);
     
-    app.window = SDL_CreateWindow("ed", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
+    app.window = SDL_CreateWindow("Bee - alpha v0.1", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
                                   1024, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE /*| SDL_WINDOW_MAXIMIZED*/);
     app.renderer = SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     // original. works somewhat OK
@@ -79,4 +77,4 @@ void Init()
     
     bufferA.head = headA;
     bufferB.head = headB;
-};
+}

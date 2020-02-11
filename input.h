@@ -32,4 +32,3 @@ void ProcessInput_ListNavigation();
 void ProcessInput_Global();
 
 void Input_Scroll(buffer *buf);
-void CursorAnchorToBounds(buffer *buf);

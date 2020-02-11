@@ -6,7 +6,7 @@ void LineEnsureSufficientCapacity(node *ln)
     {
         LineRequestMemChunks(ln, 1);
     }
-};
+}
 
 void LineRequestMemChunks(node *ln, int num)
 {
@@ -15,7 +15,7 @@ void LineRequestMemChunks(node *ln, int num)
     int new_size = ln->num_chunks * settings.line_mem_chunk;
     ln->data = (char*)realloc(ln->data, new_size);
     memset(ln->data + (old_num_chunks * settings.line_mem_chunk), 0, num * settings.line_mem_chunk);
-};
+}
 
 void LineShrinkMemChunks(node *ln)
 {
@@ -24,7 +24,7 @@ void LineShrinkMemChunks(node *ln)
     int new_size = ln->num_chunks * settings.line_mem_chunk;
     ln->data = (char*)realloc(ln->data, new_size);
     memset(ln->data + len, 0, new_size - len);
-};
+}
 
 void LineExpandMemChunks(node *ln, int new_len)
 {
@@ -40,7 +40,7 @@ void LineExpandMemChunks(node *ln, int new_len)
     }
     
     return;
-};
+}
 
 // Create line and return pointer to it
 node *LineCreate(void)
@@ -52,7 +52,7 @@ node *LineCreate(void)
     newline->prev = NULL;
     
     return newline;
-};
+}
 
 void LineInsert(buffer *buf, int pos)
 {
@@ -121,7 +121,7 @@ void LineInsert(buffer *buf, int pos)
         
         buf->line_count++;
     }
-};
+}
 
 void LineDelete(buffer *buf, int pos)
 {
@@ -182,7 +182,7 @@ void LineDelete(buffer *buf, int pos)
         
         return;
     }
-};
+}
 
 
 node *GetLineNode(buffer *buf, int pos)

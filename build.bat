@@ -13,7 +13,7 @@ REM set CFLAGS=/MP /EHsc /FC /nologo /W1 /O2
 
 REM set SKIP_WARNINGS=/wd"4838"
 set BUILD_DIR=/Fdbuild\ /Fobuild\
-set EXE=build/ed.exe
+set EXE=build/Bee.exe
 
 start /wait /B cl %CFLAGS% %BUILD_DIR% /Fe%EXE% /Iinclude %SOURCES% /link %LINK% app.res /SUBSYSTEM:CONSOLE
 

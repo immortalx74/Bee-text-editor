@@ -107,7 +107,7 @@ void ClipBoardCopy(buffer *buf)
     
     SDL_SetClipboardText(XstringGet(clipboard.text));
     clipboard.has_content = true;
-};
+}
 
 void ClipBoardCut(buffer *buf)
 {
@@ -311,7 +311,7 @@ void ClipBoardCut(buffer *buf)
     SyncCursorWithBuffer(buf);
     
     RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
-};
+}
 
 void ClipBoardPaste(buffer *buf)
 {
@@ -366,7 +366,7 @@ void ClipBoardPaste(buffer *buf)
         
         RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
     }
-};
+}
 
 void ClipBoardGetExternal()
 {
@@ -380,4 +380,4 @@ void ClipBoardGetExternal()
     {
         clipboard.has_content = false;
     }
-};
+}

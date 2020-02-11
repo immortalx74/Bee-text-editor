@@ -27,7 +27,7 @@ void RenderCursor(buffer *buf)
     
     SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_NONE);
     SDL_SetRenderDrawColor(app.renderer, settings.color_background.r, settings.color_background.g, settings.color_background.b, settings.color_background.a);// background
-};
+}
 
 void RenderMarker(buffer *buf)
 {
@@ -41,14 +41,14 @@ void RenderMarker(buffer *buf)
     SDL_RenderDrawRect(app.renderer, &box);
     
     SDL_SetRenderDrawColor(app.renderer, settings.color_background.r, settings.color_background.g, settings.color_background.b, settings.color_background.a);// background
-};
+}
 
 void RenderPanel(buffer *buf)
 {
     SDL_Rect box = {buf->panel.x, buf->panel.y, buf->panel.w, buf->panel.h};
     SDL_SetRenderDrawColor(app.renderer, buf->panel.color.r, buf->panel.color.g, buf->panel.color.b, buf->panel.color.a);
     SDL_RenderDrawRect(app.renderer, &box);
-};
+}
 
 void RenderStatusBar(buffer *buf)
 {
@@ -145,7 +145,7 @@ void RenderStatusBar(buffer *buf)
         
         SDL_SetRenderTarget(app.renderer, NULL);
     }
-};
+}
 
 void RenderLineHighlight(buffer *buf)
 {
@@ -191,7 +191,7 @@ void RenderLineHighlight(buffer *buf)
     SDL_RenderFillRect(app.renderer, &box);
     
     SDL_SetRenderDrawColor(app.renderer, settings.color_background.r, settings.color_background.g, settings.color_background.b, settings.color_background.a);// background
-};
+}
 
 void RenderListElementHighlight(buffer *buf, list *l)
 {
@@ -201,7 +201,7 @@ void RenderListElementHighlight(buffer *buf, list *l)
     SDL_Rect box = {xx, yy, buf->panel.w - (2 *settings.margin), font.height};
     SDL_SetRenderDrawColor(app.renderer, buf->cursor.line_highlight.r, buf->cursor.line_highlight.g, buf->cursor.line_highlight.b, buf->cursor.line_highlight.a);
     SDL_RenderFillRect(app.renderer, &box);
-};
+}
 
 void WindowResize(app_info *application, SDL_Window *win)
 {
@@ -267,7 +267,7 @@ void WindowResize(app_info *application, SDL_Window *win)
     
     RenderLineRange(&bufferA, startA, endA, characters_texture, bufferA.panel.texture);
     RenderLineRange(&bufferB, startB, endB, characters_texture, bufferB.panel.texture);
-};
+}
 
 void RenderCharacter(buffer *buf, int row, int col, int row_length, SDL_Texture *ch, SDL_Texture *pt)
 {
@@ -297,7 +297,7 @@ void RenderCharacter(buffer *buf, int row, int col, int row_length, SDL_Texture 
     }
     
     SDL_SetRenderTarget(app.renderer, NULL);
-};
+}
 
 void RenderClearCharacter(buffer *buf, int row, int col, int row_length, SDL_Texture *ch, SDL_Texture *pt)
 {
@@ -323,7 +323,7 @@ void RenderClearCharacter(buffer *buf, int row, int col, int row_length, SDL_Tex
         }
     }
     SDL_SetRenderTarget(app.renderer, NULL);
-};
+}
 
 void RenderClearLine(buffer *buf, int row, SDL_Texture *ch, SDL_Texture *pt)
 {
@@ -356,7 +356,7 @@ void RenderClearLine(buffer *buf, int row, SDL_Texture *ch, SDL_Texture *pt)
     }
     
     SDL_SetRenderTarget(app.renderer, NULL);
-};
+}
 
 
 void RenderLineRange(buffer *buf, int start, int count, SDL_Texture *ch, SDL_Texture *pt)
@@ -399,14 +399,14 @@ void RenderLineRange(buffer *buf, int start, int count, SDL_Texture *ch, SDL_Tex
     }
     
     SDL_SetRenderTarget(app.renderer, NULL);
-};
+}
 
 
 void SyncCursorWithBuffer(buffer *buf)
 {
     buf->cursor.row = buf->line - buf->panel.scroll_offset_ver;
     buf->cursor.col = buf->column;
-};
+}
 
 void SwitchHorizontalPage(buffer *buf)
 {
@@ -415,7 +415,7 @@ void SwitchHorizontalPage(buffer *buf)
         buf->panel.page = buf->column / buf->panel.col_capacity;
         RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
     }
-};
+}
 
 bool MarkerIsWithinDrawingBounds(buffer *buf)
 {
@@ -430,7 +430,7 @@ bool MarkerIsWithinDrawingBounds(buffer *buf)
     }
     
     return false;
-};
+}
 
 void RenderList(buffer *buf, list *l, SDL_Texture *ch, SDL_Texture *pt)
 {
@@ -456,7 +456,7 @@ void RenderList(buffer *buf, list *l, SDL_Texture *ch, SDL_Texture *pt)
     }
     
     SDL_SetRenderTarget(app.renderer, NULL);
-};
+}
 
 void RenderListRange(buffer *buf, int start, int count, SDL_Texture *ch, SDL_Texture *pt)
 {
@@ -482,7 +482,7 @@ void RenderListRange(buffer *buf, int start, int count, SDL_Texture *ch, SDL_Tex
     }
     
     SDL_SetRenderTarget(app.renderer, NULL);
-};
+}
 
 void PanelsResize(int mousex, SDL_Cursor *c)
 {
@@ -533,7 +533,7 @@ void PanelsResize(int mousex, SDL_Cursor *c)
     
     RenderLineRange(&bufferA, bufferA.panel.scroll_offset_ver, bufferA.panel.row_capacity, characters_texture, bufferA.panel.texture);
     RenderLineRange(&bufferB, bufferB.panel.scroll_offset_ver, bufferB.panel.row_capacity, characters_texture, bufferB.panel.texture);
-};
+}
 
 void CursorSetToMouse(buffer *buf, int mousex, int mousey)
 {
@@ -584,4 +584,4 @@ void CursorSetToMouse(buffer *buf, int mousex, int mousey)
     buf->marker.row = buf->line;
     buf->marker.col = buf->cursor.col;
     
-};
+}

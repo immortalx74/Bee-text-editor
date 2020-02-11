@@ -19,7 +19,7 @@ list *ListCreate(char title_text[], int cap, int el_size)
     memset(l->data, 0, cap * el_size);
     
     return l;
-};
+}
 
 void ListDelete(list *l)
 {
@@ -28,7 +28,7 @@ void ListDelete(list *l)
     XstringDestroy(l->filter);
     free(l->data);
     free(l);
-};
+}
 
 void ListClear(list *l)
 {
@@ -40,13 +40,13 @@ void ListClear(list *l)
     l->selected = 0;
     l->row = 0;
     l->scroll_offset = 0;
-};
+}
 
 void ListResize(list *l, int new_cap)
 {
     l->data = (char*)realloc(l->data, new_cap * l->element_size);
     l->capacity = new_cap;
-};
+}
 
 void ListSetElement(list *l, int index, char text[])
 {
@@ -54,13 +54,13 @@ void ListSetElement(list *l, int index, char text[])
     memset(elem, 0, l->element_size);
     memcpy(elem, text, l->element_size);
     elem[l->element_size - 1] = '\0';
-};
+}
 
 char *ListGetElement(list *l, int index)
 {
     char *elem = l->data + (index * l->element_size);
     return elem;
-};
+}
 
 void ListPopulate(list *l, char *path)
 {
@@ -107,7 +107,7 @@ void ListPopulate(list *l, char *path)
     }
     
     tinydir_close(&dir);
-};
+}
 
 void ListApplyFilter(list *l, char *path)
 {
@@ -151,7 +151,7 @@ void ListApplyFilter(list *l, char *path)
     }
     
     tinydir_close(&dir);
-};
+}
 
 void ListSwitchToSelectedDirectory(list *l, char *sel_dir)
 {
@@ -159,7 +159,7 @@ void ListSwitchToSelectedDirectory(list *l, char *sel_dir)
     ListClear(l);
     XstringSet(l->filter, "");
     ListPopulate(l, XstringGet(l->current_path));
-};
+}
 
 void ListLoadSelectedFile(list *l, char *sel_file)
 {
@@ -176,4 +176,4 @@ void ListLoadSelectedFile(list *l, char *sel_file)
         app.mode = TEXT_EDIT;
         RenderLineRange(app.active_buffer, app.active_buffer->panel.scroll_offset_ver, app.active_buffer->panel.row_capacity, characters_texture, app.active_buffer->panel.texture);
     }
-};
+}

@@ -3,7 +3,7 @@
 void ProcessInput_Global()
 {
     //nothing here for the time being
-};
+}
 
 void ProcessInput_ListNavigation()
 {
@@ -98,7 +98,7 @@ void ProcessInput_ListNavigation()
             }
         }
     }
-};
+}
 
 void ProcessInput_Commands()
 {
@@ -137,7 +137,7 @@ void ProcessInput_Commands()
             }
         }
     }
-};
+}
 
 void ProcessInput_TextEditing()
 {
@@ -233,7 +233,7 @@ void ProcessInput_TextEditing()
             //UndoStackCommitRedo(app.active_buffer);
         }
     }
-};
+}
 
 void Input_TextEd_Text(buffer *buf)
 {
@@ -251,7 +251,7 @@ void Input_TextEd_Text(buffer *buf)
     buf->cursor.last_hor_pos = buf->cursor.col;
     
     SwitchHorizontalPage(buf);
-};
+}
 
 
 void Input_TextEd_Return(buffer *buf)
@@ -349,7 +349,7 @@ void Input_TextEd_Return(buffer *buf)
     
     buf->cursor.last_hor_pos = buf->cursor.col;
     
-    //test scroll
+    //scroll
     if(buf->line_count > buf->panel.row_capacity && buf->cursor.row >= buf->panel.row_capacity)
     {
         buf->panel.scroll_offset_ver++;
@@ -358,7 +358,7 @@ void Input_TextEd_Return(buffer *buf)
     }
     
     SwitchHorizontalPage(buf);
-};
+}
 
 
 void Input_TextEd_Backspace(buffer *buf)
@@ -367,7 +367,7 @@ void Input_TextEd_Backspace(buffer *buf)
     RenderClearCharacter(buf, buf->cursor.row, buf->cursor.col, strlen(buf->line_node->data),characters_texture, buf->panel.texture);
     buf->cursor.last_hor_pos = buf->cursor.col;
     
-    //test scroll
+    //scroll
     if(buf->panel.scroll_offset_ver > 0 && buf->panel.scroll_offset_ver <= (buf->line_count - buf->panel.row_capacity))
     {
         RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
@@ -380,7 +380,7 @@ void Input_TextEd_Backspace(buffer *buf)
     
     SwitchHorizontalPage(buf);
     SyncCursorWithBuffer(buf);
-};
+}
 
 
 void Input_TextEd_Delete(buffer *buf)
@@ -403,7 +403,7 @@ void Input_TextEd_Delete(buffer *buf)
     }
     buf->cursor.last_hor_pos = buf->cursor.col;
     
-    //test scroll
+    //scroll
     if(buf->panel.scroll_offset_ver > 0 && buf->panel.scroll_offset_ver <= (buf->line_count - buf->panel.row_capacity))
     {
         RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
@@ -416,7 +416,7 @@ void Input_TextEd_Delete(buffer *buf)
     
     SwitchHorizontalPage(buf);
     SyncCursorWithBuffer(buf);
-};
+}
 
 
 void Input_TextEd_Left(buffer *buf)
@@ -439,14 +439,14 @@ void Input_TextEd_Left(buffer *buf)
     SyncCursorWithBuffer(buf);
     buf->cursor.last_hor_pos = buf->cursor.col;
     
-    //test scroll
+    //scroll
     if(buf->line_count > buf->panel.row_capacity && buf->cursor.row < 0)
     {
         buf->panel.scroll_offset_ver--;
         RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
         SyncCursorWithBuffer(buf);
     }
-};
+}
 
 
 void Input_TextEd_Right(buffer *buf)
@@ -469,7 +469,7 @@ void Input_TextEd_Right(buffer *buf)
     SyncCursorWithBuffer(buf);
     buf->cursor.last_hor_pos = buf->cursor.col;
     
-    //test scroll
+    //scroll
     if(buf->line_count > buf->panel.row_capacity && buf->cursor.row >= buf->panel.row_capacity)
     {
         buf->panel.scroll_offset_ver++;
@@ -477,7 +477,7 @@ void Input_TextEd_Right(buffer *buf)
         SyncCursorWithBuffer(buf);
     }
     
-};
+}
 
 
 void Input_TextEd_Up(buffer *buf)
@@ -497,7 +497,7 @@ void Input_TextEd_Up(buffer *buf)
         SyncCursorWithBuffer(buf);
     }
     
-    //test scroll
+    //scroll
     if(buf->line_count > buf->panel.row_capacity && buf->cursor.row < 0)
     {
         buf->panel.scroll_offset_ver--;
@@ -506,7 +506,7 @@ void Input_TextEd_Up(buffer *buf)
     }
     
     SyncCursorWithBuffer(buf);
-};
+}
 
 
 void Input_TextEd_Down(buffer *buf)
@@ -526,7 +526,7 @@ void Input_TextEd_Down(buffer *buf)
         SyncCursorWithBuffer(buf);
     }
     
-    //test scroll
+    //scroll
     if(buf->line_count > buf->panel.row_capacity && buf->cursor.row >= buf->panel.row_capacity)
     {
         buf->panel.scroll_offset_ver++;
@@ -535,7 +535,7 @@ void Input_TextEd_Down(buffer *buf)
     }
     
     SyncCursorWithBuffer(buf);
-};
+}
 
 
 void Input_TextEd_Tab(buffer *buf)
@@ -555,7 +555,7 @@ void Input_TextEd_Tab(buffer *buf)
         RenderCharacter(buf, buf->cursor.row, buf->cursor.col - 1, strlen(buf->line_node->data), characters_texture, buf->panel.texture);
         buf->cursor.last_hor_pos = buf->cursor.col;
     }
-};
+}
 
 void Input_TextEd_Home(buffer *buf)
 {
@@ -566,7 +566,7 @@ void Input_TextEd_Home(buffer *buf)
         SwitchHorizontalPage(buf);
         SyncCursorWithBuffer(buf);
     }
-};
+}
 
 void Input_TextEd_End(buffer *buf)
 {
@@ -575,7 +575,7 @@ void Input_TextEd_End(buffer *buf)
     buf->cursor.last_hor_pos = len;
     SwitchHorizontalPage(buf);
     SyncCursorWithBuffer(buf);
-};
+}
 
 void Input_TextEd_PageUp(buffer *buf)
 {
@@ -613,7 +613,7 @@ void Input_TextEd_PageUp(buffer *buf)
     AttemptSetToLastColumn(buf);
     SwitchHorizontalPage(buf);
     SyncCursorWithBuffer(buf);
-};
+}
 
 void Input_TextEd_PageDown(buffer *buf)
 {
@@ -626,7 +626,7 @@ void Input_TextEd_PageDown(buffer *buf)
         
         buf->line += buf->panel.row_capacity;
         
-        //test scroll
+        //scroll
         int complete_pages = (buf->line_count / buf->panel.row_capacity) * buf->panel.row_capacity;
         if(buf->line < complete_pages)
         {
@@ -662,7 +662,7 @@ void Input_TextEd_PageDown(buffer *buf)
     AttemptSetToLastColumn(buf);
     SwitchHorizontalPage(buf);
     SyncCursorWithBuffer(buf);
-};
+}
 
 void Input_ListNav_Down(list *l)
 {
@@ -676,7 +676,7 @@ void Input_ListNav_Down(list *l)
         }
         l->row = l->selected - l->scroll_offset;
     }
-};
+}
 
 void Input_ListNav_Up(list *l)
 {
@@ -690,7 +690,7 @@ void Input_ListNav_Up(list *l)
             l->scroll_offset--;
         }
     }
-};
+}
 
 void Input_ListNav_Select(list *l)
 {
@@ -707,7 +707,7 @@ void Input_ListNav_Select(list *l)
             ListLoadSelectedFile(l, selected_element);
         }
     }
-};
+}
 
 void Input_ListNav_ParentDirectory(list *l)
 {
@@ -739,7 +739,7 @@ void Input_ListNav_ParentDirectory(list *l)
         ListClear(l);
         
     }
-};
+}
 
 void Input_ListNav_Abort(list *l)
 {
@@ -750,7 +750,7 @@ void Input_ListNav_Abort(list *l)
         app.mode = TEXT_EDIT;
         RenderLineRange(app.active_buffer, app.active_buffer->panel.scroll_offset_ver, app.active_buffer->panel.row_capacity, characters_texture, app.active_buffer->panel.texture);
     }
-};
+}
 
 void Input_Scroll(buffer *buf)
 {
@@ -851,9 +851,4 @@ void Input_Scroll(buffer *buf)
         SyncCursorWithBuffer(buf);
         RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
     }
-};
-
-void CursorAnchorToBounds(buffer *buf)
-{
-    
-};
+}

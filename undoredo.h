@@ -3,11 +3,12 @@
 #include "helpers.h"
 #include "render.h"
 
-void UndoStackStoreOp(buffer *buf, op_type t, int row, int col, char *text);
-void UndoStackCommitUndo(buffer *buf);
-void UndoStackCommitRedo(buffer *buf);
+void UndoRedo_AllocateBatch(buffer *buf);
+void UndoRedo_StoreOp(buffer *buf, undoredo_op_type t, int row, int col, char *text);
 
-void UndoOpInsert(buffer *buf, undoredo_op op);
-void UndoOpDelete(buffer *buf, undoredo_op op);
-void RedoOpInsert(buffer *buf, undoredo_op op);
-void RedoOpDelete(buffer *buf, undoredo_op op);
+
+
+
+//undoredo_op *UndoRedo_CreateOp(void);
+//undoredo_op *UndoRedo_GetNextSlot(void);
+//void UndoRedo_StoreOp(buffer *buf, undoredo_op_type t, int row, int col, char *text);

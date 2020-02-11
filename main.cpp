@@ -22,10 +22,14 @@ int main(int argc, char *argv[])
     SDL_Cursor *cursor_resize_hor;
     cursor_resize_hor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
     
-    
     timer.interval = settings.cursor_blink_rate;
-    //START WITH LEFT BUFFER
+    
+    // Start with left buffer
     app.active_buffer = &bufferA;
+    
+    // Allocate initial undoredo slots
+    UndoRedo_AllocateBatch(&bufferA);
+    UndoRedo_AllocateBatch(&bufferB);
     
     // Add a line to both buffers
     LineInsert(&bufferA, 0);
@@ -230,6 +234,19 @@ int main(int argc, char *argv[])
         
         SDL_RenderPresent(app.renderer);
     }
+    
+    //for (int i = 0; i <= bufferA.undoredo.current; ++i)
+    //{
+    //XstringDestroy(bufferA.undoredo.slots[i].text);
+    //}
+    //
+    //for (int i = 0; i <= bufferB.undoredo.current; ++i)
+    //{
+    //XstringDestroy(bufferB.undoredo.slots[i].text);
+    //}
+    //
+    //free(bufferA.undoredo.slots);
+    //free(bufferB.undoredo.slots);
     
     SDL_FreeCursor(cursor_resize_hor);
     

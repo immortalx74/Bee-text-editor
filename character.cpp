@@ -12,10 +12,11 @@ void CharacterInsert(buffer *buf, int col)
     
     *(buf->line_node->data + buf->column) = app.e.text.text[0];
     
-    //UndoStackStoreOp(buf, OP_INSERT, buf->line, buf->column, app.e.text.text);
+    UndoRedo_StoreOp(buf, OP_INSERT, buf->line, buf->column, app.e.text.text);
+    
     buf->column++;
     SyncCursorWithBuffer(buf);
-};
+}
 
 void CharacterDelete(buffer *buf, int col)
 {
@@ -33,10 +34,6 @@ void CharacterDelete(buffer *buf, int col)
         }
         
         SyncCursorWithBuffer(buf);
-        
-        //char char_to_del[1];
-        //char_to_del[0] = buf->line_node->data[buf->column];
-        //UndoStackStoreOp(buf, OP_DELETE, buf->line, buf->column, char_to_del);
         
         if(buf->line_node->data == NULL || buf->column < 0)
         {
@@ -98,4 +95,4 @@ void CharacterDelete(buffer *buf, int col)
             buf->line_node = buf->head->next;
         }
     }
-};
+}

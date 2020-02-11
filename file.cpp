@@ -51,7 +51,7 @@ void FileReadToBuffer(buffer *buf, char *filename)
     
     // Render content
     RenderLineRange(buf, 0, buf->line_count, characters_texture, buf->panel.texture);
-};
+}
 
 void FileWriteToDisk(buffer *buf, char *filename)
 {
@@ -73,7 +73,7 @@ void FileWriteToDisk(buffer *buf, char *filename)
     }
     
     file.close();
-};
+}
 
 void FileParseSettings()
 {
@@ -172,7 +172,7 @@ void FileParseSettings()
     file.close();
     
     SettingsApply();
-};
+}
 
 void SetSetting(int index, xstring *value)
 {
@@ -367,7 +367,7 @@ void SetSetting(int index, xstring *value)
         }
         break;
     }
-};
+}
 
 SDL_Color ExtractColorFromString(xstring *str)
 {
@@ -401,7 +401,7 @@ SDL_Color ExtractColorFromString(xstring *str)
     free(ch);
     
     return result;
-};
+}
 
 key_binding ExtractKeyBindingFromString(xstring *str)
 {
@@ -453,7 +453,7 @@ key_binding ExtractKeyBindingFromString(xstring *str)
     }
     
     return kb;
-};
+}
 
 int GetKeymodFromString(xstring * str)
 {
@@ -499,4 +499,4 @@ int GetKeymodFromString(xstring * str)
     }
     
     return -1;
-};
+}

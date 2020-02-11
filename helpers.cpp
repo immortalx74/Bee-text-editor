@@ -32,7 +32,7 @@ void SettingsSetDefaults()
     settings.kb_command_buffer_toggle_active = {SDLK_0, KMOD_CTRL, KMOD_ALT};
     
     SettingsApply();
-};
+}
 
 void SettingsApply()
 {
@@ -69,7 +69,7 @@ void SettingsApply()
     bufferB.status_bar.color = settings.color_bar_background;
     bufferA.status_bar.text_color = settings.color_bar_text;
     bufferB.status_bar.text_color = settings.color_bar_text;
-};
+}
 
 bool IsCharacterAlphaNumeric(char ch)
 {
@@ -78,7 +78,7 @@ bool IsCharacterAlphaNumeric(char ch)
         return true;
     }
     return false;
-};
+}
 
 bool IsCharacterNumeric(char ch)
 {
@@ -87,7 +87,7 @@ bool IsCharacterNumeric(char ch)
         return true;
     }
     return false;
-};
+}
 
 int GetDigitCount(int n)
 {
@@ -105,7 +105,7 @@ int GetDigitCount(int n)
     };
     
     return count;
-};
+}
 
 bool IsDirectory(char *name)
 {
@@ -123,7 +123,7 @@ bool IsDirectory(char *name)
     }
 #endif
     return false;
-};
+}
 
 bool IsSymLink(char *name)
 {
@@ -137,7 +137,7 @@ bool IsSymLink(char *name)
     }
     
     return false;
-};
+}
 
 bool IsValidPathFilter(char *path, char *name)
 {
@@ -175,7 +175,7 @@ bool IsValidPathFilter(char *path, char *name)
     tinydir_close(&dir);
     
     return false;
-};
+}
 
 bool IsTopLevelDirectory(xstring *path)
 {
@@ -199,7 +199,7 @@ bool IsTopLevelDirectory(xstring *path)
     }
 #endif
     return false;
-};
+}
 
 xstring *XstringCreate(char text[])
 {
@@ -209,13 +209,13 @@ xstring *XstringCreate(char text[])
     memcpy(str->data, text, len);
     str->length = len;
     return str;
-};
+}
 
 void XstringDestroy(xstring *str)
 {
     free(str->data);
     free(str);
-};
+}
 
 void XstringSet(xstring *str, char *text)
 {
@@ -232,17 +232,17 @@ void XstringSet(xstring *str, char *text)
         memcpy(str->data, text, len);
         str->data[str->length] = 0;
     }
-};
+}
 
 char *XstringGet(xstring *str)
 {
     return str->data;
-};
+}
 
 int XstringGetLength(xstring *str)
 {
     return str->length;
-};
+}
 
 void XstringTruncateTail(xstring *str, int count)
 {
@@ -254,7 +254,7 @@ void XstringTruncateTail(xstring *str, int count)
     str->data = (char*)realloc(str->data, new_size + 1);
     str->length = new_size;
     str->data[str->length] = 0;
-};
+}
 
 void XstringTruncateHead(xstring *str, int count)
 {
@@ -275,7 +275,7 @@ void XstringTruncateHead(xstring *str, int count)
     str->length = new_size;
     str->data[str->length] = 0;
     free(temp);
-};
+}
 
 void XstringConcat(xstring *str, int arg_count, ...)
 {
@@ -309,7 +309,7 @@ void XstringConcat(xstring *str, int arg_count, ...)
     free(sizes);
     
     str->data[str->length] = 0;
-};
+}
 
 int XstringIndexOfLastOccurrance(xstring *str, char ch)
 {
@@ -324,7 +324,7 @@ int XstringIndexOfLastOccurrance(xstring *str, char ch)
     }
     
     return -1;
-};
+}
 
 int XstringIndexOfFirstOccurrance(xstring *str, char ch)
 {
@@ -339,7 +339,7 @@ int XstringIndexOfFirstOccurrance(xstring *str, char ch)
     }
     
     return - 1;
-};
+}
 
 void XstringTrimLeadingWhitespace(xstring *str)
 {
@@ -362,7 +362,7 @@ void XstringTrimLeadingWhitespace(xstring *str)
             return;
         }
     }
-};
+}
 
 void XstringTrimTrailingWhitespace(xstring *str)
 {
@@ -385,13 +385,13 @@ void XstringTrimTrailingWhitespace(xstring *str)
             return;
         }
     }
-};
+}
 
 void XstringTrimLeadingAndTrailingWhitespace(xstring *str)
 {
     XstringTrimLeadingWhitespace(str);
     XstringTrimTrailingWhitespace(str);
-};
+}
 
 void XstringTrimAllWhitespace(xstring *str)
 {
@@ -415,7 +415,7 @@ void XstringTrimAllWhitespace(xstring *str)
     str->data = (char*)realloc(str->data, str->length + 1);
     memcpy(str->data, temp, str->length);
     str->data[str->length] = 0;
-};
+}
 
 bool XstringContainsSubstring(xstring *str, char *substr)
 {
@@ -437,7 +437,7 @@ bool XstringContainsSubstring(xstring *str, char *substr)
     }
     
     return true;
-};
+}
 
 bool CommandKeyBinding(key_binding kb)
 {
@@ -460,4 +460,4 @@ bool CommandKeyBinding(key_binding kb)
     }
     
     return false;
-};
+}

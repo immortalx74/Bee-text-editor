@@ -107,6 +107,23 @@ struct list
     char *data;
 };
 
+enum undoredo_op_type
+{
+    OP_INSERT,
+    OP_DELETE,
+    OP_LINE_MERGE,
+    OP_LINE_SPLIT
+};
+
+struct undoredo_op
+{
+    undoredo_op_type type;
+    int row;
+    int col;
+    bool locked;
+    xstring *text = NULL;
+};
+
 struct buffer
 {
     node *head;
@@ -163,41 +180,14 @@ struct buffer
         SDL_Color text_color = {10, 10, 10, 255};
     }status_bar;
     
-};
-
-enum op_type
-{
-    OP_INSERT,
-    OP_DELETE,
-    OP_LINE_MERGE,
-    OP_LINE_SPLIT
-};
-
-struct undoredo_op
-{
-    buffer *buf;
-    op_type type;
-    int row;
-    int col;
-    bool locked;
-    xstring *text;
-};
-
-extern undoredo_op *undo_stack;
-extern int undoredo_index;
-extern int undoredo_counter;
-
-#define UNDOREDO_IDX (undoredo_index = (undoredo_index % settings.undo_steps))
-#define UNDOREDO_INC undoredo_index++
-#define UNDOREDO_DEC undoredo_index--
-
-inline int UNDOREDOISNEGATIVE()
-{
-    if(undoredo_index < 0)
+    struct _undoredo
     {
-        return undoredo_index + settings.undo_steps;
-    }
-    return undoredo_index;
+        undoredo_op *slots;
+        int current = 0;
+        int last;
+        int batch_count = 50;
+        int slot_count = batch_count;
+    }undoredo;
 };
 
 struct font_data

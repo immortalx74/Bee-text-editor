@@ -1,407 +1,670 @@
-//NOTE: need to set length and shrink strings on
-// Trim functions!!!!!!!!!!!!!!!!!
+//UNDOREDO.H
+void UndoStackStoreOp(buffer *buf, op_type t, int row, int col, char *text);
+void UndoStackCommitUndo(buffer *buf);
+void UndoStackCommitRedo(buffer *buf);
+
+void UndoOpInsert(buffer *buf, undoredo_op op);
+void UndoOpDelete(buffer *buf, undoredo_op op);
+void RedoOpInsert(buffer *buf, undoredo_op op);
+void RedoOpDelete(buffer *buf, undoredo_op op);
+
+
+// undoredo model:
+
+// set a undoredo_slots_batch variable?
+// start with an allocation: 50 states * sizeof(undoredo_op)
+// each new action is a pointer offset of this allocation
+// so, when a new action is recorded, setup its fields
+// if the last action(current???) number equals 50, rea-allocate 50 more
+
+// keep track of last, current action
+// last = 10, current = 5
+// if current = 5 and a new "DO" command is commited, then current becomes 5 too.
+// all undo states after 5 are discarded?
+
+// possible actions:
+// 1. insert char stream
+// 2. delete char stream
+// 3. insert new line
+// 4. delete new line
+// 5. insert single or multi-line stream (from paste)
+// 6. delete single or multi-line stream (from cut or range-delete)
+
+1
 2
 3
-1234  78
-012345
-
-//settings ideas
-font_name = liberation-mono.ttf
-font_size = 14
-start_path = app_path
-tab_size = 4 (limit to 1 - 32)
-color_background = 21, 12, 42, 255
-color_panel_outline = 100, 100, 100, 255
-color_text = 143, 175, 127, 255
-color_line_highlight = 40, 0, 180, 255
-color_cursor = 0, 255, 0, 255
-color_marker = 255, 0, 0, 255
-color_bar_background = 140, 140, 140, 255
-color_bar_text = 10, 10, 10, 255
-
-asdf
 
 
-color_panel_outline = 100, 100, 100, 255
-color_text = 143, 175, 127, 255
-color_line_highlight = 40, 0, 180, 255
-
-jhjhkjhhkkhk
-
-
-// MULTILINE:
-// First line ALWAYS stays
-// ALL other lines get deleted
-// If there's any content left on last line,
-// it gets merged with first
-// (check line capacity first!)
-
-
-
-500
-100 w400
-
-1234qwerty
-
-void A_WeaponReady();
-void A_Raise();
-void A_ReFire();
-void A_Light1();
-void A_Light2();
-void A_CheckReload();adShotgun2();
-void A_LoadShotgun2();
-void A_FireCGun();
-void A_FireMissile();
-void A_Saw();
-void A_FirePlasma();
-void A_BFGsound();
-void A_FireBFG();
-void A_BFGSpray();
-void A_Explode();
-
-q0wertyuio
-
-0123456789
-
-oooooooooo
-1111111111
-
-sassss,wewewee1234,eweeee,bbvbbbb.1321
-123   7890
-000456
-
-
-
-
-qwert
-
-
-qwertyuop
-1234567890
-
-
-1234567890
-
-
-//undostackstoreop
-if(t == OP_INSERT)
+//UNDOREDO.CPP
+void UndoStackStoreOp(buffer *buf, op_type t, int row, int col, char *text)
 {
-    if(undo_rec_index >= 0)
+    if(t == OP_INSERT)
     {
-        int last_char_index = strlen(undo_stack[undo_rec_index].text->data) - 1;
-        int len = XstringGetLength(undo_stack[undo_rec_index].text);
-        
-        if(!undo_stack[undo_rec_index - 1].locked && col ==  len && buf->line == row && IsCharacterAlphaNumeric(text[0]) && IsCharacterAlphaNumeric(undo_stack[undo_rec_index].text->data[last_char_index]))// keep adding chars to this OP
+        if(UNDOREDO_IDX >= 0)
         {
-            XstringConcat(undo_stack[undo_rec_index].text, 1, text);
+            undoredo_op last_op = undo_stack[UNDOREDO_IDX];
+            int len = XstringGetLength(last_op.text);
+            char last_char = XstringGet(last_op.text)[len - 1];
+            
+            if(!last_op.locked && buf->line == last_op.row 
+               && col == last_op.col + len 
+               && IsCharacterAlphaNumeric(text[0]) 
+               && IsCharacterAlphaNumeric(last_char))// keep adding chars to this OP
+            {
+                XstringConcat(last_op.text, 1, text);
+            }
+            else// break previous OP and add a new one
+            {
+                last_op.locked = true;
+                bool l;
+                if(IsCharacterAlphaNumeric(text[0]))
+                {
+                    l = false;
+                }
+                else
+                {
+                    l = true;
+                }
+                xstring *txt = XstringCreate(text);
+                undoredo_op op = {buf, t, row, col, l, txt};
+                UNDOREDO_INC;
+                undo_stack[UNDOREDO_IDX] = op;
+                
+                if(undoredo_counter < settings.undo_steps)
+                {
+                    undoredo_counter++;
+                }
+            }
         }
-        else// break previous OP and add a new one
+        else// first OP added to the stack
         {
-            undo_stack[undo_rec_index].locked = true;
-            
+            bool l;
+            if(IsCharacterAlphaNumeric(text[0]))
+            {
+                l = false;
+            }
+            else
+            {
+                l = true;
+            }
             xstring *txt = XstringCreate(text);
-            text_op op = {buf, t, row, col, false, txt};
+            undoredo_op op = {buf, t, row, col, l, txt};
+            UNDOREDO_INC;
+            undo_stack[UNDOREDO_IDX] = op;
             
-            undo_stack[undo_rec_index].col++;
-            undo_rec_index++;
-            undo_stack[undo_rec_index] = op;
+            if(undoredo_counter < settings.undo_steps)
+            {
+                undoredo_counter++;
+            }
         }
     }
-    else// first OP added to the stack
+    else if(t == OP_DELETE)
     {
         xstring *txt = XstringCreate(text);
-        text_op op = {buf, t, row, col, false, txt};
+        undoredo_op op = {buf, t, row, col, true, txt};
+        UNDOREDO_INC;
+        undo_stack[UNDOREDO_IDX] = op;
         
-        undo_stack[undo_rec_index].col++;
-        undo_rec_index++;
-        undo_stack[undo_rec_index] = op;
-    }
-}
-
-qwerty123zxcvbnm
-
-qwerty,u
-qwertyuiop123456
-qwp12345600000000
-
-#ifdef _WIN32
-
-#endif
-#ifdef __linux__
-
-#endif
-
-
-//CLIPBOARD
-void ClipBoardCopy(buffer *buf)
-{
-    if(buf->column == buf->marker.col && buf->line == buf->marker.row)
-    {
-        return;
-    }
-    
-    int start_line = MIN(buf->line, buf->marker.row);
-    int end_line = MAX(buf->line, buf->marker.row);
-    int line_diff = end_line - start_line;
-    int start_col, end_col;
-    
-    if(buf->line != buf->marker.row)
-    {
-        if(start_line == buf->line)
+        if(undoredo_counter < settings.undo_steps)
         {
-            start_col = buf->column;
-            end_col = buf->marker.col;
-        }
-        else
-        {
-            start_col = buf->marker.col;
-            end_col = buf->column;
+            undoredo_counter++;
         }
     }
-    else
-    {
-        if(buf->column > buf->marker.col)
-        {
-            start_col = buf->marker.col;
-            end_col = buf->column;
-        }
-        else if(buf->column < buf->marker.col)
-        {
-            start_col = buf->column;
-            end_col = buf->marker.col;
-        }
-    }
-    
-    XstringDestroy(clipboard.text);
-    clipboard.text = XstringCreate("");
-    
-    if(buf->line != buf->marker.row)//multi line
-    {
-        node *cur = buf->line_node;
-        
-        if(buf->line > buf->marker.row)
-        {
-            // Firstly move to the node where the marker is at
-            for (int i = 0; i < line_diff; ++i)
-            {
-                cur = cur->prev;
-            }
-        }
-        
-        for (int i = 0; i <= line_diff; ++i)
-        {
-            int s = 0;
-            int e = strlen(cur->data);
-            
-            if(i == 0)
-            {
-                s = start_col;
-            }
-            if(i == line_diff)
-            {
-                e = end_col;
-            }
-            
-            for (int j = s; j < e; ++j)
-            {
-                char *ch = (char*)calloc(2,1);
-                ch[0] = cur->data[j];
-                XstringConcat(clipboard.text, 1, ch);
-                free(ch);
-            }
-            
-            if(i != line_diff)
-            {
-                XstringConcat(clipboard.text, 1, "\r\n");
-            }
-            
-            cur = cur->next;
-        }
-    }
-    else//single line
-    {
-        for (int i = start_col; i < end_col; ++i)
-        {
-            char *ch = (char*)calloc(2,1);
-            ch[0] = buf->line_node->data[i];
-            XstringConcat(clipboard.text, 1, ch);
-            free(ch);
-        }
-    }
-    
-    SDL_SetClipboardText(XstringGet(clipboard.text));
 };
 
-void ClipBoardCut(buffer *buf)
+void UndoStackCommitUndo(buffer *buf)
 {
-    if(buf->column == buf->marker.col && buf->line == buf->marker.row)
+    if(undoredo_counter == 0)
     {
         return;
     }
     
-    int start_line = MIN(buf->line, buf->marker.row);
-    int end_line = MAX(buf->line, buf->marker.row);
-    int line_diff = end_line - start_line;
-    int start_col, end_col;
+    undoredo_index = UNDOREDOISNEGATIVE();
+    undoredo_op last_op = undo_stack[UNDOREDO_IDX];
     
-    if(buf->line != buf->marker.row)
+    if(last_op.type == OP_INSERT)
     {
-        if(start_line == buf->line)
-        {
-            start_col = buf->column;
-            end_col = buf->marker.col;
-        }
-        else
-        {
-            start_col = buf->marker.col;
-            end_col = buf->column;
-        }
+        UndoOpInsert(buf, last_op);
     }
-    else
+    else if(last_op.type == OP_DELETE)
     {
-        if(buf->column > buf->marker.col)
-        {
-            start_col = buf->marker.col;
-            end_col = buf->column;
-        }
-        else if(buf->column < buf->marker.col)
-        {
-            start_col = buf->column;
-            end_col = buf->marker.col;
-        }
+        UndoOpDelete(buf, last_op);
     }
+};
+
+void UndoStackCommitRedo(buffer *buf)
+{
+    if(undoredo_counter == settings.undo_steps)
+    {
+        return;
+    }
+    UNDOREDO_INC;
+    undoredo_op last_op = undo_stack[UNDOREDO_IDX];
     
-    XstringDestroy(clipboard.text);
-    clipboard.text = XstringCreate("");
-    
-    if(buf->line != buf->marker.row)//multi line
+    if(last_op.type == OP_INSERT)
     {
-        xstring *merged = XstringCreate("");
-        node *cur = buf->line_node;
-        node *ref = cur;
-        
-        if(buf->line > buf->marker.row)
-        {
-            // Firstly move to the node where the marker is at
-            for (int i = 0; i < line_diff; ++i)
-            {
-                cur = cur->prev;
-            }
-            
-            ref = cur;
-        }
-        
-        for (int i = 0; i <= line_diff; ++i)
-        {
-            int s = 0;
-            int e = strlen(cur->data);
-            
-            if(i == 0)
-            {
-                s = start_col;
-                
-                // Copy left of start line to merged
-                for (int i = 0; i < start_col; ++i)
-                {
-                    char *ch = (char*)calloc(2,1);
-                    ch[0] = cur->data[i];
-                    XstringConcat(merged, 1, ch);
-                    free(ch);
-                }
-            }
-            if(i == line_diff)
-            {
-                e = end_col;
-                
-                // Copy right of end line to merged
-                int len = strlen(cur->data);
-                
-                for (int i = e; i < len; ++i)
-                {
-                    char *ch = (char*)calloc(2,1);
-                    ch[0] = cur->data[i];
-                    XstringConcat(merged, 1, ch);
-                    free(ch);
-                }
-            }
-            
-            for (int j = s; j < e; ++j)
-            {
-                char *ch = (char*)calloc(2,1);
-                ch[0] = cur->data[j];
-                XstringConcat(clipboard.text, 1, ch);
-                free(ch);
-            }
-            
-            if(i != line_diff)
-            {
-                XstringConcat(clipboard.text, 1, "\r\n");
-            }
-            
-            cur = cur->next;
-        }
-        
-        // Delete lines
-        for (int i = end_line; i >= start_line ; --i)
-        {
-            LineDelete(buf, i);
-        }
-        
-        // Insert merged line
-        LineInsert(buf, start_line);
-        int chunks = (merged->length / settings.line_mem_chunk) + 1;
-        
-        if(buf->line_node->num_chunks < chunks)
-        {
-            LineRequestMemChunks(buf->line_node, chunks);
-        }
-        
-        memcpy(buf->line_node->data, merged->data, merged->length);
-        XstringDestroy(merged);
-        buf->line = start_line;
-        buf->column = start_col;
+        RedoOpInsert(buf, last_op);
     }
-    else//single line
+    else if(last_op.type == OP_DELETE)
     {
-        int len = strlen(buf->line_node->data);
-        xstring *merged = XstringCreate("");
+        RedoOpDelete(buf, last_op);
+    }
+};
+
+void UndoOpInsert(buffer *buf, undoredo_op op)
+{
+    node *nd = buf->line_node;
+    
+    if(buf->line != op.row) //move to the correct node
+    {
+        int diff = MAX(buf->line, op.row) - MIN(buf->line, op.row);
         
-        for (int i = 0; i < len; ++i)
+        for (int i = 0; i < diff; ++i)
         {
-            if(i >= start_col && i < end_col)
+            if(buf->line < op.row)
             {
-                char *ch = (char*)calloc(2,1);
-                ch[0] = buf->line_node->data[i];
-                XstringConcat(clipboard.text, 1, ch);
-                free(ch);
+                nd = nd->next;
             }
-            else if(start_col > 0 || end_col < len)//Copy leftovers(if any)
+            else if(buf->line > op.row)
             {
-                char *ch = (char*)calloc(2,1);
-                ch[0] = buf->line_node->data[i];
-                XstringConcat(merged, 1, ch);
-                free(ch);
+                nd = nd->prev;
             }
-            
-            buf->line_node->data[i] = 0;
         }
         
-        int merged_len = merged->length;
-        
-        for (int i = 0; i < merged_len; ++i)
-        {
-            buf->line_node->data[i] = merged->data[i];
-        }
-        
-        XstringDestroy(merged);
-        LineShrinkMemChunks(buf->line_node);
+        buf->line_node = nd;
     }
     
-    SDL_SetClipboardText(XstringGet(clipboard.text));
+    if(op.col + XstringGetLength(op.text) == strlen(nd->data))// string at end of line
+    {
+        memset(nd->data + op.col, 0, XstringGetLength(op.text));
+        LineShrinkMemChunks(nd);
+    }
+    else// string somewhere at middle
+    {
+        int len = XstringGetLength(op.text);
+        int chars_left = strlen(nd->data) - op.col - len;
+        memmove(nd->data + op.col, nd->data + op.col + len, chars_left);
+        memset(nd->data + strlen(nd->data) - len, 0, len);
+        LineShrinkMemChunks(nd);
+    }
     
-    buf->marker.row = buf->line;
-    buf->marker.col = buf->column;
+    buf->line = op.row;
+    buf->column = op.col;
+    UNDOREDO_DEC;
     SyncCursorWithBuffer(buf);
-    
     RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+    
+    if(undoredo_counter > 0)
+    {
+        undoredo_counter--;
+    }
+    undoredo_index = UNDOREDOISNEGATIVE();
 };
+
+void UndoOpDelete(buffer *buf, undoredo_op op)
+{
+    node *nd = buf->line_node;
+    
+    if(buf->line != op.row) //move to the correct node
+    {
+        int diff = MAX(buf->line, op.row) - MIN(buf->line, op.row);
+        
+        for (int i = 0; i < diff; ++i)
+        {
+            if(buf->line < op.row)
+            {
+                nd = nd->next;
+            }
+            else if(buf->line > op.row)
+            {
+                nd = nd->prev;
+            }
+        }
+        
+        buf->line_node = nd;
+    }
+    int chars_to_move = strlen(nd->data) - op.col + 1;
+    memmove(nd->data + op.col + 1, nd->data + op.col, chars_to_move);
+    memset(nd->data + op.col, XstringGet(op.text)[0], 1);
+    
+    buf->line = op.row;
+    buf->column = op.col + 1;
+    UNDOREDO_DEC;
+    SyncCursorWithBuffer(buf);
+    RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+    
+    if(undoredo_counter > 0)
+    {
+        undoredo_counter--;
+    }
+    undoredo_index = UNDOREDOISNEGATIVE();
+};
+
+void RedoOpInsert(buffer *buf, undoredo_op op)
+{
+    node *nd = buf->line_node;
+    
+    if(buf->line != op.row) //move to the correct node
+    {
+        int diff = MAX(buf->line, op.row) - MIN(buf->line, op.row);
+        
+        for (int i = 0; i < diff; ++i)
+        {
+            if(buf->line < op.row)
+            {
+                nd = nd->next;
+            }
+            else if(buf->line > op.row)
+            {
+                nd = nd->prev;
+            }
+        }
+        
+        buf->line_node = nd;
+    }
+    
+    // Grow line capacity if needed
+    int line_len = strlen(nd->data);
+    int op_len = XstringGetLength(op.text);
+    int new_len = line_len + op_len;
+    LineExpandMemChunks(nd, new_len);
+    
+    if(op.col  == line_len)// string at end of line
+    {
+        memcpy(nd->data + op.col, XstringGet(op.text), op_len);
+    }
+    else// string somewhere at middle
+    {
+        int char_count = line_len - op.col;
+        memmove(nd->data + op.col + op_len, nd->data + op.col, char_count);
+        memcpy(nd->data + op.col, XstringGet(op.text), op_len);
+    }
+    
+    buf->line = op.row;
+    buf->column = op.col + op_len;
+    SyncCursorWithBuffer(buf);
+    RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+    
+    if(undoredo_counter < settings.undo_steps)
+    {
+        undoredo_counter++;
+    }
+};
+
+
+void RedoOpDelete(buffer *buf, undoredo_op op)
+{
+    node *nd = buf->line_node;
+    
+    if(buf->line != op.row) //move to the correct node
+    {
+        int diff = MAX(buf->line, op.row) - MIN(buf->line, op.row);
+        
+        for (int i = 0; i < diff; ++i)
+        {
+            if(buf->line < op.row)
+            {
+                nd = nd->next;
+            }
+            else if(buf->line > op.row)
+            {
+                nd = nd->prev;
+            }
+        }
+        
+        buf->line_node = nd;
+    }
+    
+    int op_len = XstringGetLength(op.text);
+    int chars_to_move = strlen(nd->data) - op_len;
+    memcpy(nd->data + op.col, nd->data + op.col + 1, chars_to_move);
+    
+    buf->line = op.row;
+    buf->column = op.col;
+    SyncCursorWithBuffer(buf);
+    RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+    
+    if(undoredo_counter < settings.undo_steps)
+    {
+        undoredo_counter++;
+    }
+};void UndoStackStoreOp(buffer *buf, op_type t, int row, int col, char *text)
+{
+    if(t == OP_INSERT)
+    {
+        if(UNDOREDO_IDX >= 0)
+        {
+            undoredo_op last_op = undo_stack[UNDOREDO_IDX];
+            int len = XstringGetLength(last_op.text);
+            char last_char = XstringGet(last_op.text)[len - 1];
+            
+            if(!last_op.locked && buf->line == last_op.row 
+               && col == last_op.col + len 
+               && IsCharacterAlphaNumeric(text[0]) 
+               && IsCharacterAlphaNumeric(last_char))// keep adding chars to this OP
+            {
+                XstringConcat(last_op.text, 1, text);
+            }
+            else// break previous OP and add a new one
+            {
+                last_op.locked = true;
+                bool l;
+                if(IsCharacterAlphaNumeric(text[0]))
+                {
+                    l = false;
+                }
+                else
+                {
+                    l = true;
+                }
+                xstring *txt = XstringCreate(text);
+                undoredo_op op = {buf, t, row, col, l, txt};
+                UNDOREDO_INC;
+                undo_stack[UNDOREDO_IDX] = op;
+                
+                if(undoredo_counter < settings.undo_steps)
+                {
+                    undoredo_counter++;
+                }
+            }
+        }
+        else// first OP added to the stack
+        {
+            bool l;
+            if(IsCharacterAlphaNumeric(text[0]))
+            {
+                l = false;
+            }
+            else
+            {
+                l = true;
+            }
+            xstring *txt = XstringCreate(text);
+            undoredo_op op = {buf, t, row, col, l, txt};
+            UNDOREDO_INC;
+            undo_stack[UNDOREDO_IDX] = op;
+            
+            if(undoredo_counter < settings.undo_steps)
+            {
+                undoredo_counter++;
+            }
+        }
+    }
+    else if(t == OP_DELETE)
+    {
+        xstring *txt = XstringCreate(text);
+        undoredo_op op = {buf, t, row, col, true, txt};
+        UNDOREDO_INC;
+        undo_stack[UNDOREDO_IDX] = op;
+        
+        if(undoredo_counter < settings.undo_steps)
+        {
+            undoredo_counter++;
+        }
+    }
+};
+
+void UndoStackCommitUndo(buffer *buf)
+{
+    if(undoredo_counter == 0)
+    {
+        return;
+    }
+    
+    undoredo_index = UNDOREDOISNEGATIVE();
+    undoredo_op last_op = undo_stack[UNDOREDO_IDX];
+    
+    if(last_op.type == OP_INSERT)
+    {
+        UndoOpInsert(buf, last_op);
+    }
+    else if(last_op.type == OP_DELETE)
+    {
+        UndoOpDelete(buf, last_op);
+    }
+};
+
+void UndoStackCommitRedo(buffer *buf)
+{
+    if(undoredo_counter == settings.undo_steps)
+    {
+        return;
+    }
+    UNDOREDO_INC;
+    undoredo_op last_op = undo_stack[UNDOREDO_IDX];
+    
+    if(last_op.type == OP_INSERT)
+    {
+        RedoOpInsert(buf, last_op);
+    }
+    else if(last_op.type == OP_DELETE)
+    {
+        RedoOpDelete(buf, last_op);
+    }
+};
+
+void UndoOpInsert(buffer *buf, undoredo_op op)
+{
+    node *nd = buf->line_node;
+    
+    if(buf->line != op.row) //move to the correct node
+    {
+        int diff = MAX(buf->line, op.row) - MIN(buf->line, op.row);
+        
+        for (int i = 0; i < diff; ++i)
+        {
+            if(buf->line < op.row)
+            {
+                nd = nd->next;
+            }
+            else if(buf->line > op.row)
+            {
+                nd = nd->prev;
+            }
+        }
+        
+        buf->line_node = nd;
+    }
+    
+    if(op.col + XstringGetLength(op.text) == strlen(nd->data))// string at end of line
+    {
+        memset(nd->data + op.col, 0, XstringGetLength(op.text));
+        LineShrinkMemChunks(nd);
+    }
+    else// string somewhere at middle
+    {
+        int len = XstringGetLength(op.text);
+        int chars_left = strlen(nd->data) - op.col - len;
+        memmove(nd->data + op.col, nd->data + op.col + len, chars_left);
+        memset(nd->data + strlen(nd->data) - len, 0, len);
+        LineShrinkMemChunks(nd);
+    }
+    
+    buf->line = op.row;
+    buf->column = op.col;
+    UNDOREDO_DEC;
+    SyncCursorWithBuffer(buf);
+    RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+    
+    if(undoredo_counter > 0)
+    {
+        undoredo_counter--;
+    }
+    undoredo_index = UNDOREDOISNEGATIVE();
+};
+
+void UndoOpDelete(buffer *buf, undoredo_op op)
+{
+    node *nd = buf->line_node;
+    
+    if(buf->line != op.row) //move to the correct node
+    {
+        int diff = MAX(buf->line, op.row) - MIN(buf->line, op.row);
+        
+        for (int i = 0; i < diff; ++i)
+        {
+            if(buf->line < op.row)
+            {
+                nd = nd->next;
+            }
+            else if(buf->line > op.row)
+            {
+                nd = nd->prev;
+            }
+        }
+        
+        buf->line_node = nd;
+    }
+    int chars_to_move = strlen(nd->data) - op.col + 1;
+    memmove(nd->data + op.col + 1, nd->data + op.col, chars_to_move);
+    memset(nd->data + op.col, XstringGet(op.text)[0], 1);
+    
+    buf->line = op.row;
+    buf->column = op.col + 1;
+    UNDOREDO_DEC;
+    SyncCursorWithBuffer(buf);
+    RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+    
+    if(undoredo_counter > 0)
+    {
+        undoredo_counter--;
+    }
+    undoredo_index = UNDOREDOISNEGATIVE();
+};
+
+void RedoOpInsert(buffer *buf, undoredo_op op)
+{
+    node *nd = buf->line_node;
+    
+    if(buf->line != op.row) //move to the correct node
+    {
+        int diff = MAX(buf->line, op.row) - MIN(buf->line, op.row);
+        
+        for (int i = 0; i < diff; ++i)
+        {
+            if(buf->line < op.row)
+            {
+                nd = nd->next;
+            }
+            else if(buf->line > op.row)
+            {
+                nd = nd->prev;
+            }
+        }
+        
+        buf->line_node = nd;
+    }
+    
+    // Grow line capacity if needed
+    int line_len = strlen(nd->data);
+    int op_len = XstringGetLength(op.text);
+    int new_len = line_len + op_len;
+    LineExpandMemChunks(nd, new_len);
+    
+    if(op.col  == line_len)// string at end of line
+    {
+        memcpy(nd->data + op.col, XstringGet(op.text), op_len);
+    }
+    else// string somewhere at middle
+    {
+        int char_count = line_len - op.col;
+        memmove(nd->data + op.col + op_len, nd->data + op.col, char_count);
+        memcpy(nd->data + op.col, XstringGet(op.text), op_len);
+    }
+    
+    buf->line = op.row;
+    buf->column = op.col + op_len;
+    SyncCursorWithBuffer(buf);
+    RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+    
+    if(undoredo_counter < settings.undo_steps)
+    {
+        undoredo_counter++;
+    }
+};
+
+
+void RedoOpDelete(buffer *buf, undoredo_op op)
+{
+    node *nd = buf->line_node;
+    
+    if(buf->line != op.row) //move to the correct node
+    {
+        int diff = MAX(buf->line, op.row) - MIN(buf->line, op.row);
+        
+        for (int i = 0; i < diff; ++i)
+        {
+            if(buf->line < op.row)
+            {
+                nd = nd->next;
+            }
+            else if(buf->line > op.row)
+            {
+                nd = nd->prev;
+            }
+        }
+        
+        buf->line_node = nd;
+    }
+    
+    int op_len = XstringGetLength(op.text);
+    int chars_to_move = strlen(nd->data) - op_len;
+    memcpy(nd->data + op.col, nd->data + op.col + 1, chars_to_move);
+    
+    buf->line = op.row;
+    buf->column = op.col;
+    SyncCursorWithBuffer(buf);
+    RenderLineRange(buf, buf->panel.scroll_offset_ver, buf->panel.row_capacity, characters_texture, buf->panel.texture);
+    
+    if(undoredo_counter < settings.undo_steps)
+    {
+        undoredo_counter++;
+    }
+};
+
+
+12345
+51234
+45123
+34512
+23451
+
+
+1->2->3->4->5
+
+2->3->4->5->1
+
+3->4->5->1->2
+
+0000000000
+123456789
+
+H
+0
+
+H
+0 0
+
+H
+0 0 0
+
+H
+0 0 0 0
+
+H       T
+0 0 0 0 0
+
+T H . . .
+0 0 0 0 0
+
+. T H . .
+0 0 0 0 0
+
+. . T H .
+0 0 0 0 0
+
+.   . T H
+0 0 0 0 0
+
+H   . . T
+0 0 0 0 0
